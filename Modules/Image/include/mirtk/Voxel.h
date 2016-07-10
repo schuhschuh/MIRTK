@@ -71,9 +71,13 @@ enum ImageDataType
   // Last entry of unique enumeration values
   MIRKT_VOXEL_LAST,
   // Aliases for common voxel types
+  MIRTK_VOXEL_UCHAR  = MIRTK_VOXEL_UNSIGNED_CHAR,
+  MIRTK_VOXEL_USHORT = MIRTK_VOXEL_UNSIGNED_SHORT,
+  MIRTK_VOXEL_UINT   = MIRTK_VOXEL_UNSIGNED_INT,
   MIRTK_VOXEL_BINARY = MIRTK_VOXEL_UNSIGNED_CHAR,
   MIRTK_VOXEL_BYTE   = MIRTK_VOXEL_UNSIGNED_CHAR,
   MIRTK_VOXEL_GREY   = MIRTK_VOXEL_SHORT,
+  MIRKT_VOXEL_LABEL  = MIRTK_VOXEL_UNSIGNED_SHORT,
 #if MIRTK_USE_FLOAT_BY_DEFAULT
   MIRTK_VOXEL_REAL    = MIRTK_VOXEL_FLOAT,
   MIRTK_VOXEL_REAL1   = MIRTK_VOXEL_FLOAT1,
@@ -149,10 +153,11 @@ inline int FromVTKDataType(int type)
 // Voxel types
 // =============================================================================
 
-typedef unsigned char BinaryPixel;
-typedef unsigned char BytePixel;
-typedef short         GreyPixel;
-typedef realt         RealPixel;
+typedef unsigned char  BinaryPixel;
+typedef unsigned char  BytePixel;
+typedef short          GreyPixel;
+typedef unsigned short LabelPixel;
+typedef realt          RealPixel;
 
 // TODO: Remove, and use float3, float4, double3, double4 instead
 typedef Vector3D<float>  Float3;
@@ -164,8 +169,9 @@ typedef Vector4D<double> Double4;
 // Voxel type limits
 // =============================================================================
 
-const GreyPixel MIN_GREY = numeric_limits<GreyPixel>::min();
-const GreyPixel MAX_GREY = numeric_limits<GreyPixel>::max();
+const GreyPixel  MIN_GREY  = numeric_limits<GreyPixel>::min();
+const GreyPixel  MAX_GREY  = numeric_limits<GreyPixel>::max();
+const LabelPixel MAX_LABEL = numeric_limits<LabelPixel>::max();
 
 // -----------------------------------------------------------------------------
 template <class T>
