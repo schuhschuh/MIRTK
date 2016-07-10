@@ -859,9 +859,10 @@ inline const VoxelType *GenericImage<VoxelType>::GetPointerToVoxels(int x, int y
 // Common specializations
 ////////////////////////////////////////////////////////////////////////////////
 
-typedef GenericImage<BytePixel> ByteImage;
-typedef GenericImage<GreyPixel> GreyImage;
-typedef GenericImage<RealPixel> RealImage;
+typedef GenericImage<BytePixel>  ByteImage;
+typedef GenericImage<GreyPixel>  GreyImage;
+typedef GenericImage<LabelPixel> LabelImage;
+typedef GenericImage<RealPixel>  RealImage;
 
 
 } // namespace mirtk
