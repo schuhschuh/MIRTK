@@ -168,13 +168,17 @@ foreach (_suitesparse_component IN LISTS SuiteSparse_FIND_COMPONENTS)
   if (NOT "^${_suitesparse_component}$" STREQUAL "^config$")
     list(APPEND SuiteSparse_COMPONENTS ${_suitesparse_component})
     if ("^${_suitesparse_component}$" STREQUAL "^UMFPACK$")
-      list(APPEND SuiteSparse_COMPONENTS CHOLMOD COLAMD AMD)
+      list(APPEND SuiteSparse_COMPONENTS CHOLMOD CCOLAMD COLAMD CAMD AMD)
     elseif ("^${_suitesparse_component}$" STREQUAL "^CHOLMOD$")
       list(APPEND SuiteSparse_COMPONENTS CCOLAMD COLAMD CAMD AMD)
     endif ()
   endif ()
 endforeach ()
 _suitesparse_remove_duplicate_libraries(SuiteSparse_COMPONENTS)
+
+_suitesparse_debug_message("Components:")
+_suitesparse_debug_message("- SuiteSparse_FIND_COMPONENTS = ${SuiteSparse_FIND_COMPONENTS}")
+_suitesparse_debug_message("- SuiteSparse_COMPONENTS      = ${SuiteSparse_COMPONENTS}")
 
 # ------------------------------------------------------------------------------
 # Status message
