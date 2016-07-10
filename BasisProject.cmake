@@ -84,6 +84,7 @@ basis_project (
     IO
     Transformation
     Registration
+    Segmentation
 
   # --------------------------------------------------------------------------
   # list of external modules
