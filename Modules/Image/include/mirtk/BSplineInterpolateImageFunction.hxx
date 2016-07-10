@@ -26,7 +26,6 @@
 #include "mirtk/BSpline.h"
 #include "mirtk/InterpolateImageFunction.hxx"
 #include "mirtk/ImageToInterpolationCoefficients.h"
-#include "mirtk/VoxelCast.h"
 
 
 namespace mirtk {
@@ -87,7 +86,7 @@ void GenericBSplineInterpolateImageFunction<TImage>
   }
 
   // Initialize coefficient image
-  if (coeff && this->Input()->GetDataType() == voxel_info<RealType>::type()) {
+  if (coeff && this->Input()->GetDataType() == type_traits<RealType>::type()) {
     _Coefficient.Initialize(this->Input()->Attributes(),
                             reinterpret_cast<RealType *>(
                             const_cast<void *>(this->Input()->GetDataPointer())));
@@ -146,7 +145,7 @@ GenericBSplineInterpolateImageFunction<TImage>
 
   if (k < 0 || k >= _Coefficient.Z() ||
       l < 0 || l >= _Coefficient.T()) {
-    return voxel_cast<VoxelType>(this->DefaultValue());
+    return type_cast<VoxelType>(this->DefaultValue());
   }
 
   // Compute indices and weights
@@ -156,7 +155,7 @@ GenericBSplineInterpolateImageFunction<TImage>
   ComputeBSplineIndicesAndWeights(x, y, _SplineDegree, i,  j, wx, wy);
 
   // Perform interpolation without extrapolation
-  RealType val = voxel_cast<RealType>(0);
+  RealType val = type_cast<RealType>(0);
   Real     nrm(0), w;
 
   for (int b = 0; b <= _SplineDegree; ++b) {
@@ -172,9 +171,9 @@ GenericBSplineInterpolateImageFunction<TImage>
   }
 
   if (nrm) val /= nrm;
-  else     val  = voxel_cast<RealType>(this->DefaultValue());
+  else     val  = type_cast<RealType>(this->DefaultValue());
 
-  return voxel_cast<VoxelType>(val);
+  return type_cast<VoxelType>(val);
 }
 
 // -----------------------------------------------------------------------------
@@ -188,7 +187,7 @@ GenericBSplineInterpolateImageFunction<TImage>
 
   if (k < 0 || k >= _Coefficient.Z() ||
       l < 0 || l >= _Coefficient.T()) {
-    return voxel_cast<VoxelType>(this->DefaultValue());
+    return type_cast<VoxelType>(this->DefaultValue());
   }
 
   // Compute indices and weights
@@ -198,7 +197,7 @@ GenericBSplineInterpolateImageFunction<TImage>
   ComputeBSplineIndicesAndWeights(x, y, _SplineDegree, i,  j, wx, wy);
 
   // Perform interpolation without extrapolation
-  RealType val = voxel_cast<RealType>(0);
+  RealType val = type_cast<RealType>(0);
   Real     fgw(0), bgw(0), w;
 
   for (int b = 0; b <= _SplineDegree; ++b) {
@@ -214,9 +213,9 @@ GenericBSplineInterpolateImageFunction<TImage>
   }
 
   if (fgw > bgw) val /= fgw;
-  else           val  = voxel_cast<RealType>(this->DefaultValue());
+  else           val  = type_cast<RealType>(this->DefaultValue());
 
-  return voxel_cast<VoxelType>(val);
+  return type_cast<VoxelType>(val);
 }
 
 // -----------------------------------------------------------------------------
@@ -237,14 +236,14 @@ typename TCoefficient::VoxelType GenericBSplineInterpolateImageFunction<TImage>
   ComputeBSplineIndicesAndWeights(x, y, _SplineDegree, i,  j, wx, wy);
 
   // Perform interpolation
-  RealType val = voxel_cast<RealType>(0);
+  RealType val = type_cast<RealType>(0);
   for (int b = 0; b <= _SplineDegree; ++b) {
     for (int a = 0; a <= _SplineDegree; ++a) {
-      val += wx[a] * wy[b] * voxel_cast<RealType>(coeff->Get(i[a], j[b], k, l));
+      val += wx[a] * wy[b] * type_cast<RealType>(coeff->Get(i[a], j[b], k, l));
     }
   }
 
-  return voxel_cast<VoxelType>(val);
+  return type_cast<VoxelType>(val);
 }
 
 // -----------------------------------------------------------------------------
@@ -266,14 +265,14 @@ typename TCoefficient::VoxelType GenericBSplineInterpolateImageFunction<TImage>
   ComputeBSplineIndicesAndWeights(x, y, _SplineDegree, i,  j, wx, wy);
 
   // Perform interpolation
-  RealType val = voxel_cast<RealType>(0);
+  RealType val = type_cast<RealType>(0);
   Real     fgw(0), bgw(0), w;
 
   for (int b = 0; b <= _SplineDegree; ++b) {
     for (int a = 0; a <= _SplineDegree; ++a) {
       w = wx[a] * wy[b];
       if (image->IsForeground(i[a], j[b], k, l)) {
-        val += w * voxel_cast<RealType>(coeff->Get(i[a], j[b], k, l));
+        val += w * type_cast<RealType>(coeff->Get(i[a], j[b], k, l));
         fgw += w;
       } else {
         bgw += w;
@@ -282,9 +281,9 @@ typename TCoefficient::VoxelType GenericBSplineInterpolateImageFunction<TImage>
   }
 
   if (fgw > bgw) val /= fgw;
-  else           val  = voxel_cast<RealType>(this->DefaultValue());
+  else           val  = type_cast<RealType>(this->DefaultValue());
 
-  return voxel_cast<VoxelType>(val);
+  return type_cast<VoxelType>(val);
 }
 
 // -----------------------------------------------------------------------------
@@ -296,7 +295,7 @@ GenericBSplineInterpolateImageFunction<TImage>
   const int l = iround(t);
 
   if (l < 0 || l >= _Coefficient.T()) {
-    return voxel_cast<VoxelType>(this->DefaultValue());
+    return type_cast<VoxelType>(this->DefaultValue());
   }
 
   // Compute indices and weights
@@ -306,7 +305,7 @@ GenericBSplineInterpolateImageFunction<TImage>
   ComputeBSplineIndicesAndWeights(x, y, z, _SplineDegree, i,  j, k, wx, wy, wz);
 
   // Perform interpolation without extrapolation
-  RealType val = voxel_cast<RealType>(0);
+  RealType val = type_cast<RealType>(0);
   Real     nrm(0), wyz, w;
 
   for (int c = 0; c <= _SplineDegree; ++c) {
@@ -327,9 +326,9 @@ GenericBSplineInterpolateImageFunction<TImage>
   }
 
   if (nrm) val /= nrm;
-  else     val  = voxel_cast<RealType>(this->DefaultValue());
+  else     val  = type_cast<RealType>(this->DefaultValue());
 
-  return voxel_cast<VoxelType>(val);
+  return type_cast<VoxelType>(val);
 }
 
 // -----------------------------------------------------------------------------
@@ -341,7 +340,7 @@ GenericBSplineInterpolateImageFunction<TImage>
   const int l = iround(t);
 
   if (l < 0 || l >= _Coefficient.T()) {
-    return voxel_cast<VoxelType>(this->DefaultValue());
+    return type_cast<VoxelType>(this->DefaultValue());
   }
 
   // Compute indices and weights
@@ -351,7 +350,7 @@ GenericBSplineInterpolateImageFunction<TImage>
   ComputeBSplineIndicesAndWeights(x, y, z, _SplineDegree, i,  j, k, wx, wy, wz);
 
   // Perform interpolation without extrapolation
-  RealType val = voxel_cast<RealType>(0);
+  RealType val = type_cast<RealType>(0);
   Real     fgw(0), bgw(0), wyz, w;
 
   for (int c = 0; c <= _SplineDegree; ++c) {
@@ -370,9 +369,9 @@ GenericBSplineInterpolateImageFunction<TImage>
   }
 
   if (fgw > bgw) val /= fgw;
-  else           val  = voxel_cast<RealType>(this->DefaultValue());
+  else           val  = type_cast<RealType>(this->DefaultValue());
 
-  return voxel_cast<VoxelType>(val);
+  return type_cast<VoxelType>(val);
 }
 
 // -----------------------------------------------------------------------------
@@ -392,19 +391,19 @@ typename TCoefficient::VoxelType GenericBSplineInterpolateImageFunction<TImage>
   ComputeBSplineIndicesAndWeights(x, y, z, _SplineDegree, i,  j,  k, wx, wy, wz);
 
   // Perform interpolation
-  RealType val = voxel_cast<RealType>(0);
+  RealType val = type_cast<RealType>(0);
   Real     wyz;
 
   for (int c = 0; c <= _SplineDegree; ++c) {
     for (int b = 0; b <= _SplineDegree; ++b) {
       wyz = wy[b] * wz[c];
       for (int a = 0; a <= _SplineDegree; ++a) {
-        val += wx[a] * wyz * voxel_cast<RealType>(coeff->Get(i[a], j[b], k[c], l));
+        val += wx[a] * wyz * type_cast<RealType>(coeff->Get(i[a], j[b], k[c], l));
       }
     }
   }
   
-  return voxel_cast<VoxelType>(val);
+  return type_cast<VoxelType>(val);
 }
 
 // -----------------------------------------------------------------------------
@@ -424,7 +423,7 @@ typename TCoefficient::VoxelType GenericBSplineInterpolateImageFunction<TImage>
   ComputeBSplineIndicesAndWeights(x, y, z, _SplineDegree, i,  j,  k, wx, wy, wz);
 
   // Perform interpolation
-  RealType val = voxel_cast<RealType>(0);
+  RealType val = type_cast<RealType>(0);
   Real     fgw(0), bgw(0), wyz, w;
 
   for (int c = 0; c <= _SplineDegree; ++c) {
@@ -433,7 +432,7 @@ typename TCoefficient::VoxelType GenericBSplineInterpolateImageFunction<TImage>
       for (int a = 0; a <= _SplineDegree; ++a) {
         w = wx[a] * wyz;
         if (image->IsForeground(i[a], j[b], k[c], l)) {
-          val += w * voxel_cast<RealType>(coeff->Get(i[a], j[b], k[c], l));
+          val += w * type_cast<RealType>(coeff->Get(i[a], j[b], k[c], l));
           fgw += w;
         } else {
           bgw += w;
@@ -443,9 +442,9 @@ typename TCoefficient::VoxelType GenericBSplineInterpolateImageFunction<TImage>
   }
 
   if (fgw > bgw) val /= fgw;
-  else           val  = voxel_cast<RealType>(this->DefaultValue());
+  else           val  = type_cast<RealType>(this->DefaultValue());
 
-  return voxel_cast<typename TCoefficient::VoxelType>(val);
+  return type_cast<typename TCoefficient::VoxelType>(val);
 }
 
 // -----------------------------------------------------------------------------
@@ -461,7 +460,7 @@ GenericBSplineInterpolateImageFunction<TImage>
   ComputeBSplineIndicesAndWeights(x, y, z, t, _SplineDegree, i,  j, k, l, wx, wy, wz, wt);
 
   // Perform interpolation without extrapolation
-  RealType val = voxel_cast<RealType>(0);
+  RealType val = type_cast<RealType>(0);
   Real     nrm(0), wzt, wyzt, w;
 
   for (int d = 0; d <= _SplineDegree; ++d) {
@@ -487,9 +486,9 @@ GenericBSplineInterpolateImageFunction<TImage>
   }
 
   if (nrm) val /= nrm;
-  else     val  = voxel_cast<RealType>(this->DefaultValue());
+  else     val  = type_cast<RealType>(this->DefaultValue());
 
-  return voxel_cast<VoxelType>(val);
+  return type_cast<VoxelType>(val);
 }
 
 // -----------------------------------------------------------------------------
@@ -505,7 +504,7 @@ GenericBSplineInterpolateImageFunction<TImage>
   ComputeBSplineIndicesAndWeights(x, y, z, t, _SplineDegree, i,  j, k, l, wx, wy, wz, wt);
 
   // Perform interpolation without extrapolation
-  RealType val = voxel_cast<RealType>(0);
+  RealType val = type_cast<RealType>(0);
   Real     fgw(0), bgw(0), wzt, wyzt, w;
 
   for (int d = 0; d <= _SplineDegree; ++d) {
@@ -527,9 +526,9 @@ GenericBSplineInterpolateImageFunction<TImage>
   }
 
   if (fgw > bgw) val /= fgw;
-  else           val  = voxel_cast<RealType>(this->DefaultValue());
+  else           val  = type_cast<RealType>(this->DefaultValue());
 
-  return voxel_cast<VoxelType>(val);
+  return type_cast<VoxelType>(val);
 }
 
 // -----------------------------------------------------------------------------
@@ -547,7 +546,7 @@ typename TCoefficient::VoxelType GenericBSplineInterpolateImageFunction<TImage>
   ComputeBSplineIndicesAndWeights(x, y, z, t, _SplineDegree, i,  j,  k, l, wx, wy, wz, wt);
 
   // Perform interpolation
-  RealType val = voxel_cast<RealType>(0);
+  RealType val = type_cast<RealType>(0);
   Real     wzt, wyzt;
 
   for (int d = 0; d <= _SplineDegree; ++d) {
@@ -556,13 +555,13 @@ typename TCoefficient::VoxelType GenericBSplineInterpolateImageFunction<TImage>
       for (int b = 0; b <= _SplineDegree; ++b) {
         wyzt = wy[b] * wzt;
         for (int a = 0; a <= _SplineDegree; ++a) {
-          val += wx[a] * wyzt * voxel_cast<RealType>(coeff->Get(i[a], j[b], k[c], l[d]));
+          val += wx[a] * wyzt * type_cast<RealType>(coeff->Get(i[a], j[b], k[c], l[d]));
         }
       }
     }
   }
 
-  return voxel_cast<VoxelType>(val);
+  return type_cast<VoxelType>(val);
 }
 
 // -----------------------------------------------------------------------------
@@ -581,7 +580,7 @@ typename TCoefficient::VoxelType GenericBSplineInterpolateImageFunction<TImage>
   ComputeBSplineIndicesAndWeights(x, y, z, t, _SplineDegree, i,  j,  k, l, wx, wy, wz, wt);
 
   // Perform interpolation
-  RealType val = voxel_cast<RealType>(0);
+  RealType val = type_cast<RealType>(0);
   Real     fgw(0), bgw(0), wzt, wyzt, w;
 
   for (int d = 0; d <= _SplineDegree; ++d) {
@@ -592,7 +591,7 @@ typename TCoefficient::VoxelType GenericBSplineInterpolateImageFunction<TImage>
         for (int a = 0; a <= _SplineDegree; ++a) {
           w = wx[a] * wyzt;
           if (image->IsForeground(i[a], j[b], k[c], l[d])) {
-            val += w * voxel_cast<RealType>(coeff->Get(i[a], j[b], k[c], l[d]));
+            val += w * type_cast<RealType>(coeff->Get(i[a], j[b], k[c], l[d]));
             fgw += w;
           } else {
             bgw += w;
@@ -603,9 +602,9 @@ typename TCoefficient::VoxelType GenericBSplineInterpolateImageFunction<TImage>
   }
 
   if (fgw > bgw) val /= fgw;
-  else           val  = voxel_cast<RealType>(this->DefaultValue());
+  else           val  = type_cast<RealType>(this->DefaultValue());
 
-  return voxel_cast<VoxelType>(val);
+  return type_cast<VoxelType>(val);
 }
 
 // -----------------------------------------------------------------------------
@@ -667,7 +666,7 @@ typename GenericBSplineInterpolateImageFunction<TImage>::VoxelType
 GenericBSplineInterpolateImageFunction<TImage>
 ::GetInside(double x, double y, double z, double t) const
 {
-  return voxel_cast<VoxelType>(Get(&_Coefficient, x, y, z, t));
+  return type_cast<VoxelType>(Get(&_Coefficient, x, y, z, t));
 }
 
 // -----------------------------------------------------------------------------
@@ -677,7 +676,7 @@ GenericBSplineInterpolateImageFunction<TImage>
 ::GetOutside(double x, double y, double z, double t) const
 {
   if (_InfiniteCoefficient) {
-    return voxel_cast<VoxelType>(Get(_InfiniteCoefficient, x, y, z, t));
+    return type_cast<VoxelType>(Get(_InfiniteCoefficient, x, y, z, t));
   } else {
     return Get(x, y, z, t);
   }
@@ -689,7 +688,7 @@ typename GenericBSplineInterpolateImageFunction<TImage>::VoxelType
 GenericBSplineInterpolateImageFunction<TImage>
 ::GetWithPaddingInside(double x, double y, double z, double t) const
 {
-  return voxel_cast<VoxelType>(GetWithPadding(this->Input(), &_Coefficient, x, y, z, t));
+  return type_cast<VoxelType>(GetWithPadding(this->Input(), &_Coefficient, x, y, z, t));
 }
 
 // -----------------------------------------------------------------------------
@@ -699,7 +698,7 @@ GenericBSplineInterpolateImageFunction<TImage>
 ::GetWithPaddingOutside(double x, double y, double z, double t) const
 {
   if (this->Extrapolator() && _InfiniteCoefficient) {
-    return voxel_cast<VoxelType>(GetWithPadding(this->Extrapolator(), _InfiniteCoefficient, x, y, z, t));
+    return type_cast<VoxelType>(GetWithPadding(this->Extrapolator(), _InfiniteCoefficient, x, y, z, t));
   } else {
     return GetWithPadding(x, y, z, t);
   }

@@ -25,8 +25,6 @@
 #ifndef MIRTK_GenericImage_H
 #define MIRTK_GenericImage_H
 
-#include "mirtk/VoxelCast.h"
-
 
 namespace mirtk {
 
@@ -53,13 +51,13 @@ public:
 
   /// Floating point type corresponding to voxel type
   /// \note The VoxelType as well as the RealType may be a matrix/vector type!
-  typedef typename voxel_info<VoxelType>::RealType RealType;
+  typedef typename type_traits<VoxelType>::RealType RealType;
 
   /// Scalar type corresponding to voxel type
-  typedef typename voxel_info<VoxelType>::ScalarType ScalarType;
+  typedef typename type_traits<VoxelType>::ScalarType ScalarType;
 
   /// Floating point type corresponding to scalar type of voxel type
-  typedef typename voxel_info<ScalarType>::RealType RealScalarType;
+  typedef typename type_traits<ScalarType>::RealType RealScalarType;
 
   // ---------------------------------------------------------------------------
   // Data members
@@ -493,7 +491,7 @@ GenericImage<VoxelType>& GenericImage<VoxelType>::operator=(const GenericImage<V
   VoxelType        *ptr1 = this->GetPointerToVoxels();
   const VoxelType2 *ptr2 = image.GetPointerToVoxels();
   for (int idx = 0; idx < _NumberOfVoxels; idx++) {
-    ptr1[idx] = voxel_cast<VoxelType>(ptr2[idx]);
+    ptr1[idx] = type_cast<VoxelType>(ptr2[idx]);
   }
   if (image.OwnsMask()) {
     _mask      = new BinaryImage(*image.GetMask());
@@ -523,7 +521,7 @@ GenericImage<VoxelType>::operator bool() const
 template <class VoxelType>
 inline int GenericImage<VoxelType>::N() const
 {
-  return voxel_info<VoxelType>::vector_size();
+  return type_traits<VoxelType>::vector_size();
 }
 
 // -----------------------------------------------------------------------------
@@ -634,98 +632,98 @@ bool GenericImage<VoxelType>::operator==(const GenericImage<VoxelType2> &image) 
 template <class VoxelType>
 inline void GenericImage<VoxelType>::PutAsDouble(int index, double val)
 {
-  _data[index] = voxel_cast<VoxelType>(val);
+  _data[index] = type_cast<VoxelType>(val);
 }
 
 // -----------------------------------------------------------------------------
 template <class VoxelType>
 inline void GenericImage<VoxelType>::PutAsDouble(int x, int y, double val)
 {
-  _matrix[0][0][y][x] = voxel_cast<VoxelType>(val);
+  _matrix[0][0][y][x] = type_cast<VoxelType>(val);
 }
 
 // -----------------------------------------------------------------------------
 template <class VoxelType>
 inline void GenericImage<VoxelType>::PutAsDouble(int x, int y, int z, double val)
 {
-  _matrix[0][z][y][x] = voxel_cast<VoxelType>(val);
+  _matrix[0][z][y][x] = type_cast<VoxelType>(val);
 }
 
 // -----------------------------------------------------------------------------
 template <class VoxelType>
 inline void GenericImage<VoxelType>::PutAsDouble(int x, int y, int z, int t, double val)
 {
-  _matrix[t][z][y][x] = voxel_cast<VoxelType>(val);
+  _matrix[t][z][y][x] = type_cast<VoxelType>(val);
 }
 
 // -----------------------------------------------------------------------------
 template <class VoxelType>
 inline double GenericImage<VoxelType>::GetAsDouble(int index) const
 {
-  return voxel_cast<double>(_data[index]);
+  return type_cast<double>(_data[index]);
 }
 
 // -----------------------------------------------------------------------------
 template <class VoxelType>
 inline double GenericImage<VoxelType>::GetAsDouble(int x, int y, int z, int t) const
 {
-  return voxel_cast<double>(_matrix[t][z][y][x]);
+  return type_cast<double>(_matrix[t][z][y][x]);
 }
 
 // -----------------------------------------------------------------------------
 template <class VoxelType>
 inline void GenericImage<VoxelType>::PutAsVector(int index, const Vector &value)
 {
-  _data[index] = voxel_cast<VoxelType>(value);
+  _data[index] = type_cast<VoxelType>(value);
 }
 
 // -----------------------------------------------------------------------------
 template <class VoxelType>
 inline void GenericImage<VoxelType>::PutAsVector(int x, int y, const Vector &value)
 {
-  _matrix[0][0][y][x] = voxel_cast<VoxelType>(value);
+  _matrix[0][0][y][x] = type_cast<VoxelType>(value);
 }
 
 // -----------------------------------------------------------------------------
 template <class VoxelType>
 inline void GenericImage<VoxelType>::PutAsVector(int x, int y, int z, const Vector &value)
 {
-  _matrix[0][z][y][x] = voxel_cast<VoxelType>(value);
+  _matrix[0][z][y][x] = type_cast<VoxelType>(value);
 }
 
 // -----------------------------------------------------------------------------
 template <class VoxelType>
 inline void GenericImage<VoxelType>::PutAsVector(int x, int y, int z, int t, const Vector &value)
 {
-  _matrix[t][z][y][x] = voxel_cast<VoxelType>(value);
+  _matrix[t][z][y][x] = type_cast<VoxelType>(value);
 }
 
 // -----------------------------------------------------------------------------
 template <class VoxelType>
 inline void GenericImage<VoxelType>::GetAsVector(Vector &value, int index) const
 {
-  value = voxel_cast<Vector>(_data[index]);
+  value = type_cast<Vector>(_data[index]);
 }
 
 // -----------------------------------------------------------------------------
 template <class VoxelType>
 inline void GenericImage<VoxelType>::GetAsVector(Vector &value, int x, int y, int z, int t) const
 {
-  value = voxel_cast<Vector>(_matrix[t][z][y][x]);
+  value = type_cast<Vector>(_matrix[t][z][y][x]);
 }
 
 // -----------------------------------------------------------------------------
 template <class VoxelType>
 inline Vector GenericImage<VoxelType>::GetAsVector(int index) const
 {
-  return voxel_cast<Vector>(_data[index]);
+  return type_cast<Vector>(_data[index]);
 }
 
 // -----------------------------------------------------------------------------
 template <class VoxelType>
 inline Vector GenericImage<VoxelType>::GetAsVector(int x, int y, int z, int t) const
 {
-  return voxel_cast<Vector>(_matrix[t][z][y][x]);
+  return type_cast<Vector>(_matrix[t][z][y][x]);
 }
 
 // =============================================================================
@@ -792,7 +790,7 @@ inline const void *GenericImage<VoxelType>::GetDataPointer(int x, int y, int z, 
 template <class VoxelType>
 inline int GenericImage<VoxelType>::GetDataType() const
 {
-  return voxel_info<VoxelType>::type();
+  return type_traits<VoxelType>::type();
 }
 
 // -----------------------------------------------------------------------------
@@ -806,14 +804,14 @@ inline int GenericImage<VoxelType>::GetDataTypeSize() const
 template <class VoxelType>
 inline double GenericImage<VoxelType>::GetDataTypeMin() const
 {
-  return voxel_limits<VoxelType>::min();
+  return type_limits<VoxelType>::min();
 }
 
 // -----------------------------------------------------------------------------
 template <class VoxelType>
 inline double GenericImage<VoxelType>::GetDataTypeMax() const
 {
-  return voxel_limits<VoxelType>::max();
+  return type_limits<VoxelType>::max();
 }
 
 // =============================================================================
@@ -859,9 +857,9 @@ inline const VoxelType *GenericImage<VoxelType>::GetPointerToVoxels(int x, int y
 // Common specializations
 ////////////////////////////////////////////////////////////////////////////////
 
-typedef GenericImage<BytePixel> ByteImage;
-typedef GenericImage<GreyPixel> GreyImage;
-typedef GenericImage<RealPixel> RealImage;
+typedef GenericImage<Byte> ByteImage;
+typedef GenericImage<Grey> GreyImage;
+typedef GenericImage<Real> RealImage;
 
 
 } // namespace mirtk

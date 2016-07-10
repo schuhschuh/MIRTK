@@ -25,7 +25,6 @@
 
 #include "mirtk/Math.h"
 #include "mirtk/Sinc.h"
-#include "mirtk/VoxelCast.h"
 
 
 namespace mirtk {
@@ -101,7 +100,7 @@ GenericSincInterpolateImageFunction<TImage>
 
   if (k < 0 || k >= this->Input()->Z() ||
       l < 0 || l >= this->Input()->T()) {
-    return voxel_cast<VoxelType>(this->DefaultValue());
+    return type_cast<VoxelType>(this->DefaultValue());
   }
 
   // Return value of nearest neighbor if distance is negligible
@@ -111,7 +110,7 @@ GenericSincInterpolateImageFunction<TImage>
         0 <= j && j < this->Input()->Y()) {
       return this->Input()->Get(i, j, k, l);
     } else {
-      return voxel_cast<VoxelType>(this->DefaultValue());
+      return type_cast<VoxelType>(this->DefaultValue());
     }
   }
 
@@ -122,7 +121,7 @@ GenericSincInterpolateImageFunction<TImage>
   const int i2 = i + Kernel::Radius;
   const int j2 = j + Kernel::Radius;
 
-  RealType val = voxel_cast<RealType>(0);
+  RealType val = type_cast<RealType>(0);
   Real     nrm(0), wy, w;
 
   for (j = j1; j <= j2; ++j) {
@@ -131,7 +130,7 @@ GenericSincInterpolateImageFunction<TImage>
       for (i = i1; i <= i2; ++i) {
         if (0 <= i && i < this->Input()->X()) {
           w    = Kernel::Lookup(Real(x - i)) * wy;
-          val += w * voxel_cast<RealType>(this->Input()->Get(i, j, k, l));
+          val += w * type_cast<RealType>(this->Input()->Get(i, j, k, l));
           nrm += w;
         }
       }
@@ -139,9 +138,9 @@ GenericSincInterpolateImageFunction<TImage>
   }
 
   if (nrm) val /= nrm;
-  else     val  = voxel_cast<RealType>(this->DefaultValue());
+  else     val  = type_cast<RealType>(this->DefaultValue());
 
-  return voxel_cast<VoxelType>(val);
+  return type_cast<VoxelType>(val);
 }
 
 // -----------------------------------------------------------------------------
@@ -157,7 +156,7 @@ GenericSincInterpolateImageFunction<TImage>
 
   if (k < 0 || k >= this->Input()->Z() ||
       l < 0 || l >= this->Input()->T()) {
-    return voxel_cast<VoxelType>(this->DefaultValue());
+    return type_cast<VoxelType>(this->DefaultValue());
   }
 
   // Return value of nearest neighbor if distance is negligible
@@ -166,7 +165,7 @@ GenericSincInterpolateImageFunction<TImage>
     if (this->Input()->IsInsideForeground(i, j, k, l)) {
       return this->Input()->Get(i, j, k, l);
     } else {
-      return voxel_cast<VoxelType>(this->DefaultValue());
+      return type_cast<VoxelType>(this->DefaultValue());
     }
   }
 
@@ -177,7 +176,7 @@ GenericSincInterpolateImageFunction<TImage>
   const int i2 = i + Kernel::Radius;
   const int j2 = j + Kernel::Radius;
 
-  RealType val = voxel_cast<RealType>(0);
+  RealType val = type_cast<RealType>(0);
   Real     fgw(0), bgw(0), wy, w;
 
   for (j = j1; j <= j2; ++j) {
@@ -185,7 +184,7 @@ GenericSincInterpolateImageFunction<TImage>
     for (i = i1; i <= i2; ++i) {
       w = Kernel::Lookup(Real(x - i)) * wy;
       if (this->Input()->IsInsideForeground(i, j, k, l)) {
-        val += w * voxel_cast<RealType>(this->Input()->Get(i, j, k, l));
+        val += w * type_cast<RealType>(this->Input()->Get(i, j, k, l));
         fgw += w;
       } else {
         bgw += w;
@@ -194,9 +193,9 @@ GenericSincInterpolateImageFunction<TImage>
   }
 
   if (fgw > bgw) val /= fgw;
-  else           val  = voxel_cast<RealType>(this->DefaultValue());
+  else           val  = type_cast<RealType>(this->DefaultValue());
 
-  return voxel_cast<VoxelType>(val);
+  return type_cast<VoxelType>(val);
 }
 
 // -----------------------------------------------------------------------------
@@ -226,22 +225,22 @@ GenericSincInterpolateImageFunction<TImage>
   const int i2 = i + Kernel::Radius;
   const int j2 = j + Kernel::Radius;
 
-  RealType val = voxel_cast<RealType>(0);
+  RealType val = type_cast<RealType>(0);
   Real     nrm(0), wy, w;
 
   for (j = j1; j <= j2; ++j) {
     wy = Kernel::Lookup(Real(y - j));
     for (i = i1; i <= i2; ++i) {
       w    = Kernel::Lookup(Real(x - i)) * wy;
-      val += w * voxel_cast<RealType>(input->Get(i, j, k, l));
+      val += w * type_cast<RealType>(input->Get(i, j, k, l));
       nrm += w;
     }
   }
 
   if (nrm) val /= nrm;
-  else     val  = voxel_cast<RealType>(this->DefaultValue());
+  else     val  = type_cast<RealType>(this->DefaultValue());
 
-  return voxel_cast<VoxelType>(val);
+  return type_cast<VoxelType>(val);
 }
 
 // -----------------------------------------------------------------------------
@@ -264,7 +263,7 @@ GenericSincInterpolateImageFunction<TImage>
     if (input->IsForeground(i, j, k, l)) {
       return input->Get(i, j, k, l);
     } else {
-      return voxel_cast<VoxelType>(this->DefaultValue());
+      return type_cast<VoxelType>(this->DefaultValue());
     }
   }
 
@@ -275,7 +274,7 @@ GenericSincInterpolateImageFunction<TImage>
   const int i2 = i + Kernel::Radius;
   const int j2 = j + Kernel::Radius;
 
-  RealType val = voxel_cast<RealType>(0);
+  RealType val = type_cast<RealType>(0);
   Real     fgw(0), bgw(0), wy, w;
 
   for (j = j1; j <= j2; ++j) {
@@ -283,7 +282,7 @@ GenericSincInterpolateImageFunction<TImage>
     for (i = i1; i <= i2; ++i) {
       w = Kernel::Lookup(Real(x - i)) * wy;
       if (input->IsForeground(i, j, k, l)) {
-        val += w * voxel_cast<RealType>(input->Get(i, j, k, l));
+        val += w * type_cast<RealType>(input->Get(i, j, k, l));
         fgw += w;
       } else {
         bgw += w;
@@ -292,9 +291,9 @@ GenericSincInterpolateImageFunction<TImage>
   }
 
   if (fgw > bgw) val /= fgw;
-  else           val  = voxel_cast<RealType>(this->DefaultValue());
+  else           val  = type_cast<RealType>(this->DefaultValue());
 
-  return voxel_cast<VoxelType>(val);
+  return type_cast<VoxelType>(val);
 }
 
 // -----------------------------------------------------------------------------
@@ -309,7 +308,7 @@ GenericSincInterpolateImageFunction<TImage>
   int l = iround(t);
 
   if (l < 0 || l >= this->Input()->T()) {
-    return voxel_cast<VoxelType>(this->DefaultValue());
+    return type_cast<VoxelType>(this->DefaultValue());
   }
 
   // Return value of nearest neighbor if distance is negligible
@@ -321,7 +320,7 @@ GenericSincInterpolateImageFunction<TImage>
         0 <= k && k < this->Input()->Z()) {
       return this->Input()->Get(i, j, k, l);
     } else {
-      return voxel_cast<VoxelType>(this->DefaultValue());
+      return type_cast<VoxelType>(this->DefaultValue());
     }
   }
 
@@ -334,7 +333,7 @@ GenericSincInterpolateImageFunction<TImage>
   const int j2 = j + Kernel::Radius;
   const int k2 = k + Kernel::Radius;
 
-  RealType val = voxel_cast<RealType>(0);
+  RealType val = type_cast<RealType>(0);
   Real     nrm(0), wz, wyz, w;
 
   for (k = k1; k <= k2; ++k) {
@@ -346,7 +345,7 @@ GenericSincInterpolateImageFunction<TImage>
           for (i = i1; i <= i2; ++i) {
             if (0 <= i && i < this->Input()->X()) {
               w    = Kernel::Lookup(Real(x - i)) * wyz;
-              val += w * voxel_cast<RealType>(this->Input()->Get(i, j, k, l));
+              val += w * type_cast<RealType>(this->Input()->Get(i, j, k, l));
               nrm += w;
             }
           }
@@ -356,9 +355,9 @@ GenericSincInterpolateImageFunction<TImage>
   }
 
   if (nrm) val /= nrm;
-  else     val  = voxel_cast<RealType>(this->DefaultValue());
+  else     val  = type_cast<RealType>(this->DefaultValue());
 
-  return voxel_cast<VoxelType>(val);
+  return type_cast<VoxelType>(val);
 }
 
 // -----------------------------------------------------------------------------
@@ -373,7 +372,7 @@ GenericSincInterpolateImageFunction<TImage>
   int l = iround(t);
 
   if (l < 0 || l >= this->Input()->T()) {
-    return voxel_cast<VoxelType>(this->DefaultValue());
+    return type_cast<VoxelType>(this->DefaultValue());
   }
 
   // Return value of nearest neighbor if distance is negligible
@@ -383,7 +382,7 @@ GenericSincInterpolateImageFunction<TImage>
     if (this->Input()->IsInsideForeground(i, j, k, l)) {
       return this->Input()->Get(i, j, k, l);
     } else {
-      return voxel_cast<VoxelType>(this->DefaultValue());
+      return type_cast<VoxelType>(this->DefaultValue());
     }
   }
 
@@ -396,7 +395,7 @@ GenericSincInterpolateImageFunction<TImage>
   const int j2 = j + Kernel::Radius;
   const int k2 = k + Kernel::Radius;
 
-  RealType val = voxel_cast<RealType>(0);
+  RealType val = type_cast<RealType>(0);
   Real     fgw(0), bgw(0), wz, wyz, w;
 
   for (k = k1; k <= k2; ++k) {
@@ -406,7 +405,7 @@ GenericSincInterpolateImageFunction<TImage>
       for (i = i1; i <= i2; ++i) {
         w  = Kernel::Lookup(Real(x - i)) * wyz;
         if (this->Input()->IsInsideForeground(i, j, k, l)) {
-          val += w * voxel_cast<RealType>(this->Input()->Get(i, j, k, l));
+          val += w * type_cast<RealType>(this->Input()->Get(i, j, k, l));
           fgw += w;
         } else {
           bgw += w;
@@ -416,9 +415,9 @@ GenericSincInterpolateImageFunction<TImage>
   }
 
   if (fgw > bgw) val /= fgw;
-  else           val  = voxel_cast<RealType>(this->DefaultValue());
+  else           val  = type_cast<RealType>(this->DefaultValue());
 
-  return voxel_cast<VoxelType>(val);
+  return type_cast<VoxelType>(val);
 }
 
 // -----------------------------------------------------------------------------
@@ -451,7 +450,7 @@ GenericSincInterpolateImageFunction<TImage>
   const int j2 = j + Kernel::Radius;
   const int k2 = k + Kernel::Radius;
 
-  RealType val = voxel_cast<RealType>(0);
+  RealType val = type_cast<RealType>(0);
   Real     nrm(0), wz, wyz, w;
 
   for (k = k1; k <= k2; ++k) {
@@ -460,16 +459,16 @@ GenericSincInterpolateImageFunction<TImage>
       wyz = Kernel::Lookup(Real(y - j)) * wz;
       for (i = i1; i <= i2; ++i) {
         w    = Kernel::Lookup(Real(x - i)) * wyz;
-        val += w * voxel_cast<RealType>(input->Get(i, j, k, l));
+        val += w * type_cast<RealType>(input->Get(i, j, k, l));
         nrm += w;
       }
     }
   }
 
   if (nrm) val /= nrm;
-  else     val  = voxel_cast<RealType>(this->DefaultValue());
+  else     val  = type_cast<RealType>(this->DefaultValue());
 
-  return voxel_cast<VoxelType>(val);
+  return type_cast<VoxelType>(val);
 }
 
 // -----------------------------------------------------------------------------
@@ -493,7 +492,7 @@ GenericSincInterpolateImageFunction<TImage>
     if (input->IsForeground(i, j, k, l)) {
       return input->Get(i, j, k, l);
     } else {
-      return voxel_cast<VoxelType>(this->DefaultValue());
+      return type_cast<VoxelType>(this->DefaultValue());
     }
   }
 
@@ -506,7 +505,7 @@ GenericSincInterpolateImageFunction<TImage>
   const int j2 = j + Kernel::Radius;
   const int k2 = k + Kernel::Radius;
 
-  RealType val = voxel_cast<RealType>(0);
+  RealType val = type_cast<RealType>(0);
   Real     fgw(0), bgw(0), wz, wyz, w;
 
   for (k = k1; k <= k2; ++k) {
@@ -516,7 +515,7 @@ GenericSincInterpolateImageFunction<TImage>
       for (i = i1; i <= i2; ++i) {
         w = Kernel::Lookup(Real(x - i)) * wyz;
         if (input->IsForeground(i, j, k, l)) {
-          val += w * voxel_cast<RealType>(input->Get(i, j, k, l));
+          val += w * type_cast<RealType>(input->Get(i, j, k, l));
           fgw += w;
         } else {
           bgw += w;
@@ -526,9 +525,9 @@ GenericSincInterpolateImageFunction<TImage>
   }
 
   if (fgw > bgw) val /= fgw;
-  else           val  = voxel_cast<RealType>(this->DefaultValue());
+  else           val  = type_cast<RealType>(this->DefaultValue());
 
-  return voxel_cast<VoxelType>(val);
+  return type_cast<VoxelType>(val);
 }
 
 // -----------------------------------------------------------------------------
@@ -550,7 +549,7 @@ GenericSincInterpolateImageFunction<TImage>
     if (this->Input()->IsInside(i, j, k, l)) {
       return this->Input()->Get(i, j, k, l);
     } else {
-      return voxel_cast<VoxelType>(this->DefaultValue());
+      return type_cast<VoxelType>(this->DefaultValue());
     }
   }
 
@@ -565,7 +564,7 @@ GenericSincInterpolateImageFunction<TImage>
   const int k2 = k + Kernel::Radius;
   const int l2 = l + Kernel::Radius;
 
-  RealType val = voxel_cast<RealType>(0);
+  RealType val = type_cast<RealType>(0);
   Real     nrm(0), wt, wzt, wyzt, w;
 
   for (l = l1; l <= l2; ++l) {
@@ -580,7 +579,7 @@ GenericSincInterpolateImageFunction<TImage>
               for (i = i1; i <= i2; ++i) {
                 if (0 <= i && i < this->Input()->X()) {
                   w    = Kernel::Lookup(Real(x - i)) * wyzt;
-                  val += w * voxel_cast<RealType>(this->Input()->Get(i, j, k, l));
+                  val += w * type_cast<RealType>(this->Input()->Get(i, j, k, l));
                   nrm += w;
                 }
               }
@@ -592,9 +591,9 @@ GenericSincInterpolateImageFunction<TImage>
   }
 
   if (nrm) val /= nrm;
-  else     val  = voxel_cast<RealType>(this->DefaultValue());
+  else     val  = type_cast<RealType>(this->DefaultValue());
 
-  return voxel_cast<VoxelType>(val);
+  return type_cast<VoxelType>(val);
 }
 
 // -----------------------------------------------------------------------------
@@ -616,7 +615,7 @@ GenericSincInterpolateImageFunction<TImage>
     if (this->Input()->IsInsideForeground(i, j, k, l)) {
       return this->Input()->Get(i, j, k, l);
     } else {
-      return voxel_cast<VoxelType>(this->DefaultValue());
+      return type_cast<VoxelType>(this->DefaultValue());
     }
   }
 
@@ -631,7 +630,7 @@ GenericSincInterpolateImageFunction<TImage>
   const int k2 = k + Kernel::Radius;
   const int l2 = l + Kernel::Radius;
 
-  RealType val = voxel_cast<RealType>(0);
+  RealType val = type_cast<RealType>(0);
   Real     fgw(0), bgw(0), wt, wzt, wyzt, w;
 
   for (l = l1; l <= l2; ++l) {
@@ -643,7 +642,7 @@ GenericSincInterpolateImageFunction<TImage>
         for (i = i1; i <= i2; ++i) {
           w = Kernel::Lookup(Real(x - i)) * wyzt;
           if (this->Input()->IsInsideForeground(i, j, k, l)) {
-            val += w * voxel_cast<RealType>(this->Input()->Get(i, j, k, l));
+            val += w * type_cast<RealType>(this->Input()->Get(i, j, k, l));
             fgw += w;
           } else {
             bgw += w;
@@ -654,9 +653,9 @@ GenericSincInterpolateImageFunction<TImage>
   }
 
   if (fgw > bgw) val /= fgw;
-  else           val  = voxel_cast<RealType>(this->DefaultValue());
+  else           val  = type_cast<RealType>(this->DefaultValue());
 
-  return voxel_cast<VoxelType>(val);
+  return type_cast<VoxelType>(val);
 }
 
 // -----------------------------------------------------------------------------
@@ -692,7 +691,7 @@ GenericSincInterpolateImageFunction<TImage>
   const int k2 = k + Kernel::Radius;
   const int l2 = l + Kernel::Radius;
 
-  RealType val = voxel_cast<RealType>(0);
+  RealType val = type_cast<RealType>(0);
   Real     nrm(0), wt, wzt, wyzt, w;
 
   for (l = l1; l <= l2; ++l) {
@@ -703,7 +702,7 @@ GenericSincInterpolateImageFunction<TImage>
         wyzt = Kernel::Lookup(Real(y - j)) * wzt;
         for (i = i1; i <= i2; ++i) {
           w    = Kernel::Lookup(Real(x - i)) * wyzt;
-          val += w * voxel_cast<RealType>(input->Get(i, j, k, l));
+          val += w * type_cast<RealType>(input->Get(i, j, k, l));
           nrm += w;
         }
       }
@@ -711,9 +710,9 @@ GenericSincInterpolateImageFunction<TImage>
   }
 
   if (nrm) val /= nrm;
-  else     val  = voxel_cast<RealType>(this->DefaultValue());
+  else     val  = type_cast<RealType>(this->DefaultValue());
 
-  return voxel_cast<VoxelType>(val);
+  return type_cast<VoxelType>(val);
 }
 
 // -----------------------------------------------------------------------------
@@ -738,7 +737,7 @@ GenericSincInterpolateImageFunction<TImage>
     if (input->IsForeground(i, j, k, l)) {
       return input->Get(i, j, k, l);
     } else {
-      return voxel_cast<VoxelType>(this->DefaultValue());
+      return type_cast<VoxelType>(this->DefaultValue());
     }
   }
 
@@ -753,7 +752,7 @@ GenericSincInterpolateImageFunction<TImage>
   const int k2 = k + Kernel::Radius;
   const int l2 = l + Kernel::Radius;
 
-  RealType val = voxel_cast<RealType>(0);
+  RealType val = type_cast<RealType>(0);
   Real     fgw(0), bgw(0), wt, wzt, wyzt, w;
 
   for (l = l1; l <= l2; ++l) {
@@ -765,7 +764,7 @@ GenericSincInterpolateImageFunction<TImage>
         for (i = i1; i <= i2; ++i) {
           w = Kernel::Lookup(Real(x - i)) * wyzt;
           if (input->IsForeground(i, j, k, l)) {
-            val += w * voxel_cast<RealType>(input->Get(i, j, k, l));
+            val += w * type_cast<RealType>(input->Get(i, j, k, l));
             fgw += w;
           } else {
             bgw += w;
@@ -776,9 +775,9 @@ GenericSincInterpolateImageFunction<TImage>
   }
 
   if (fgw > bgw) val /= fgw;
-  else           val  = voxel_cast<RealType>(this->DefaultValue());
+  else           val  = type_cast<RealType>(this->DefaultValue());
 
-  return voxel_cast<VoxelType>(val);
+  return type_cast<VoxelType>(val);
 }
 
 // -----------------------------------------------------------------------------

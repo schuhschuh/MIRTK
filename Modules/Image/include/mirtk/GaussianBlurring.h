@@ -61,7 +61,7 @@ class GaussianBlurring : public ImageToImage<TVoxel>
 protected:
 
   /// Gaussian convolution kernel
-  GenericImage<RealPixel> *_Kernel;
+  GenericImage<Real> *_Kernel;
 
   /// Initialize filter
   virtual void Initialize();

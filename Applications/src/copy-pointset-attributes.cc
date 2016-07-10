@@ -391,7 +391,7 @@ int main(int argc, char **argv)
     }
   }
   if (point_mask_name) {
-    vtkSmartPointer<vtkDataArray> mask = NewVTKDataArray(VTK_UNSIGNED_CHAR);
+    vtkSmartPointer<vtkDataArray> mask = NewVtkDataArray(VTK_UNSIGNED_CHAR);
     mask->SetName(point_mask_name);
     mask->SetNumberOfComponents(1);
     mask->SetNumberOfTuples(npoints);
@@ -436,7 +436,7 @@ int main(int argc, char **argv)
     AddArray(targetAttr, copy, cd[i]._TargetAttribute);
   }
   if (cell_mask_name) {
-    vtkSmartPointer<vtkDataArray> mask = NewVTKDataArray(VTK_UNSIGNED_CHAR);
+    vtkSmartPointer<vtkDataArray> mask = NewVtkDataArray(VTK_UNSIGNED_CHAR);
     mask->SetName(cell_mask_name);
     mask->SetNumberOfComponents(1);
     mask->SetNumberOfTuples(ncells);

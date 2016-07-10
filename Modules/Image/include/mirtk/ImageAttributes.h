@@ -61,6 +61,9 @@ struct ImageAttributes
   const Matrix *_w2i;  ///< Pointer to pre-computed world to image matrix (cf. BaseImage::_matW2I)
   const Matrix *_i2w;  ///< Pointer to pre-computed image to world matrix (cf. BaseImage::_matI2W)
 
+  /// Number of image dimensions
+  int NumberOfDimensions() const;
+
   /// Number of lattice points in image domain
   int NumberOfLatticePoints() const;
 
@@ -131,6 +134,12 @@ struct ImageAttributes
   /// Get Index from Lattice
   void IndexToLattice(int, int &, int &, int &, int &) const;
 
+  /// Get image coordinates of lattice point
+  void IndexToLattice(int, Point &) const;
+
+  /// Get image coordinates of lattice point
+  Point IndexToLattice(int) const;
+
   /// Get world coordinates (in mm) of lattice point
   void IndexToWorld(int, double &, double &) const;
 
@@ -166,6 +175,9 @@ struct ImageAttributes
 
   /// Convert time to lattice coordinate
   double TimeToLattice(double) const;
+
+  /// Get time of lattice point
+  double IndexToTime(int) const;
 
   /// Put affine world coordinate transformation which is applied
   /// after the image to world coordinate transformation derived from the
@@ -289,6 +301,17 @@ inline void ImageAttributes::IndexToLattice(int index, int *i, int *j, int *k, i
 }
 
 // -----------------------------------------------------------------------------
+inline int ImageAttributes::NumberOfDimensions() const
+{
+  int n = 0;
+  if (_x > 1 && _dx != 0.) ++n;
+  if (_y > 1 && _dy != 0.) ++n;
+  if (_z > 1 && _dz != 0.) ++n;
+  if (_t > 1 && _dt != 0.) ++n;
+  return n;
+}
+
+// -----------------------------------------------------------------------------
 inline int ImageAttributes::NumberOfLatticePoints() const
 {
   return _x * _y * _z * _t;
@@ -322,6 +345,22 @@ inline void ImageAttributes::IndexToLattice(int index, int &i, int &j, int &k) c
 inline void ImageAttributes::IndexToLattice(int index, int &i, int &j, int &k, int &l) const
 {
   IndexToLattice(index, &i, &j, &k, &l);
+}
+
+// -----------------------------------------------------------------------------
+inline void ImageAttributes::IndexToLattice(int idx, Point &p) const
+{
+  int i, j, k;
+  IndexToLattice(idx, i, j, k);
+  p._x = i, p._y = j, p._z = k;
+}
+
+// -----------------------------------------------------------------------------
+inline Point ImageAttributes::IndexToLattice(int idx) const
+{
+  Point p;
+  IndexToLattice(idx, p);
+  return p;
 }
 
 // -----------------------------------------------------------------------------
@@ -373,6 +412,14 @@ inline void ImageAttributes::LatticeToWorld(Point &p) const
 inline double ImageAttributes::LatticeToTime(double t) const
 {
   return _torigin + t * _dt;
+}
+
+// -----------------------------------------------------------------------------
+inline double ImageAttributes::IndexToTime(int idx) const
+{
+  const int n = _x * _y * _z;
+  const int l = idx / n;
+  return LatticeToTime(static_cast<double>(l));
 }
 
 // -----------------------------------------------------------------------------

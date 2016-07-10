@@ -20,38 +20,47 @@
 #ifndef MIRTK_Memory_H
 #define MIRTK_Memory_H
 
+#include <cstring>
+#include <utility>
+#include <memory>
+
 
 // =============================================================================
 // C/C++ library functions
 // =============================================================================
 
-#include <cstring>
-#include <utility>
-#include <memory>
-
 namespace mirtk {
 
-
-template <class T>
-using UniquePtr = std::unique_ptr<T>;
-
-template <class T>
-using SharedPtr = std::shared_ptr<T>;
-
-template <class T>
-using WeakPtr = std::weak_ptr<T>;
-
-template <class T, class... Args>
-SharedPtr<T> NewShared(Args&&... args)
-{
-  return std::make_shared<T>(args...);
-}
 
 using std::memset;
 using std::memcpy;
 using std::memmove;
 using std::memcmp;
 using std::swap;
+using std::move;
+
+
+} // namespace mirtk
+
+// =============================================================================
+// Memory allocation
+// =============================================================================
+
+#include "mirtk/Allocate.h"
+#include "mirtk/Deallocate.h"
+
+// =============================================================================
+// Smart pointers
+// =============================================================================
+
+#include "mirtk/SmartPtr.h"
+
+// =============================================================================
+// Memory functions
+// =============================================================================
+
+namespace mirtk {
+
 
 /// Byte order of each word in memory
 enum ByteOrder
@@ -75,13 +84,5 @@ void swap64(char *, char *, long);
 
 
 } // namespace mirtk
-
-// =============================================================================
-// Allocate/Deallocate N-D arrays, Delete
-// =============================================================================
-
-#include "mirtk/Allocate.h"
-#include "mirtk/Deallocate.h"
-
 
 #endif // MIRTK_Memory_H

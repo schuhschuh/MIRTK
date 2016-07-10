@@ -19,16 +19,18 @@
 
 #define _USE_MATH_DEFINES
 #include <cmath>
+#include <limits>
 
-#include "mirtk/Math.h"
+#include "mirtk/Constants.h"
 
 
 namespace mirtk {
 
 
-const double inf         = numeric_limits<double>::infinity();
-const double nan         = numeric_limits<double>::quiet_NaN();
-const double NaN         = numeric_limits<double>::quiet_NaN();
+const double Inf         = std::numeric_limits<double>::infinity();
+const double inf         = inf;
+const double NaN         = std::numeric_limits<double>::quiet_NaN();
+const double nan         = NaN;
 const double pi          = double(M_PI);
 const double pi_half     = 0.5 * pi;
 const double two_pi      = 2.0 * pi;

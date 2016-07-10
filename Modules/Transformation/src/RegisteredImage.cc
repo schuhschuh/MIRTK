@@ -1219,8 +1219,8 @@ void RegisteredImage::Update(const blocked_range3d<int> &region,
             InputImageType::VoxelType *iptr = _InputImage->Data();
             InputImageType::VoxelType  imin;
             InputImageType::VoxelType  imax;
-            imin = voxel_limits<InputImageType::VoxelType>::max();
-            imax = voxel_limits<InputImageType::VoxelType>::min();
+            imin = type_limits<InputImageType::VoxelType>::max();
+            imax = type_limits<InputImageType::VoxelType>::min();
             for (int idx = 0; idx < nvox; ++idx, ++iptr) {
               if (_InputImage->IsForeground(idx)) {
                 if (*iptr < imin) imin = *iptr;
@@ -1236,10 +1236,10 @@ void RegisteredImage::Update(const blocked_range3d<int> &region,
               const double inter = omin - slope * static_cast<double>(imin);
               iptr = _InputImage->Data();
               VoxelType *optr = this->Data();
-              const VoxelType bg = voxel_cast<VoxelType>(this->_bg);
+              const VoxelType bg = type_cast<VoxelType>(this->_bg);
               for (int idx = 0; idx < nvox; ++idx, ++iptr, ++optr) {
                 if (_InputImage->IsForeground(idx)) {
-                  *optr = voxel_cast<VoxelType>(inter + slope * static_cast<double>(*iptr));
+                  *optr = type_cast<VoxelType>(inter + slope * static_cast<double>(*iptr));
                   if      (*optr < _MinIntensity) *optr = _MinIntensity;
                   else if (*optr > _MaxIntensity) *optr = _MaxIntensity;
                 } else {

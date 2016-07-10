@@ -41,7 +41,7 @@ template <class TVoxel>
 void fill_test_image(GenericImage<TVoxel> &image)
 {
   const int numvox = image.GetNumberOfVoxels();
-  if (static_cast<double>(numvox - 1) > voxel_limits<TVoxel>::max()) {
+  if (static_cast<double>(numvox - 1) > type_limits<TVoxel>::max()) {
     cerr << "fill_test_image: Overflow!" << endl;
     exit(1);
   }

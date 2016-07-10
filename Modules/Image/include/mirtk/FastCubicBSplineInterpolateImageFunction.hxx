@@ -87,7 +87,7 @@ void GenericFastCubicBSplineInterpolateImageFunction<TImage>
   }
 
   // Initialize coefficient image
-  if (coeff && this->Input()->GetDataType() == voxel_info<RealType>::type()) {
+  if (coeff && this->Input()->GetDataType() == type_traits<RealType>::type()) {
     _Coefficient.Initialize(this->Input()->Attributes(),
                             reinterpret_cast<RealType *>(
                             const_cast<void *>(this->Input()->GetDataPointer())));
@@ -152,7 +152,7 @@ GenericFastCubicBSplineInterpolateImageFunction<TImage>
 
   if (k < 0 || k >= _Coefficient.Z() ||
       l < 0 || l >= _Coefficient.T()) {
-    return voxel_cast<VoxelType>(this->DefaultValue());
+    return type_cast<VoxelType>(this->DefaultValue());
   }
 
   const int A = Kernel::VariableToIndex(Real(x - i));
@@ -160,7 +160,7 @@ GenericFastCubicBSplineInterpolateImageFunction<TImage>
 
   --i, --j;
 
-  RealType val = voxel_cast<RealType>(0);
+  RealType val = type_cast<RealType>(0);
   Real     nrm(0), w;
 
   int ia, jb;
@@ -180,9 +180,9 @@ GenericFastCubicBSplineInterpolateImageFunction<TImage>
   }
 
   if (nrm) val /= nrm;
-  else     val  = voxel_cast<RealType>(this->DefaultValue());
+  else     val  = type_cast<RealType>(this->DefaultValue());
 
-  return voxel_cast<VoxelType>(val);
+  return type_cast<VoxelType>(val);
 }
 
 // -----------------------------------------------------------------------------
@@ -198,7 +198,7 @@ GenericFastCubicBSplineInterpolateImageFunction<TImage>
 
   if (k < 0 || k >= _Coefficient.Z() ||
       l < 0 || l >= _Coefficient.T()) {
-    return voxel_cast<VoxelType>(this->DefaultValue());
+    return type_cast<VoxelType>(this->DefaultValue());
   }
 
   const int A = Kernel::VariableToIndex(Real(x - i));
@@ -206,7 +206,7 @@ GenericFastCubicBSplineInterpolateImageFunction<TImage>
 
   --i, --j;
 
-  RealType val = voxel_cast<RealType>(0);
+  RealType val = type_cast<RealType>(0);
   Real     fgw(0), bgw(0), w;
 
   int ia, jb;
@@ -225,9 +225,9 @@ GenericFastCubicBSplineInterpolateImageFunction<TImage>
   }
 
   if (fgw > bgw) val /= fgw;
-  else           val  = voxel_cast<RealType>(this->DefaultValue());
+  else           val  = type_cast<RealType>(this->DefaultValue());
 
-  return voxel_cast<VoxelType>(val);
+  return type_cast<VoxelType>(val);
 }
 
 // -----------------------------------------------------------------------------
@@ -249,7 +249,7 @@ GenericFastCubicBSplineInterpolateImageFunction<TImage>
 
   --i, --j;
 
-  RealType val = voxel_cast<RealType>(0);
+  RealType val = type_cast<RealType>(0);
 
   int jb;
   for (int b = 0; b <= 3; ++b) {
@@ -260,7 +260,7 @@ GenericFastCubicBSplineInterpolateImageFunction<TImage>
     val += Kernel::LookupTable[A][3] * Kernel::LookupTable[B][b] * coeff->Get(i+3, jb, k, l);
   }
 
-  return voxel_cast<VoxelType>(val);
+  return type_cast<VoxelType>(val);
 }
 
 // -----------------------------------------------------------------------------
@@ -283,7 +283,7 @@ GenericFastCubicBSplineInterpolateImageFunction<TImage>
 
   --i, --j;
 
-  RealType val = voxel_cast<RealType>(0);
+  RealType val = type_cast<RealType>(0);
   Real     fgw = .0, bgw = .0, w;
 
   int ia, jb;
@@ -293,7 +293,7 @@ GenericFastCubicBSplineInterpolateImageFunction<TImage>
       ia = i + a;
       w = Kernel::LookupTable[A][a] * Kernel::LookupTable[B][b];
       if (input->IsForeground(ia, jb, k, l)) {
-        val += w * voxel_cast<RealType>(coeff->Get(ia, jb, k, l));
+        val += w * type_cast<RealType>(coeff->Get(ia, jb, k, l));
         fgw += w;
       } else {
         bgw += w;
@@ -302,9 +302,9 @@ GenericFastCubicBSplineInterpolateImageFunction<TImage>
   }
 
   if (fgw > bgw) val /= fgw;
-  else           val  = voxel_cast<RealType>(this->DefaultValue());
+  else           val  = type_cast<RealType>(this->DefaultValue());
 
-  return voxel_cast<VoxelType>(val);
+  return type_cast<VoxelType>(val);
 }
 
 // -----------------------------------------------------------------------------
@@ -319,7 +319,7 @@ GenericFastCubicBSplineInterpolateImageFunction<TImage>
   int l = iround(t);
 
   if (l < 0 || l >= _Coefficient.T()) {
-    return voxel_cast<VoxelType>(this->DefaultValue());
+    return type_cast<VoxelType>(this->DefaultValue());
   }
 
   const int A = Kernel::VariableToIndex(Real(x - i));
@@ -328,7 +328,7 @@ GenericFastCubicBSplineInterpolateImageFunction<TImage>
 
   --i, --j, --k;
 
-  RealType val = voxel_cast<RealType>(0);
+  RealType val = type_cast<RealType>(0);
   Real     nrm(0), wyz, w;
 
   int ia, jb, kc;
@@ -353,9 +353,9 @@ GenericFastCubicBSplineInterpolateImageFunction<TImage>
   }
 
   if (nrm) val /= nrm;
-  else     val  = voxel_cast<RealType>(this->DefaultValue());
+  else     val  = type_cast<RealType>(this->DefaultValue());
 
-  return voxel_cast<VoxelType>(val);
+  return type_cast<VoxelType>(val);
 }
 
 // -----------------------------------------------------------------------------
@@ -370,7 +370,7 @@ GenericFastCubicBSplineInterpolateImageFunction<TImage>
   int l = iround(t);
 
   if (l < 0 || l >= _Coefficient.T()) {
-    return voxel_cast<VoxelType>(this->DefaultValue());
+    return type_cast<VoxelType>(this->DefaultValue());
   }
 
   const int A = Kernel::VariableToIndex(Real(x - i));
@@ -379,7 +379,7 @@ GenericFastCubicBSplineInterpolateImageFunction<TImage>
 
   --i, --j, --k;
 
-  RealType val = voxel_cast<RealType>(0);
+  RealType val = type_cast<RealType>(0);
   Real     fgw(0), bgw(0), wyz, w;
 
   int ia, jb, kc;
@@ -402,9 +402,9 @@ GenericFastCubicBSplineInterpolateImageFunction<TImage>
   }
 
   if (fgw > bgw) val /= fgw;
-  else           val  = voxel_cast<RealType>(this->DefaultValue());
+  else           val  = type_cast<RealType>(this->DefaultValue());
 
-  return voxel_cast<VoxelType>(val);
+  return type_cast<VoxelType>(val);
 }
 
 // -----------------------------------------------------------------------------
@@ -427,7 +427,7 @@ GenericFastCubicBSplineInterpolateImageFunction<TImage>
 
   --i, --j, --k;
 
-  RealType val = voxel_cast<RealType>(0);
+  RealType val = type_cast<RealType>(0);
 
   int  jb, kc;
   Real wyz;
@@ -436,14 +436,14 @@ GenericFastCubicBSplineInterpolateImageFunction<TImage>
     for (int b = 0; b <= 3; ++b) {
       jb   = j + b;
       wyz  = Kernel::LookupTable[B][b] * Kernel::LookupTable[C][c];
-      val += Kernel::LookupTable[A][0] * wyz * voxel_cast<RealType>(coeff->Get(i,   jb, kc, l));
-      val += Kernel::LookupTable[A][1] * wyz * voxel_cast<RealType>(coeff->Get(i+1, jb, kc, l));
-      val += Kernel::LookupTable[A][2] * wyz * voxel_cast<RealType>(coeff->Get(i+2, jb, kc, l));
-      val += Kernel::LookupTable[A][3] * wyz * voxel_cast<RealType>(coeff->Get(i+3, jb, kc, l));
+      val += Kernel::LookupTable[A][0] * wyz * type_cast<RealType>(coeff->Get(i,   jb, kc, l));
+      val += Kernel::LookupTable[A][1] * wyz * type_cast<RealType>(coeff->Get(i+1, jb, kc, l));
+      val += Kernel::LookupTable[A][2] * wyz * type_cast<RealType>(coeff->Get(i+2, jb, kc, l));
+      val += Kernel::LookupTable[A][3] * wyz * type_cast<RealType>(coeff->Get(i+3, jb, kc, l));
     }
   }
 
-  return voxel_cast<VoxelType>(val);
+  return type_cast<VoxelType>(val);
 }
 
 // -----------------------------------------------------------------------------
@@ -467,7 +467,7 @@ GenericFastCubicBSplineInterpolateImageFunction<TImage>
 
   --i, --j, --k;
 
-  RealType val = voxel_cast<RealType>(0);
+  RealType val = type_cast<RealType>(0);
   Real     fgw = .0, bgw = .0, wyz, w;
 
   int ia, jb, kc;
@@ -480,7 +480,7 @@ GenericFastCubicBSplineInterpolateImageFunction<TImage>
         ia = i + a;
         w  = Kernel::LookupTable[A][a] * wyz;
         if (input->IsForeground(ia, jb, kc, l)) {
-          val += w * voxel_cast<RealType>(coeff->Get(ia, jb, kc, l));
+          val += w * type_cast<RealType>(coeff->Get(ia, jb, kc, l));
           fgw += w;
         } else {
           bgw += w;
@@ -490,9 +490,9 @@ GenericFastCubicBSplineInterpolateImageFunction<TImage>
   }
 
   if (fgw > bgw) val /= fgw;
-  else           val  = voxel_cast<RealType>(this->DefaultValue());
+  else           val  = type_cast<RealType>(this->DefaultValue());
 
-  return voxel_cast<VoxelType>(val);
+  return type_cast<VoxelType>(val);
 }
 
 // -----------------------------------------------------------------------------
@@ -513,7 +513,7 @@ GenericFastCubicBSplineInterpolateImageFunction<TImage>
 
   --i, --j, --k, --l;
 
-  RealType val = voxel_cast<RealType>(0);
+  RealType val = type_cast<RealType>(0);
   Real     nrm(0), wzt, wyzt, w;
 
   int ia, jb, kc, ld;
@@ -544,9 +544,9 @@ GenericFastCubicBSplineInterpolateImageFunction<TImage>
   }
 
   if (nrm) val /= nrm;
-  else     val  = voxel_cast<RealType>(this->DefaultValue());
+  else     val  = type_cast<RealType>(this->DefaultValue());
 
-  return voxel_cast<VoxelType>(val);
+  return type_cast<VoxelType>(val);
 }
 
 // -----------------------------------------------------------------------------
@@ -567,7 +567,7 @@ GenericFastCubicBSplineInterpolateImageFunction<TImage>
 
   --i, --j, --k, --l;
 
-  RealType val = voxel_cast<RealType>(0);
+  RealType val = type_cast<RealType>(0);
   Real     fgw(0), bgw(0), wzt, wyzt, w;
 
   int ia, jb, kc, ld;
@@ -594,9 +594,9 @@ GenericFastCubicBSplineInterpolateImageFunction<TImage>
   }
 
   if (fgw > bgw) val /= fgw;
-  else           val  = voxel_cast<RealType>(this->DefaultValue());
+  else           val  = type_cast<RealType>(this->DefaultValue());
 
-  return voxel_cast<VoxelType>(val);
+  return type_cast<VoxelType>(val);
 }
 
 // -----------------------------------------------------------------------------
@@ -620,7 +620,7 @@ GenericFastCubicBSplineInterpolateImageFunction<TImage>
 
   --i, --j, --k, --l;
 
-  RealType val = voxel_cast<RealType>(0);
+  RealType val = type_cast<RealType>(0);
 
   int  jb, kc, ld;
   Real wzt, wyzt;
@@ -632,15 +632,15 @@ GenericFastCubicBSplineInterpolateImageFunction<TImage>
       for (int b = 0; b <= 3; ++b) {
         jb   = j + b;
         wyzt = Kernel::LookupTable[B][b] * wzt;
-        val += Kernel::LookupTable[A][0] * wyzt * voxel_cast<RealType>(coeff->Get(i,   jb, kc, ld));
-        val += Kernel::LookupTable[A][1] * wyzt * voxel_cast<RealType>(coeff->Get(i+1, jb, kc, ld));
-        val += Kernel::LookupTable[A][2] * wyzt * voxel_cast<RealType>(coeff->Get(i+2, jb, kc, ld));
-        val += Kernel::LookupTable[A][3] * wyzt * voxel_cast<RealType>(coeff->Get(i+3, jb, kc, ld));
+        val += Kernel::LookupTable[A][0] * wyzt * type_cast<RealType>(coeff->Get(i,   jb, kc, ld));
+        val += Kernel::LookupTable[A][1] * wyzt * type_cast<RealType>(coeff->Get(i+1, jb, kc, ld));
+        val += Kernel::LookupTable[A][2] * wyzt * type_cast<RealType>(coeff->Get(i+2, jb, kc, ld));
+        val += Kernel::LookupTable[A][3] * wyzt * type_cast<RealType>(coeff->Get(i+3, jb, kc, ld));
       }
     }
   }
 
-  return voxel_cast<VoxelType>(val);
+  return type_cast<VoxelType>(val);
 }
 
 // -----------------------------------------------------------------------------
@@ -665,7 +665,7 @@ GenericFastCubicBSplineInterpolateImageFunction<TImage>
 
   --i, --j, --k, --l;
 
-  RealType val = voxel_cast<RealType>(0);
+  RealType val = type_cast<RealType>(0);
   Real     fgw(0), bgw(0), wzt, wyzt, w;
 
   int ia, jb, kc, ld;
@@ -681,7 +681,7 @@ GenericFastCubicBSplineInterpolateImageFunction<TImage>
           ia = i + a;
           w  = Kernel::LookupTable[A][a] * wyzt;
           if (input->IsForeground(ia, jb, kc, ld)) {
-            val += w * voxel_cast<RealType>(coeff->Get(ia, jb, kc, ld));
+            val += w * type_cast<RealType>(coeff->Get(ia, jb, kc, ld));
             fgw += w;
           } else {
             bgw += w;
@@ -692,9 +692,9 @@ GenericFastCubicBSplineInterpolateImageFunction<TImage>
   }
 
   if (fgw > bgw) val /= fgw;
-  else           val  = voxel_cast<RealType>(this->DefaultValue());
+  else           val  = type_cast<RealType>(this->DefaultValue());
 
-  return voxel_cast<VoxelType>(val);
+  return type_cast<VoxelType>(val);
 }
 
 // -----------------------------------------------------------------------------
@@ -766,7 +766,7 @@ GenericFastCubicBSplineInterpolateImageFunction<TImage>
 
   --i, --j;
 
-  RealType        val   = voxel_cast<RealType>(0);
+  RealType        val   = type_cast<RealType>(0);
   const RealType *coeff = _Coefficient.Data(i, j, k, l);
 
   for (int b = 0; b <= 3; ++b, coeff += _s2) {
@@ -776,7 +776,7 @@ GenericFastCubicBSplineInterpolateImageFunction<TImage>
     val += Kernel::LookupTable[A][3] * Kernel::LookupTable[B][b] * (*coeff), ++coeff;
   }
 
-  return voxel_cast<VoxelType>(val);
+  return type_cast<VoxelType>(val);
 }
 
 // -----------------------------------------------------------------------------
@@ -796,7 +796,7 @@ GenericFastCubicBSplineInterpolateImageFunction<TImage>
 
   --i, --j, --k;
 
-  RealType        val   = voxel_cast<RealType>(0);
+  RealType        val   = type_cast<RealType>(0);
   const RealType *coeff = _Coefficient.Data(i, j, k, l);
 
   Real wyz;
@@ -810,7 +810,7 @@ GenericFastCubicBSplineInterpolateImageFunction<TImage>
     }
   }
 
-  return voxel_cast<VoxelType>(val);
+  return type_cast<VoxelType>(val);
 }
 
 // -----------------------------------------------------------------------------
@@ -831,7 +831,7 @@ GenericFastCubicBSplineInterpolateImageFunction<TImage>
 
   --i, --j, --k, --l;
 
-  RealType        val   = voxel_cast<RealType>(0);
+  RealType        val   = type_cast<RealType>(0);
   const RealType *coeff = _Coefficient.Data(i, j, k, l);
 
   Real wzt, wyzt;
@@ -848,7 +848,7 @@ GenericFastCubicBSplineInterpolateImageFunction<TImage>
     }
   }
 
-  return voxel_cast<VoxelType>(val);
+  return type_cast<VoxelType>(val);
 }
 
 // -----------------------------------------------------------------------------
@@ -872,7 +872,7 @@ GenericFastCubicBSplineInterpolateImageFunction<TImage>
 ::GetOutside(double x, double y, double z, double t) const
 {
   if (_InfiniteCoefficient) {
-    return voxel_cast<VoxelType>(Get(_InfiniteCoefficient, x, y, z, t));
+    return type_cast<VoxelType>(Get(_InfiniteCoefficient, x, y, z, t));
   } else {
     return Get(x, y, z, t);
   }
@@ -885,9 +885,9 @@ GenericFastCubicBSplineInterpolateImageFunction<TImage>
 ::GetWithPaddingInside(double x, double y, double z, double t) const
 {
   switch (this->NumberOfDimensions()) {
-    case 3:  return voxel_cast<VoxelType>(GetWithPadding3D(this->Input(), &_Coefficient, x, y, z, t));
-    case 2:  return voxel_cast<VoxelType>(GetWithPadding2D(this->Input(), &_Coefficient, x, y, z, t));
-    default: return voxel_cast<VoxelType>(GetWithPadding4D(this->Input(), &_Coefficient, x, y, z, t));
+    case 3:  return type_cast<VoxelType>(GetWithPadding3D(this->Input(), &_Coefficient, x, y, z, t));
+    case 2:  return type_cast<VoxelType>(GetWithPadding2D(this->Input(), &_Coefficient, x, y, z, t));
+    default: return type_cast<VoxelType>(GetWithPadding4D(this->Input(), &_Coefficient, x, y, z, t));
   }
 }
 
@@ -898,7 +898,7 @@ GenericFastCubicBSplineInterpolateImageFunction<TImage>
 ::GetWithPaddingOutside(double x, double y, double z, double t) const
 {
   if (this->Extrapolator() && _InfiniteCoefficient) {
-    return voxel_cast<VoxelType>(GetWithPadding(this->Extrapolator(), _InfiniteCoefficient, x, y, z, t));
+    return type_cast<VoxelType>(GetWithPadding(this->Extrapolator(), _InfiniteCoefficient, x, y, z, t));
   } else {
     return GetWithPadding(x, y, z, t);
   }
@@ -930,8 +930,8 @@ void GenericFastCubicBSplineInterpolateImageFunction<TImage>
 
   --i, --j;
 
-  RealType dx = voxel_cast<RealType>(0);
-  RealType dy = voxel_cast<RealType>(0);
+  RealType dx = type_cast<RealType>(0);
+  RealType dy = type_cast<RealType>(0);
   Real     wx[2], wy[2];
 
   int ia, jb;
@@ -976,8 +976,8 @@ void GenericFastCubicBSplineInterpolateImageFunction<TImage>
 
   --i, --j;
 
-  RealType dx = voxel_cast<RealType>(0);
-  RealType dy = voxel_cast<RealType>(0);
+  RealType dx = type_cast<RealType>(0);
+  RealType dy = type_cast<RealType>(0);
   Real     wx[2], wy[2];
 
   int ia, jb;
@@ -989,8 +989,8 @@ void GenericFastCubicBSplineInterpolateImageFunction<TImage>
       ia = i + a;
       wx[0] = Kernel::LookupTable  [A][a];
       wx[1] = Kernel::LookupTable_I[A][a];
-      dx += (wx[1] * wy[0]) * voxel_cast<RealType>(coeff->Get(ia, jb, k, l));
-      dy += (wx[0] * wy[1]) * voxel_cast<RealType>(coeff->Get(ia, jb, k, l));
+      dx += (wx[1] * wy[0]) * type_cast<RealType>(coeff->Get(ia, jb, k, l));
+      dy += (wx[0] * wy[1]) * type_cast<RealType>(coeff->Get(ia, jb, k, l));
     }
   }
 
@@ -1022,9 +1022,9 @@ void GenericFastCubicBSplineInterpolateImageFunction<TImage>
 
   --i, --j, --k;
 
-  RealType dx = voxel_cast<RealType>(0);
-  RealType dy = voxel_cast<RealType>(0);
-  RealType dz = voxel_cast<RealType>(0);
+  RealType dx = type_cast<RealType>(0);
+  RealType dy = type_cast<RealType>(0);
+  RealType dz = type_cast<RealType>(0);
   Real     wx[2], wy[2], wz[2];
 
   int ia, jb, kc;
@@ -1079,9 +1079,9 @@ void GenericFastCubicBSplineInterpolateImageFunction<TImage>
 
   --i, --j, --k;
 
-  RealType dx = voxel_cast<RealType>(0);
-  RealType dy = voxel_cast<RealType>(0);
-  RealType dz = voxel_cast<RealType>(0);
+  RealType dx = type_cast<RealType>(0);
+  RealType dy = type_cast<RealType>(0);
+  RealType dz = type_cast<RealType>(0);
   Real     wx[2], wy[2], wz[2];
 
   int ia, jb, kc;
@@ -1097,9 +1097,9 @@ void GenericFastCubicBSplineInterpolateImageFunction<TImage>
         ia = i + a;
         wx[0] = Kernel::LookupTable  [A][a];
         wx[1] = Kernel::LookupTable_I[A][a];
-        dx += (wx[1] * wy[0] * wz[0]) * voxel_cast<RealType>(coeff->Get(ia, jb, kc, l));
-        dy += (wx[0] * wy[1] * wz[0]) * voxel_cast<RealType>(coeff->Get(ia, jb, kc, l));
-        dz += (wx[0] * wy[0] * wz[1]) * voxel_cast<RealType>(coeff->Get(ia, jb, kc, l));
+        dx += (wx[1] * wy[0] * wz[0]) * type_cast<RealType>(coeff->Get(ia, jb, kc, l));
+        dy += (wx[0] * wy[1] * wz[0]) * type_cast<RealType>(coeff->Get(ia, jb, kc, l));
+        dz += (wx[0] * wy[0] * wz[1]) * type_cast<RealType>(coeff->Get(ia, jb, kc, l));
       }
     }
   }
@@ -1130,10 +1130,10 @@ void GenericFastCubicBSplineInterpolateImageFunction<TImage>
 
   --i, --j, --k, --l;
 
-  RealType dx = voxel_cast<RealType>(0);
-  RealType dy = voxel_cast<RealType>(0);
-  RealType dz = voxel_cast<RealType>(0);
-  RealType dt = voxel_cast<RealType>(0);
+  RealType dx = type_cast<RealType>(0);
+  RealType dy = type_cast<RealType>(0);
+  RealType dz = type_cast<RealType>(0);
+  RealType dt = type_cast<RealType>(0);
   Real     wx[2], wy[2], wz[2], wt[2];
 
   int ia, jb, kc, ld;
@@ -1198,10 +1198,10 @@ void GenericFastCubicBSplineInterpolateImageFunction<TImage>
 
   --i, --j, --k, --l;
 
-  RealType dx = voxel_cast<RealType>(0);
-  RealType dy = voxel_cast<RealType>(0);
-  RealType dz = voxel_cast<RealType>(0);
-  RealType dt = voxel_cast<RealType>(0);
+  RealType dx = type_cast<RealType>(0);
+  RealType dy = type_cast<RealType>(0);
+  RealType dz = type_cast<RealType>(0);
+  RealType dt = type_cast<RealType>(0);
   Real     wx[2], wy[2], wz[2], wt[2];
 
   int ia, jb, kc, ld;
@@ -1221,10 +1221,10 @@ void GenericFastCubicBSplineInterpolateImageFunction<TImage>
           ia = i + a;
           wx[0] = Kernel::LookupTable  [A][a];
           wx[1] = Kernel::LookupTable_I[A][a];
-          dx += (wx[1] * wy[0] * wz[0] * wt[0]) * voxel_cast<RealType>(coeff->Get(ia, jb, kc, ld));
-          dy += (wx[0] * wy[1] * wz[0] * wt[0]) * voxel_cast<RealType>(coeff->Get(ia, jb, kc, ld));
-          dz += (wx[0] * wy[0] * wz[1] * wt[0]) * voxel_cast<RealType>(coeff->Get(ia, jb, kc, ld));
-          dt += (wx[0] * wy[0] * wz[0] * wt[1]) * voxel_cast<RealType>(coeff->Get(ia, jb, kc, ld));
+          dx += (wx[1] * wy[0] * wz[0] * wt[0]) * type_cast<RealType>(coeff->Get(ia, jb, kc, ld));
+          dy += (wx[0] * wy[1] * wz[0] * wt[0]) * type_cast<RealType>(coeff->Get(ia, jb, kc, ld));
+          dz += (wx[0] * wy[0] * wz[1] * wt[0]) * type_cast<RealType>(coeff->Get(ia, jb, kc, ld));
+          dt += (wx[0] * wy[0] * wz[0] * wt[1]) * type_cast<RealType>(coeff->Get(ia, jb, kc, ld));
         }
       }
     }

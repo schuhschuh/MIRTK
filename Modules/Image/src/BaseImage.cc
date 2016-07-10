@@ -23,7 +23,7 @@
 #include "mirtk/BaseImage.h"
 
 #include "mirtk/Math.h"
-#include "mirtk/Memory.h"
+#include "mirtk/SmartPtr.h"
 #include "mirtk/Matrix3x3.h"
 
 #include "mirtk/GenericImage.h"
@@ -32,6 +32,7 @@
 #include "mirtk/GaussianBlurring.h" // GaussianBlurring::KernelSize
 
 #if MIRTK_Image_WITH_VTK
+  #include "mirtk/VtkTypes.h"
   #include "vtkStructuredPoints.h"
 #endif
 
@@ -120,14 +121,14 @@ inline BaseImage *NewImage(const BaseImage *base)
 BaseImage *BaseImage::New(const BaseImage *image)
 {
   switch (image->GetDataType()) {
-    case MIRTK_VOXEL_CHAR:           return NewImage<char>          (image);
-    case MIRTK_VOXEL_UNSIGNED_CHAR:  return NewImage<unsigned char> (image);
-    case MIRTK_VOXEL_SHORT:          return NewImage<short>         (image);
-    case MIRTK_VOXEL_UNSIGNED_SHORT: return NewImage<unsigned short>(image);
-    case MIRTK_VOXEL_INT:            return NewImage<int>           (image);
-    case MIRTK_VOXEL_UNSIGNED_INT:   return NewImage<unsigned int>  (image);
-    case MIRTK_VOXEL_FLOAT:          return NewImage<float>         (image);
-    case MIRTK_VOXEL_DOUBLE:         return NewImage<double>        (image);
+    case T_Char:   return NewImage<Char>  (image);
+    case T_UChar:  return NewImage<UChar> (image);
+    case T_Short:  return NewImage<Short> (image);
+    case T_UShort: return NewImage<UShort>(image);
+    case T_Int:    return NewImage<Int>   (image);
+    case T_UInt:   return NewImage<UInt>  (image);
+    case T_Float:  return NewImage<Float> (image);
+    case T_Double: return NewImage<Double>(image);
     default:
       cerr << "BaseImage::New: Cannot allocate image of unknown type: "
                 << image->GetDataType() << endl;
@@ -139,14 +140,14 @@ BaseImage *BaseImage::New(const BaseImage *image)
 BaseImage *BaseImage::New(int dtype)
 {
   switch (dtype) {
-    case MIRTK_VOXEL_CHAR:           return new GenericImage<char>;
-    case MIRTK_VOXEL_UNSIGNED_CHAR:  return new GenericImage<unsigned char>;
-    case MIRTK_VOXEL_SHORT:          return new GenericImage<short>;
-    case MIRTK_VOXEL_UNSIGNED_SHORT: return new GenericImage<unsigned short>;
-    case MIRTK_VOXEL_INT:            return new GenericImage<int>;
-    case MIRTK_VOXEL_UNSIGNED_INT:   return new GenericImage<unsigned int>;
-    case MIRTK_VOXEL_FLOAT:          return new GenericImage<float>;
-    case MIRTK_VOXEL_DOUBLE:         return new GenericImage<double>;
+    case T_Char:   return new GenericImage<Char>;
+    case T_UChar:  return new GenericImage<UChar>;
+    case T_Short:  return new GenericImage<Short>;
+    case T_UShort: return new GenericImage<UShort>;
+    case T_Int:    return new GenericImage<Int>;
+    case T_UInt:   return new GenericImage<UInt>;
+    case T_Float:  return new GenericImage<Float>;
+    case T_Double: return new GenericImage<Double>;
     default:
       cerr << "BaseImage::New: Cannot allocate image of unknown type: " << dtype << endl;
       exit(1);
@@ -509,7 +510,7 @@ void BaseImage::InitializeMask(int t, bool force)
       exit(1);
     }
     if (_mask->GetT() == _attr._t) {
-      BinaryPixel *ptr2msk = _mask->GetPointerToVoxels();
+      Binary *ptr2msk = _mask->GetPointerToVoxels();
       for (int l = 0; l < _attr._t; l++) {
         for (int k = 0; k < _attr._z; k++) {
           for (int j = 0; j < _attr._y; j++) {
@@ -520,7 +521,7 @@ void BaseImage::InitializeMask(int t, bool force)
         }
       }
     } else {
-      BinaryPixel *ptr2msk = _mask->GetPointerToVoxels();
+      Binary *ptr2msk = _mask->GetPointerToVoxels();
       for (int k = 0; k < _attr._z; k++) {
         for (int j = 0; j < _attr._y; j++) {
           for (int i = 0; i < _attr._x; i++) {
@@ -529,11 +530,11 @@ void BaseImage::InitializeMask(int t, bool force)
         }
       }
       for (int l = 1; l < _attr._t; l++) {
-        BinaryPixel *ptr2msk = _mask->GetPointerToVoxels();
+        Binary *ptr2msk = _mask->GetPointerToVoxels();
         for (int k = 0; k < _attr._z; k++) {
           for (int j = 0; j < _attr._y; j++) {
             for (int i = 0; i < _attr._x; i++) {
-              if (*ptr2msk != BinaryPixel(0)) {
+              if (*ptr2msk != Binary(0)) {
                 (*ptr2msk) = (this->GetAsDouble(i, j, k, l) == _bg ? false : true);
               }
               ++ptr2msk;
@@ -897,7 +898,7 @@ ImageAttributes BaseImage::ForegroundDomain(double padding, double sigma, bool o
 // -----------------------------------------------------------------------------
 int BaseImage::ImageToVTKScalarType() const
 {
-  return ToVTKDataType(this->GetDataType());
+  return ToVtkDataType(static_cast<DataType>(this->GetDataType()));
 }
 
 // -----------------------------------------------------------------------------

@@ -1,8 +1,8 @@
 /*
  * Medical Image Registration ToolKit (MIRTK)
  *
- * Copyright 2008-2015 Imperial College London
- * Copyright 2008-2015 Daniel Rueckert, Julia Schnabel
+ * Copyright 2008-2016 Imperial College London
+ * Copyright 2008-2016 Daniel Rueckert, Julia Schnabel
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,6 +22,7 @@
 
 #include "mirtk/Math.h"
 #include "mirtk/Stream.h"
+#include "mirtk/TypeCast.h"
 
 
 namespace mirtk {
@@ -430,6 +431,115 @@ template <typename T> inline double Vector4D<T>::DotProduct(const Vector4D<T>& v
 {
   return v1._x*v2._x + v1._y*v2._y + v1._z*v2._z + v1._t*v2._t;
 }
+
+// =============================================================================
+// Type limits
+// =============================================================================
+
+// -----------------------------------------------------------------------------
+template <> struct type_limits<Vector4D<float> >
+{
+  static Vector4D<float> min_value() throw()
+  { return Vector4D<float>(type_limits<float>::min_value()); }
+  static Vector4D<float> max_value() throw()
+  { return Vector4D<float>(type_limits<float>::max_value()); }
+  static double min() throw() { return type_limits<float>::min(); }
+  static double max() throw() { return type_limits<float>::max(); }
+};
+
+// -----------------------------------------------------------------------------
+template <> struct type_limits<Vector4D<double> >
+{
+  static Vector4D<double> min_value() throw()
+  { return Vector4D<double>(type_limits<double>::min_value()); }
+  static Vector4D<double> max_value() throw()
+  { return Vector4D<double>(type_limits<double>::max_value()); }
+  static double min() throw() { return type_limits<double>::min(); }
+  static double max() throw() { return type_limits<double>::max(); }
+};
+
+// =============================================================================
+// Type traits
+// =============================================================================
+
+// -----------------------------------------------------------------------------
+template <> struct type_traits<Vector4D<float> >
+{
+  typedef float           ScalarType;
+  typedef Vector4D<float> RealType;
+  static int vector_size()  throw() { return 4; }
+  static int element_type() throw() { return T_Float; }
+  static DataType type()    throw() { return T_Float4; }
+};
+
+// -----------------------------------------------------------------------------
+template <> struct type_traits<Vector4D<double> >
+{
+  typedef double           ScalarType;
+  typedef Vector4D<double> RealType;
+  static int vector_size()  throw() { return 4; }
+  static int element_type() throw() { return T_Double; }
+  static DataType type()    throw() { return T_Double4; }
+};
+
+// =============================================================================
+// Type cast
+// =============================================================================
+
+// -----------------------------------------------------------------------------
+template <class TOut>
+struct TypeCaster<int, Vector4D<TOut> >
+{
+  static Vector4D<TOut> Convert(const int &value)
+  {
+    return Vector4D<TOut>(TypeCaster<int, TOut>::Convert(value));
+  }
+};
+
+// -----------------------------------------------------------------------------
+template <class TOut>
+struct TypeCaster<double, Vector4D<TOut> >
+{
+  static Vector4D<TOut> Convert(const double &value)
+  {
+    return Vector4D<TOut>(TypeCaster<double, TOut>::Convert(value));
+  }
+};
+
+// -----------------------------------------------------------------------------
+template <class TIn, class TOut>
+struct TypeCaster<Vector4D<TIn>, TOut>
+{
+  static TOut Convert(const Vector4D<TIn> &)
+  {
+    cerr << "Cannot cast 4D vector to a scalar!" << endl;
+    cerr << "Set breakpoint in " << __FILE__ << ":" << __LINE__ << " to debug." << endl;
+    exit(1);
+  }
+};
+
+// -----------------------------------------------------------------------------
+template <class TIn, class TOut>
+struct TypeCaster<Vector4D<TIn>, Vector4D<TOut> >
+{
+  static Vector4D<TOut> Convert(const Vector4D<TIn> &value)
+  {
+    return Vector4D<TOut>(TypeCaster<TIn, TOut>::Convert(value._x),
+                          TypeCaster<TIn, TOut>::Convert(value._y),
+                          TypeCaster<TIn, TOut>::Convert(value._z),
+                          TypeCaster<TIn, TOut>::Convert(value._t));
+  }
+};
+
+// -----------------------------------------------------------------------------
+template <class T>
+struct TypeCaster<Vector4D<T>, Vector4D<T> >
+{
+  static Vector4D<T> Convert(const Vector4D<T> &value)
+  {
+    return value;
+  }
+};
 
 // =============================================================================
 // Indexed element access

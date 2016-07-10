@@ -1394,7 +1394,7 @@ GetPointData(const gifti_image *gim, vtkIdType npoints = 0, vtkIdTypeArray *indi
         da->num_dim > 0 && da->dims[0] > 0 && da->nvals > 0) {
       const int ncomp = static_cast<int>(da->nvals / static_cast<long long>(da->dims[0]));
       vtkSmartPointer<vtkDataArray> data;
-      data = NewVTKDataArray(GiftiDataTypeToVtk(da->datatype));
+      data = NewVtkDataArray(GiftiDataTypeToVtk(da->datatype));
       data->SetNumberOfComponents(ncomp);
       if (npoints) {
         if (( indices && static_cast<vtkIdType>(da->dims[0]) != nindices) ||

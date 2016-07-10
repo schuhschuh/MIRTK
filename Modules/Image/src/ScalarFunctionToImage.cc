@@ -73,9 +73,9 @@ void ScalarFunctionToImage<VoxelType>::Run()
 // Explicit template instantiations
 // =============================================================================
 
-template class ScalarFunctionToImage<BytePixel>;
-template class ScalarFunctionToImage<GreyPixel>;
-template class ScalarFunctionToImage<RealPixel>;
+template class ScalarFunctionToImage<Byte>;
+template class ScalarFunctionToImage<Grey>;
+template class ScalarFunctionToImage<Real>;
 
 
 } // namespace mirtk

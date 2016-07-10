@@ -21,6 +21,7 @@
 #ifndef MIRTK_NiftiImage_H
 #define MIRTK_NiftiImage_H
 
+#define NO_NIFTI_DT_DEFINES
 #include "nifti/nifti2_io.h"
 
 #ifndef LSB_FIRST

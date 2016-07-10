@@ -160,7 +160,7 @@ int main(int argc, char **argv)
   } else {
     ImageType yx(yx_fname);
     ImageType yy(yy_fname);
-    UniquePtr<Image> yz(yz_fname ? new ImageType(yz_fname) : NULL);
+    UniquePtr<BaseImage> yz(yz_fname ? new ImageType(yz_fname) : NULL);
 
     ImageAttributes attr = yx.Attributes();
     if (attr._t > 1) {

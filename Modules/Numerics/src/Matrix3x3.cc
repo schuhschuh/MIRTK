@@ -18,7 +18,6 @@
 
 #include "mirtk/Matrix3x3.h"
 
-#include "mirtk/Arith.h"
 #include "mirtk/Math.h"
 #include "mirtk/Memory.h"
 #include "mirtk/Vector3.h"
@@ -412,7 +411,7 @@ bool Matrix3x3::Inverse (Matrix3x3& rkInverse, double fTolerance) const
     m_aafEntry[0][1]*rkInverse[1][0]+
     m_aafEntry[0][2]*rkInverse[2][0];
 
-  if ( Abs(fDet) <= fTolerance )
+  if ( abs(fDet) <= fTolerance )
     return false;
 
   double fInvDet = 1.0/fDet;
@@ -480,7 +479,7 @@ void Matrix3x3::Bidiagonalize(Matrix3x3& kA, Matrix3x3& kL, Matrix3x3& kR)
   bool bIdentity;
 
   // map first column to (*,0,0)
-  fLength = Sqrt(kA[0][0]*kA[0][0] + kA[1][0]*kA[1][0] +
+  fLength = sqrt(kA[0][0]*kA[0][0] + kA[1][0]*kA[1][0] +
                             kA[2][0]*kA[2][0]);
   if ( fLength > 0.0 ) {
     fSign = (kA[0][0] > 0.0 ? 1.0 : -1.0);
@@ -514,7 +513,7 @@ void Matrix3x3::Bidiagonalize(Matrix3x3& kA, Matrix3x3& kL, Matrix3x3& kR)
   }
 
   // map first row to (*,*,0)
-  fLength = Sqrt(kA[0][1]*kA[0][1]+kA[0][2]*kA[0][2]);
+  fLength = sqrt(kA[0][1]*kA[0][1]+kA[0][2]*kA[0][2]);
   if ( fLength > 0.0 ) {
     fSign = (kA[0][1] > 0.0 ? 1.0 : -1.0);
     fT1 = kA[0][1] + fSign*fLength;
@@ -541,7 +540,7 @@ void Matrix3x3::Bidiagonalize(Matrix3x3& kA, Matrix3x3& kL, Matrix3x3& kR)
   }
 
   // map second column to (*,*,0)
-  fLength = Sqrt(kA[1][1]*kA[1][1]+kA[2][1]*kA[2][1]);
+  fLength = sqrt(kA[1][1]*kA[1][1]+kA[2][1]*kA[2][1]);
   if ( fLength > 0.0 ) {
     fSign = (kA[1][1] > 0.0 ? 1.0 : -1.0);
     fT1 = kA[1][1] + fSign*fLength;
@@ -584,15 +583,15 @@ void Matrix3x3::GolubKahanStep(Matrix3x3& kA, Matrix3x3& kL, Matrix3x3& kR)
   double fT12 = kA[1][1]*kA[1][2];
   double fTrace = fT11+fT22;
   double fDiff = fT11-fT22;
-  double fDiscr = Sqrt(fDiff*fDiff+4.0*fT12*fT12);
+  double fDiscr = sqrt(fDiff*fDiff+4.0*fT12*fT12);
   double fRoot1 = 0.5*(fTrace+fDiscr);
   double fRoot2 = 0.5*(fTrace-fDiscr);
 
   // adjust right
-  double fY = kA[0][0] - (Abs(fRoot1-fT22) <=
-                          Abs(fRoot2-fT22) ? fRoot1 : fRoot2);
+  double fY = kA[0][0] - (abs(fRoot1-fT22) <=
+                          abs(fRoot2-fT22) ? fRoot1 : fRoot2);
   double fZ = kA[0][1];
-  double fInvLength = 1.0/Sqrt(fY*fY+fZ*fZ);
+  double fInvLength = 1.0/sqrt(fY*fY+fZ*fZ);
   double fSin = fZ*fInvLength;
   double fCos = -fY*fInvLength;
 
@@ -614,7 +613,7 @@ void Matrix3x3::GolubKahanStep(Matrix3x3& kA, Matrix3x3& kL, Matrix3x3& kR)
   // adjust left
   fY = kA[0][0];
   fZ = kA[1][0];
-  fInvLength = 1.0/Sqrt(fY*fY+fZ*fZ);
+  fInvLength = 1.0/sqrt(fY*fY+fZ*fZ);
   fSin = fZ*fInvLength;
   fCos = -fY*fInvLength;
 
@@ -637,7 +636,7 @@ void Matrix3x3::GolubKahanStep(Matrix3x3& kA, Matrix3x3& kL, Matrix3x3& kR)
   // adjust right
   fY = kA[0][1];
   fZ = kA[0][2];
-  fInvLength = 1.0/Sqrt(fY*fY+fZ*fZ);
+  fInvLength = 1.0/sqrt(fY*fY+fZ*fZ);
   fSin = fZ*fInvLength;
   fCos = -fY*fInvLength;
 
@@ -659,7 +658,7 @@ void Matrix3x3::GolubKahanStep(Matrix3x3& kA, Matrix3x3& kL, Matrix3x3& kR)
   // adjust left
   fY = kA[1][1];
   fZ = kA[2][1];
-  fInvLength = 1.0/Sqrt(fY*fY+fZ*fZ);
+  fInvLength = 1.0/sqrt(fY*fY+fZ*fZ);
   fSin = fZ*fInvLength;
   fCos = -fY*fInvLength;
 
@@ -690,10 +689,9 @@ void Matrix3x3::SingularValueDecomposition(Matrix3x3& kL, Vector3& kS, Matrix3x3
     double fSin0, fCos0, fTan0;
     double fSin1, fCos1, fTan1;
 
-    bool bTest1 = (Abs(kA[0][1]) <=
-                   ms_fSvdEpsilon*(Abs(kA[0][0])+Abs(kA[1][1])));
-    bool bTest2 = (Abs(kA[1][2]) <=
-                   ms_fSvdEpsilon*(Abs(kA[1][1])+Abs(kA[2][2])));
+    bool bTest1 = (abs(kA[0][1]) <= ms_fSvdEpsilon*(abs(kA[0][0])+abs(kA[1][1])));
+    bool bTest2 = (abs(kA[1][2]) <= ms_fSvdEpsilon*(abs(kA[1][1])+abs(kA[2][2])));
+
     if ( bTest1 ) {
       if ( bTest2 ) {
         kS[0] = kA[0][0];
@@ -704,8 +702,8 @@ void Matrix3x3::SingularValueDecomposition(Matrix3x3& kL, Vector3& kS, Matrix3x3
         // 2x2 closed form factorization
         fTmp = (kA[1][1]*kA[1][1] - kA[2][2]*kA[2][2] +
                 kA[1][2]*kA[1][2])/(kA[1][2]*kA[2][2]);
-        fTan0 = 0.5*(fTmp+Sqrt(fTmp*fTmp + 4.0));
-        fCos0 = 1.0/Sqrt(1.0+fTan0*fTan0);
+        fTan0 = 0.5*(fTmp+sqrt(fTmp*fTmp + 4.0));
+        fCos0 = 1.0/sqrt(1.0+fTan0*fTan0);
         fSin0 = fTan0*fCos0;
 
         for (iCol = 0; iCol < 3; iCol++) {
@@ -716,7 +714,7 @@ void Matrix3x3::SingularValueDecomposition(Matrix3x3& kL, Vector3& kS, Matrix3x3
         }
 
         fTan1 = (kA[1][2]-kA[2][2]*fTan0)/kA[1][1];
-        fCos1 = 1.0/Sqrt(1.0+fTan1*fTan1);
+        fCos1 = 1.0/sqrt(1.0+fTan1*fTan1);
         fSin1 = -fTan1*fCos1;
 
         for (iRow = 0; iRow < 3; iRow++) {
@@ -738,8 +736,8 @@ void Matrix3x3::SingularValueDecomposition(Matrix3x3& kL, Vector3& kS, Matrix3x3
         // 2x2 closed form factorization
         fTmp = (kA[0][0]*kA[0][0] + kA[1][1]*kA[1][1] -
                 kA[0][1]*kA[0][1])/(kA[0][1]*kA[1][1]);
-        fTan0 = 0.5*(-fTmp+Sqrt(fTmp*fTmp + 4.0));
-        fCos0 = 1.0/Sqrt(1.0+fTan0*fTan0);
+        fTan0 = 0.5*(-fTmp+sqrt(fTmp*fTmp + 4.0));
+        fCos0 = 1.0/sqrt(1.0+fTan0*fTan0);
         fSin0 = fTan0*fCos0;
 
         for (iCol = 0; iCol < 3; iCol++) {
@@ -750,7 +748,7 @@ void Matrix3x3::SingularValueDecomposition(Matrix3x3& kL, Vector3& kS, Matrix3x3
         }
 
         fTan1 = (kA[0][1]-kA[1][1]*fTan0)/kA[0][0];
-        fCos1 = 1.0/Sqrt(1.0+fTan1*fTan1);
+        fCos1 = 1.0/sqrt(1.0+fTan1*fTan1);
         fSin1 = -fTan1*fCos1;
 
         for (iRow = 0; iRow < 3; iRow++) {
@@ -818,7 +816,7 @@ void Matrix3x3::Orthonormalize()
   // product of vectors A and B.
 
   // compute q0
-  double fInvLength = 1.0/Sqrt(m_aafEntry[0][0]*m_aafEntry[0][0]
+  double fInvLength = 1.0/sqrt(m_aafEntry[0][0]*m_aafEntry[0][0]
                                           + m_aafEntry[1][0]*m_aafEntry[1][0] +
                                           m_aafEntry[2][0]*m_aafEntry[2][0]);
 
@@ -836,7 +834,7 @@ void Matrix3x3::Orthonormalize()
   m_aafEntry[1][1] -= fDot0*m_aafEntry[1][0];
   m_aafEntry[2][1] -= fDot0*m_aafEntry[2][0];
 
-  fInvLength = 1.0/Sqrt(m_aafEntry[0][1]*m_aafEntry[0][1] +
+  fInvLength = 1.0/sqrt(m_aafEntry[0][1]*m_aafEntry[0][1] +
                                    m_aafEntry[1][1]*m_aafEntry[1][1] +
                                    m_aafEntry[2][1]*m_aafEntry[2][1]);
 
@@ -859,7 +857,7 @@ void Matrix3x3::Orthonormalize()
   m_aafEntry[1][2] -= fDot0*m_aafEntry[1][0] + fDot1*m_aafEntry[1][1];
   m_aafEntry[2][2] -= fDot0*m_aafEntry[2][0] + fDot1*m_aafEntry[2][1];
 
-  fInvLength = 1.0/Sqrt(m_aafEntry[0][2]*m_aafEntry[0][2] +
+  fInvLength = 1.0/sqrt(m_aafEntry[0][2]*m_aafEntry[0][2] +
                                    m_aafEntry[1][2]*m_aafEntry[1][2] +
                                    m_aafEntry[2][2]*m_aafEntry[2][2]);
 
@@ -900,7 +898,7 @@ void Matrix3x3::QDUDecomposition (Matrix3x3& kQ,
   // U stores the entries U[0] = u01, U[1] = u02, U[2] = u12
 
   // build orthogonal matrix Q
-  double fInvLength = 1.0/Sqrt(m_aafEntry[0][0]*m_aafEntry[0][0]
+  double fInvLength = 1.0/sqrt(m_aafEntry[0][0]*m_aafEntry[0][0]
                                           + m_aafEntry[1][0]*m_aafEntry[1][0] +
                                           m_aafEntry[2][0]*m_aafEntry[2][0]);
   kQ[0][0] = m_aafEntry[0][0]*fInvLength;
@@ -912,7 +910,7 @@ void Matrix3x3::QDUDecomposition (Matrix3x3& kQ,
   kQ[0][1] = m_aafEntry[0][1]-fDot*kQ[0][0];
   kQ[1][1] = m_aafEntry[1][1]-fDot*kQ[1][0];
   kQ[2][1] = m_aafEntry[2][1]-fDot*kQ[2][0];
-  fInvLength = 1.0/Sqrt(kQ[0][1]*kQ[0][1] + kQ[1][1]*kQ[1][1] +
+  fInvLength = 1.0/sqrt(kQ[0][1]*kQ[0][1] + kQ[1][1]*kQ[1][1] +
                                    kQ[2][1]*kQ[2][1]);
   kQ[0][1] *= fInvLength;
   kQ[1][1] *= fInvLength;
@@ -928,7 +926,7 @@ void Matrix3x3::QDUDecomposition (Matrix3x3& kQ,
   kQ[0][2] -= fDot*kQ[0][1];
   kQ[1][2] -= fDot*kQ[1][1];
   kQ[2][2] -= fDot*kQ[2][1];
-  fInvLength = 1.0/Sqrt(kQ[0][2]*kQ[0][2] + kQ[1][2]*kQ[1][2] +
+  fInvLength = 1.0/sqrt(kQ[0][2]*kQ[0][2] + kQ[1][2]*kQ[1][2] +
                                    kQ[2][2]*kQ[2][2]);
   kQ[0][2] *= fInvLength;
   kQ[1][2] *= fInvLength;
@@ -992,11 +990,11 @@ double Matrix3x3::MaxCubicRoot (double afCoeff[3])
   double fPoly = afCoeff[0]+fX*(afCoeff[1]+fX*(afCoeff[2]+fX));
   if ( fPoly < 0.0 ) {
     // uses a matrix norm to find an upper bound on maximum root
-    fX = Abs(afCoeff[0]);
-    double fTmp = 1.0+Abs(afCoeff[1]);
+    fX = abs(afCoeff[0]);
+    double fTmp = 1.0+abs(afCoeff[1]);
     if ( fTmp > fX )
       fX = fTmp;
-    fTmp = 1.0+Abs(afCoeff[2]);
+    fTmp = 1.0+abs(afCoeff[2]);
     if ( fTmp > fX )
       fX = fTmp;
   }
@@ -1005,7 +1003,7 @@ double Matrix3x3::MaxCubicRoot (double afCoeff[3])
   double fTwoC2 = 2.0*afCoeff[2];
   for (int i = 0; i < 16; i++) {
     fPoly = afCoeff[0]+fX*(afCoeff[1]+fX*(afCoeff[2]+fX));
-    if ( Abs(fPoly) <= fEpsilon )
+    if ( abs(fPoly) <= fEpsilon )
       return fX;
 
     double fDeriv = afCoeff[1]+fX*(fTwoC2+3.0*fX);
@@ -1049,7 +1047,7 @@ double Matrix3x3::SpectralNorm () const
   afCoeff[2] = -(kP[0][0]+kP[1][1]+kP[2][2]);
 
   double fRoot = MaxCubicRoot(afCoeff);
-  double fNorm = Sqrt(fPmax*fRoot);
+  double fNorm = sqrt(fPmax*fRoot);
   return fNorm;
 }
 
@@ -1080,7 +1078,7 @@ void Matrix3x3::ToAxisAngle (Vector3& rkAxis, double& rfRadians) const
 
   double fTrace = m_aafEntry[0][0] + m_aafEntry[1][1] + m_aafEntry[2][2];
   double fCos = 0.5*(fTrace-1.0);
-  rfRadians = ACos(fCos);  // in [0,PI]
+  rfRadians = acos(clamp(fCos, -1., 1.));  // in [0,PI]
 
   if ( rfRadians > 0.0 ) {
     if ( rfRadians < pi ) {
@@ -1095,13 +1093,13 @@ void Matrix3x3::ToAxisAngle (Vector3& rkAxis, double& rfRadians) const
         // r00 >= r11
         if ( m_aafEntry[0][0] >= m_aafEntry[2][2] ) {
           // r00 is maximum diagonal term
-          rkAxis.x = 0.5*Sqrt(m_aafEntry[0][0] - m_aafEntry[1][1] - m_aafEntry[2][2] + 1.0);
+          rkAxis.x = 0.5*sqrt(m_aafEntry[0][0] - m_aafEntry[1][1] - m_aafEntry[2][2] + 1.0);
           fHalfInverse = 0.5/rkAxis.x;
           rkAxis.y = fHalfInverse*m_aafEntry[0][1];
           rkAxis.z = fHalfInverse*m_aafEntry[0][2];
         } else {
           // r22 is maximum diagonal term
-          rkAxis.z = 0.5*Sqrt(m_aafEntry[2][2] - m_aafEntry[0][0] - m_aafEntry[1][1] + 1.0);
+          rkAxis.z = 0.5*sqrt(m_aafEntry[2][2] - m_aafEntry[0][0] - m_aafEntry[1][1] + 1.0);
           fHalfInverse = 0.5/rkAxis.z;
           rkAxis.x = fHalfInverse*m_aafEntry[0][2];
           rkAxis.y = fHalfInverse*m_aafEntry[1][2];
@@ -1110,13 +1108,13 @@ void Matrix3x3::ToAxisAngle (Vector3& rkAxis, double& rfRadians) const
         // r11 > r00
         if ( m_aafEntry[1][1] >= m_aafEntry[2][2] ) {
           // r11 is maximum diagonal term
-          rkAxis.y = 0.5*Sqrt(m_aafEntry[1][1] - m_aafEntry[0][0] - m_aafEntry[2][2] + 1.0);
+          rkAxis.y = 0.5*sqrt(m_aafEntry[1][1] - m_aafEntry[0][0] - m_aafEntry[2][2] + 1.0);
           fHalfInverse  = 0.5/rkAxis.y;
           rkAxis.x = fHalfInverse*m_aafEntry[0][1];
           rkAxis.z = fHalfInverse*m_aafEntry[1][2];
         } else {
           // r22 is maximum diagonal term
-          rkAxis.z = 0.5*Sqrt(m_aafEntry[2][2] - m_aafEntry[0][0] - m_aafEntry[1][1] + 1.0);
+          rkAxis.z = 0.5*sqrt(m_aafEntry[2][2] - m_aafEntry[0][0] - m_aafEntry[1][1] + 1.0);
           fHalfInverse = 0.5/rkAxis.z;
           rkAxis.x = fHalfInverse*m_aafEntry[0][2];
           rkAxis.y = fHalfInverse*m_aafEntry[1][2];
@@ -1135,8 +1133,8 @@ void Matrix3x3::ToAxisAngle (Vector3& rkAxis, double& rfRadians) const
 //----------------------------------------------------------------------------
 void Matrix3x3::FromAxisAngle (const Vector3& rkAxis, double fRadians)
 {
-  double fCos = Cos(fRadians);
-  double fSin = Sin(fRadians);
+  double fCos = cos(fRadians);
+  double fSin = sin(fRadians);
   double fOneMinusCos = 1.0-fCos;
   double fX2 = rkAxis.x*rkAxis.x;
   double fY2 = rkAxis.y*rkAxis.y;
@@ -1166,22 +1164,22 @@ bool Matrix3x3::ToEulerAnglesXYZ(double& rfYAngle, double& rfPAngle, double& rfR
   //        cz*sx*sy+cx*sz  cx*cz-sx*sy*sz -cy*sx
   //       -cx*cz*sy+sx*sz  cz*sx+cx*sy*sz  cx*cy
 
-  rfPAngle = ASin(m_aafEntry[0][2]);
+  rfPAngle = asin(clamp(m_aafEntry[0][2], -1., 1.));
   if ( rfPAngle < pi_half ) {
     if ( rfPAngle > -pi_half ) {
-      rfYAngle = ATan2(-m_aafEntry[1][2], m_aafEntry[2][2]);
-      rfRAngle = ATan2(-m_aafEntry[0][1], m_aafEntry[0][0]);
+      rfYAngle = atan2(-m_aafEntry[1][2], m_aafEntry[2][2]);
+      rfRAngle = atan2(-m_aafEntry[0][1], m_aafEntry[0][0]);
       return true;
     } else {
       // WARNING.  Not a unique solution.
-      double fRmY = ATan2(m_aafEntry[1][0], m_aafEntry[1][1]);
+      double fRmY = atan2(m_aafEntry[1][0], m_aafEntry[1][1]);
       rfRAngle = 0.0;  // any angle works
       rfYAngle = rfRAngle - fRmY;
       return false;
     }
   } else {
     // WARNING.  Not a unique solution.
-    double fRpY = ATan2(m_aafEntry[1][0], m_aafEntry[1][1]);
+    double fRpY = atan2(m_aafEntry[1][0], m_aafEntry[1][1]);
     rfRAngle = 0.0;  // any angle works
     rfYAngle = fRpY - rfRAngle;
     return false;
@@ -1195,22 +1193,22 @@ bool Matrix3x3::ToEulerAnglesXZY (double& rfYAngle, double& rfPAngle, double& rf
   //        sx*sy+cx*cy*sz  cx*cz          -cy*sx+cx*sy*sz
   //       -cx*sy+cy*sx*sz  cz*sx           cx*cy+sx*sy*sz
 
-  rfPAngle = ASin(-m_aafEntry[0][1]);
+  rfPAngle = asin(clamp(-m_aafEntry[0][1], -1., 1.));
   if ( rfPAngle < pi_half ) {
     if ( rfPAngle > -pi_half ) {
-      rfYAngle = ATan2(m_aafEntry[2][1],m_aafEntry[1][1]);
-      rfRAngle = ATan2(m_aafEntry[0][2],m_aafEntry[0][0]);
+      rfYAngle = atan2(m_aafEntry[2][1],m_aafEntry[1][1]);
+      rfRAngle = atan2(m_aafEntry[0][2],m_aafEntry[0][0]);
       return true;
     } else {
       // WARNING.  Not a unique solution.
-      double fRmY = ATan2(-m_aafEntry[2][0],m_aafEntry[2][2]);
+      double fRmY = atan2(-m_aafEntry[2][0],m_aafEntry[2][2]);
       rfRAngle = 0.0;  // any angle works
       rfYAngle = rfRAngle - fRmY;
       return false;
     }
   } else {
     // WARNING.  Not a unique solution.
-    double fRpY = ATan2(-m_aafEntry[2][0],m_aafEntry[2][2]);
+    double fRpY = atan2(-m_aafEntry[2][0],m_aafEntry[2][2]);
     rfRAngle = 0.0;  // any angle works
     rfYAngle = fRpY - rfRAngle;
     return false;
@@ -1224,22 +1222,22 @@ bool Matrix3x3::ToEulerAnglesYXZ(double& rfYAngle, double& rfPAngle, double& rfR
   //        cx*sz           cx*cz          -sx
   //       -cz*sy+cy*sx*sz  cy*cz*sx+sy*sz  cx*cy
 
-  rfPAngle = ASin(-m_aafEntry[1][2]);
+  rfPAngle = asin(clamp(-m_aafEntry[1][2], -1., 1.));
   if ( rfPAngle < pi_half ) {
     if ( rfPAngle > -pi_half ) {
-      rfYAngle = ATan2(m_aafEntry[0][2], m_aafEntry[2][2]);
-      rfRAngle = ATan2(m_aafEntry[1][0], m_aafEntry[1][1]);
+      rfYAngle = atan2(m_aafEntry[0][2], m_aafEntry[2][2]);
+      rfRAngle = atan2(m_aafEntry[1][0], m_aafEntry[1][1]);
       return true;
     } else {
       // WARNING.  Not a unique solution.
-      double fRmY = ATan2(-m_aafEntry[0][1], m_aafEntry[0][0]);
+      double fRmY = atan2(-m_aafEntry[0][1], m_aafEntry[0][0]);
       rfRAngle = 0.0;  // any angle works
       rfYAngle = rfRAngle - fRmY;
       return false;
     }
   } else {
     // WARNING.  Not a unique solution.
-    double fRpY = ATan2(-m_aafEntry[0][1], m_aafEntry[0][0]);
+    double fRpY = atan2(-m_aafEntry[0][1], m_aafEntry[0][0]);
     rfRAngle = 0.0;  // any angle works
     rfYAngle = fRpY - rfRAngle;
     return false;
@@ -1253,22 +1251,22 @@ bool Matrix3x3::ToEulerAnglesYZX (double& rfYAngle, double& rfPAngle, double& rf
   //        sz              cx*cz          -cz*sx
   //       -cz*sy           cy*sx+cx*sy*sz  cx*cy-sx*sy*sz
 
-  rfPAngle = ASin(m_aafEntry[1][0]);
+  rfPAngle = asin(clamp(m_aafEntry[1][0], -1., 1.));
   if ( rfPAngle < pi_half ) {
     if ( rfPAngle > -pi_half ) {
-      rfYAngle = ATan2(-m_aafEntry[2][0], m_aafEntry[0][0]);
-      rfRAngle = ATan2(-m_aafEntry[1][2], m_aafEntry[1][1]);
+      rfYAngle = atan2(-m_aafEntry[2][0], m_aafEntry[0][0]);
+      rfRAngle = atan2(-m_aafEntry[1][2], m_aafEntry[1][1]);
       return true;
     } else {
       // WARNING.  Not a unique solution.
-      double fRmY = ATan2(m_aafEntry[2][1], m_aafEntry[2][2]);
+      double fRmY = atan2(m_aafEntry[2][1], m_aafEntry[2][2]);
       rfRAngle = 0.0;  // any angle works
       rfYAngle = rfRAngle - fRmY;
       return false;
     }
   } else {
     // WARNING.  Not a unique solution.
-    double fRpY = ATan2(m_aafEntry[2][1], m_aafEntry[2][2]);
+    double fRpY = atan2(m_aafEntry[2][1], m_aafEntry[2][2]);
     rfRAngle = 0.0;  // any angle works
     rfYAngle = fRpY - rfRAngle;
     return false;
@@ -1282,22 +1280,22 @@ bool Matrix3x3::ToEulerAnglesZXY (double& rfYAngle, double& rfPAngle, double& rf
   //        cz*sx*sy+cy*sz  cx*cz          -cy*cz*sx+sy*sz
   //       -cx*sy           sx              cx*cy
 
-  rfPAngle = ASin(m_aafEntry[2][1]);
+  rfPAngle = asin(clamp(m_aafEntry[2][1], -1., 1.));
   if ( rfPAngle < pi_half ) {
     if ( rfPAngle > -pi_half ) {
-      rfYAngle = ATan2(-m_aafEntry[0][1], m_aafEntry[1][1]);
-      rfRAngle = ATan2(-m_aafEntry[2][0], m_aafEntry[2][2]);
+      rfYAngle = atan2(-m_aafEntry[0][1], m_aafEntry[1][1]);
+      rfRAngle = atan2(-m_aafEntry[2][0], m_aafEntry[2][2]);
       return true;
     } else {
       // WARNING.  Not a unique solution.
-      double fRmY = ATan2(m_aafEntry[0][2], m_aafEntry[0][0]);
+      double fRmY = atan2(m_aafEntry[0][2], m_aafEntry[0][0]);
       rfRAngle = 0.0;  // any angle works
       rfYAngle = rfRAngle - fRmY;
       return false;
     }
   } else {
     // WARNING.  Not a unique solution.
-    double fRpY = ATan2(m_aafEntry[0][2], m_aafEntry[0][0]);
+    double fRpY = atan2(m_aafEntry[0][2], m_aafEntry[0][0]);
     rfRAngle = 0.0;  // any angle works
     rfYAngle = fRpY - rfRAngle;
     return false;
@@ -1311,22 +1309,22 @@ bool Matrix3x3::ToEulerAnglesZYX(double& rfYAngle, double& rfPAngle, double& rfR
   //        cy*sz           cx*cz+sx*sy*sz -cz*sx+cx*sy*sz
   //       -sy              cy*sx           cx*cy
 
-  rfPAngle = ASin(-m_aafEntry[2][0]);
+  rfPAngle = asin(clamp(-m_aafEntry[2][0], -1., 1.));
   if ( rfPAngle < pi_half ) {
     if ( rfPAngle > -pi_half ) {
-      rfYAngle = ATan2(m_aafEntry[1][0], m_aafEntry[0][0]);
-      rfRAngle = ATan2(m_aafEntry[2][1], m_aafEntry[2][2]);
+      rfYAngle = atan2(m_aafEntry[1][0], m_aafEntry[0][0]);
+      rfRAngle = atan2(m_aafEntry[2][1], m_aafEntry[2][2]);
       return true;
     } else {
       // WARNING.  Not a unique solution.
-      double fRmY = ATan2(-m_aafEntry[0][1], m_aafEntry[0][2]);
+      double fRmY = atan2(-m_aafEntry[0][1], m_aafEntry[0][2]);
       rfRAngle = 0.0;  // any angle works
       rfYAngle = rfRAngle - fRmY;
       return false;
     }
   } else {
     // WARNING.  Not a unique solution.
-    double fRpY = ATan2(-m_aafEntry[0][1], m_aafEntry[0][2]);
+    double fRpY = atan2(-m_aafEntry[0][1], m_aafEntry[0][2]);
     rfRAngle = 0.0;  // any angle works
     rfYAngle = fRpY - rfRAngle;
     return false;
@@ -1338,16 +1336,16 @@ void Matrix3x3::FromEulerAnglesXYZ(double fYAngle, double fPAngle, double fRAngl
 {
   double fCos, fSin;
 
-  fCos = Cos(fYAngle);
-  fSin = Sin(fYAngle);
+  fCos = cos(fYAngle);
+  fSin = sin(fYAngle);
   Matrix3x3 kXMat(1.0,0.0,0.0,0.0,fCos,-fSin,0.0,fSin,fCos);
 
-  fCos = Cos(fPAngle);
-  fSin = Sin(fPAngle);
+  fCos = cos(fPAngle);
+  fSin = sin(fPAngle);
   Matrix3x3 kYMat(fCos,0.0,fSin,0.0,1.0,0.0,-fSin,0.0,fCos);
 
-  fCos = Cos(fRAngle);
-  fSin = Sin(fRAngle);
+  fCos = cos(fRAngle);
+  fSin = sin(fRAngle);
   Matrix3x3 kZMat(fCos,-fSin,0.0,fSin,fCos,0.0,0.0,0.0,1.0);
 
   *this = kXMat*(kYMat*kZMat);
@@ -1358,16 +1356,16 @@ void Matrix3x3::FromEulerAnglesXZY(double fYAngle, double fPAngle, double fRAngl
 {
   double fCos, fSin;
 
-  fCos = Cos(fYAngle);
-  fSin = Sin(fYAngle);
+  fCos = cos(fYAngle);
+  fSin = sin(fYAngle);
   Matrix3x3 kXMat(1.0,0.0,0.0,0.0,fCos,-fSin,0.0,fSin,fCos);
 
-  fCos = Cos(fPAngle);
-  fSin = Sin(fPAngle);
+  fCos = cos(fPAngle);
+  fSin = sin(fPAngle);
   Matrix3x3 kZMat(fCos,-fSin,0.0,fSin,fCos,0.0,0.0,0.0,1.0);
 
-  fCos = Cos(fRAngle);
-  fSin = Sin(fRAngle);
+  fCos = cos(fRAngle);
+  fSin = sin(fRAngle);
   Matrix3x3 kYMat(fCos,0.0,fSin,0.0,1.0,0.0,-fSin,0.0,fCos);
 
   *this = kXMat*(kZMat*kYMat);
@@ -1378,16 +1376,16 @@ void Matrix3x3::FromEulerAnglesYXZ(double fYAngle, double fPAngle, double fRAngl
 {
   double fCos, fSin;
 
-  fCos = Cos(fYAngle);
-  fSin = Sin(fYAngle);
+  fCos = cos(fYAngle);
+  fSin = sin(fYAngle);
   Matrix3x3 kYMat(fCos,0.0,fSin,0.0,1.0,0.0,-fSin,0.0,fCos);
 
-  fCos = Cos(fPAngle);
-  fSin = Sin(fPAngle);
+  fCos = cos(fPAngle);
+  fSin = sin(fPAngle);
   Matrix3x3 kXMat(1.0,0.0,0.0,0.0,fCos,-fSin,0.0,fSin,fCos);
 
-  fCos = Cos(fRAngle);
-  fSin = Sin(fRAngle);
+  fCos = cos(fRAngle);
+  fSin = sin(fRAngle);
   Matrix3x3 kZMat(fCos,-fSin,0.0,fSin,fCos,0.0,0.0,0.0,1.0);
 
   *this = kYMat*(kXMat*kZMat);
@@ -1398,16 +1396,16 @@ void Matrix3x3::FromEulerAnglesYZX(double fYAngle, double fPAngle, double fRAngl
 {
   double fCos, fSin;
 
-  fCos = Cos(fYAngle);
-  fSin = Sin(fYAngle);
+  fCos = cos(fYAngle);
+  fSin = sin(fYAngle);
   Matrix3x3 kYMat(fCos,0.0,fSin,0.0,1.0,0.0,-fSin,0.0,fCos);
 
-  fCos = Cos(fPAngle);
-  fSin = Sin(fPAngle);
+  fCos = cos(fPAngle);
+  fSin = sin(fPAngle);
   Matrix3x3 kZMat(fCos,-fSin,0.0,fSin,fCos,0.0,0.0,0.0,1.0);
 
-  fCos = Cos(fRAngle);
-  fSin = Sin(fRAngle);
+  fCos = cos(fRAngle);
+  fSin = sin(fRAngle);
   Matrix3x3 kXMat(1.0,0.0,0.0,0.0,fCos,-fSin,0.0,fSin,fCos);
 
   *this = kYMat*(kZMat*kXMat);
@@ -1418,16 +1416,16 @@ void Matrix3x3::FromEulerAnglesZXY(double fYAngle, double fPAngle, double fRAngl
 {
   double fCos, fSin;
 
-  fCos = Cos(fYAngle);
-  fSin = Sin(fYAngle);
+  fCos = cos(fYAngle);
+  fSin = sin(fYAngle);
   Matrix3x3 kZMat(fCos,-fSin,0.0,fSin,fCos,0.0,0.0,0.0,1.0);
 
-  fCos = Cos(fPAngle);
-  fSin = Sin(fPAngle);
+  fCos = cos(fPAngle);
+  fSin = sin(fPAngle);
   Matrix3x3 kXMat(1.0,0.0,0.0,0.0,fCos,-fSin,0.0,fSin,fCos);
 
-  fCos = Cos(fRAngle);
-  fSin = Sin(fRAngle);
+  fCos = cos(fRAngle);
+  fSin = sin(fRAngle);
   Matrix3x3 kYMat(fCos,0.0,fSin,0.0,1.0,0.0,-fSin,0.0,fCos);
 
   *this = kZMat*(kXMat*kYMat);
@@ -1438,16 +1436,16 @@ void Matrix3x3::FromEulerAnglesZYX(double fYAngle, double fPAngle, double fRAngl
 {
   double fCos, fSin;
 
-  fCos = Cos(fYAngle);
-  fSin = Sin(fYAngle);
+  fCos = cos(fYAngle);
+  fSin = sin(fYAngle);
   Matrix3x3 kZMat(fCos,-fSin,0.0,fSin,fCos,0.0,0.0,0.0,1.0);
 
-  fCos = Cos(fPAngle);
-  fSin = Sin(fPAngle);
+  fCos = cos(fPAngle);
+  fSin = sin(fPAngle);
   Matrix3x3 kYMat(fCos,0.0,fSin,0.0,1.0,0.0,-fSin,0.0,fCos);
 
-  fCos = Cos(fRAngle);
-  fSin = Sin(fRAngle);
+  fCos = cos(fRAngle);
+  fSin = sin(fRAngle);
   Matrix3x3 kXMat(1.0,0.0,0.0,0.0,fCos,-fSin,0.0,fSin,fCos);
 
   *this = kZMat*(kYMat*kXMat);
@@ -1473,8 +1471,8 @@ void Matrix3x3::Tridiagonal(double afDiag[3], double afSubDiag[3])
 
   afDiag[0] = fA;
   afSubDiag[2] = 0.0;
-  if ( Abs(fC) >= EPSILON ) {
-    double fLength = Sqrt(fB*fB+fC*fC);
+  if ( abs(fC) >= EPSILON ) {
+    double fLength = sqrt(fB*fB+fC*fC);
     double fInvLength = 1.0/fLength;
     fB *= fInvLength;
     fC *= fInvLength;
@@ -1521,16 +1519,16 @@ bool Matrix3x3::QLAlgorithm(double afDiag[3], double afSubDiag[3])
     for (iIter = 0; iIter < iMaxIter; iIter++) {
       int i1;
       for (i1 = i0; i1 <= 1; i1++) {
-        double fSum = Abs(afDiag[i1]) +
-                      Abs(afDiag[i1+1]);
-        if ( Abs(afSubDiag[i1]) + fSum == fSum )
+        double fSum = abs(afDiag[i1]) +
+                      abs(afDiag[i1+1]);
+        if ( abs(afSubDiag[i1]) + fSum == fSum )
           break;
       }
       if ( i1 == i0 )
         break;
 
       double fTmp0 = (afDiag[i0+1]-afDiag[i0])/(2.0*afSubDiag[i0]);
-      double fTmp1 = Sqrt(fTmp0*fTmp0+1.0);
+      double fTmp1 = sqrt(fTmp0*fTmp0+1.0);
       if ( fTmp0 < 0.0 )
         fTmp0 = afDiag[i1]-afDiag[i0]+afSubDiag[i0]/(fTmp0-fTmp1);
       else
@@ -1541,15 +1539,15 @@ bool Matrix3x3::QLAlgorithm(double afDiag[3], double afSubDiag[3])
       for (int i2 = i1-1; i2 >= i0; i2--) {
         double fTmp3 = fSin*afSubDiag[i2];
         double fTmp4 = fCos*afSubDiag[i2];
-        if ( fabs(fTmp3) >= fabs(fTmp0) ) {
+        if ( abs(fTmp3) >= abs(fTmp0) ) {
           fCos = fTmp0/fTmp3;
-          fTmp1 = Sqrt(fCos*fCos+1.0);
+          fTmp1 = sqrt(fCos*fCos+1.0);
           afSubDiag[i2+1] = fTmp3*fTmp1;
           fSin = 1.0/fTmp1;
           fCos *= fSin;
         } else {
           fSin = fTmp3/fTmp0;
-          fTmp1 = Sqrt(fSin*fSin+1.0);
+          fTmp1 = sqrt(fSin*fSin+1.0);
           afSubDiag[i2+1] = fTmp0*fTmp1;
           fCos = 1.0/fTmp1;
           fSin *= fCos;

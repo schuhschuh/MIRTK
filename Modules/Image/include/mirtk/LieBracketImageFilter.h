@@ -187,7 +187,7 @@ LieBracketImageFilter<VoxelType>::New(const ImageAttributes &attr, bool usejac)
 // ----------------------------------------------------------------------------
 template <class VoxelType>
 LieBracketImageFilter<VoxelType> *
-LieBracketImageFilter<VoxelType>::New(const Image *image, bool usejac)
+LieBracketImageFilter<VoxelType>::New(const BaseImage *image, bool usejac)
 {
   return LieBracketImageFilter::New(image->Attributes(), usejac);
 }

@@ -25,7 +25,6 @@
 #include "mirtk/Memory.h"
 #include "mirtk/Path.h"
 #include "mirtk/Matrix3x3.h"
-#include "mirtk/VoxelCast.h"
 #include "mirtk/Vector3D.h"
 #include "mirtk/Point.h"
 
@@ -246,7 +245,7 @@ void HashImage<VoxelType>::CopyFrom(const BaseImage &image)
     _DefaultValue  = VoxelType();
 
     for (int idx = 0; idx < _NumberOfVoxels; ++idx) {
-      Put(idx, voxel_cast<VoxelType>(image.GetAsVector(idx) ));
+      Put(idx, type_cast<VoxelType>(image.GetAsVector(idx) ));
     }
     if (_maskOwner) delete _mask;
     if (image.OwnsMask()) {
@@ -270,7 +269,7 @@ void HashImage<VoxelType>::CopyFrom(const GenericImage<VoxelType2> &image)
   _DefaultValue  = VoxelType();
 
   for (int idx = 0; idx < _NumberOfVoxels; ++idx) {
-    Put(idx, voxel_cast<VoxelType>(image.Get(idx)));
+    Put(idx, type_cast<VoxelType>(image.Get(idx)));
   }
 
   if (_maskOwner) delete _mask;
@@ -291,10 +290,10 @@ template <class VoxelType> template <class VoxelType2>
 void HashImage<VoxelType>::CopyFrom(const HashImage<VoxelType2> &image)
 {
   _Data.clear();
-  _DefaultValue = voxel_cast<VoxelType>(image.DefaultValue());
+  _DefaultValue = type_cast<VoxelType>(image.DefaultValue());
 
   for (auto it = image.Begin(); it != image.End(); ++it) {
-    Put(it->first, voxel_cast<VoxelType>(it->second));
+    Put(it->first, type_cast<VoxelType>(it->second));
   }
 
   if (_maskOwner) delete _mask;
@@ -316,9 +315,9 @@ template <class VoxelType> template <class VoxelType2>
 void HashImage<VoxelType>::CopyTo(GenericImage<VoxelType2> &image) const
 {
   image.Initialize(_attr);
-  image = voxel_cast<VoxelType2>(_DefaultValue);
+  image = type_cast<VoxelType2>(_DefaultValue);
   for (auto it = Begin(); it != End(); ++it) {
-    image.Put(it->first, voxel_cast<VoxelType2>(it->second));
+    image.Put(it->first, type_cast<VoxelType2>(it->second));
   }
 }
 
@@ -378,7 +377,7 @@ bool HashImage<VoxelType>::operator==(const HashImage<VoxelType2> &image) const
   if (_Data.size() != image.NumberOfNonDefaultVoxels()) return false;
   for (int idx = 0; idx < _NumberOfVoxels; ++idx) {
     if (IsForeground(idx) && image.IsForeground(idx)){
-      if(Get(idx)!= voxel_cast<VoxelType>(image.Get(idx)))
+      if(Get(idx)!= type_cast<VoxelType>(image.Get(idx)))
         return false;
     }
   }
@@ -908,7 +907,7 @@ void HashImage<VoxelType>::PutBackgroundValueAsDouble(double value, bool thresho
   _bg  = value;
   _bgSet = true;
   if (threshold) {
-    const VoxelType bg = voxel_cast<VoxelType>(this->_bg);
+    const VoxelType bg = type_cast<VoxelType>(this->_bg);
 
     bool changedValue=false;
     if( _DefaultValue < bg){
@@ -1007,8 +1006,8 @@ void HashImage<VoxelType>::PutMinMax(VoxelType min, VoxelType max)
 {
   VoxelType min_val, max_val;
   this->GetMinMax(min_val, max_val);
-  RealType slope = voxel_cast<RealType>(max  - min)  / voxel_cast<RealType>(max_val - min_val);
-  RealType inter = voxel_cast<RealType>(min) - slope * voxel_cast<RealType>(min_val);
+  RealType slope = type_cast<RealType>(max  - min)  / type_cast<RealType>(max_val - min_val);
+  RealType inter = type_cast<RealType>(min) - slope * type_cast<RealType>(min_val);
 
   _DefaultValue = inter + slope * _DefaultValue;
   for ( auto it = Begin(); it != End(); ++it ){

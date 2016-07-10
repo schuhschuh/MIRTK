@@ -510,20 +510,20 @@ public:
   /// Gets the spatial bounding box for a control point in image coordinates.
   /// The last parameter specifies what fraction of the bounding box to return.
   /// The default is 1 which equals 100% of the bounding box.
-  bool BoundingBox(const Image *, int, int &, int &, int &,
-                                       int &, int &, int &, double = 1) const;
+  bool BoundingBox(const BaseImage *, int, int &, int &, int &,
+                                           int &, int &, int &, double = 1) const;
 
   /// Gets the spatio-temporal bounding box for a control point in image coordinates.
   /// The last parameter specifies what fraction of the bounding box to return.
   /// The default is 1 which equals 100% of the bounding box.
-  bool BoundingBox(const Image *, int, int &, int &, int &, int &,
-                                       int &, int &, int &, int &, double = 1) const;
+  bool BoundingBox(const BaseImage *, int, int &, int &, int &, int &,
+                                           int &, int &, int &, int &, double = 1) const;
 
   /// Gets the spatial bounding box for a transformation parameter in image coordinates.
   /// The last parameter specifies what fraction of the bounding box to return.
   /// The default is 1 which equals 100% of the bounding box.
-  bool DOFBoundingBox(const Image *, int, int &, int &, int &,
-                                          int &, int &, int &, double = 1) const;
+  bool DOFBoundingBox(const BaseImage *, int, int &, int &, int &,
+                                              int &, int &, int &, double = 1) const;
 
   // ---------------------------------------------------------------------------
   // Transformation parameters (DoFs)
@@ -1175,10 +1175,10 @@ inline void FreeFormTransformation::BoundingBox(int cp, Point &p1, Point &p2, do
 }
 
 // -----------------------------------------------------------------------------
-inline bool FreeFormTransformation::BoundingBox(const Image *image, int cp,
-                                                    int &i1, int &j1, int &k1,
-                                                    int &i2, int &j2, int &k2,
-                                                    double fraction) const
+inline bool FreeFormTransformation::BoundingBox(const BaseImage *image, int cp,
+                                                int &i1, int &j1, int &k1,
+                                                int &i2, int &j2, int &k2,
+                                                double fraction) const
 {
   // Calculate bounding box in world coordinates parallel to world axes
   double x[2], y[2], z[2];
@@ -1226,10 +1226,10 @@ inline bool FreeFormTransformation::BoundingBox(const Image *image, int cp,
 }
 
 // -----------------------------------------------------------------------------
-inline bool FreeFormTransformation::BoundingBox(const Image *image, int cp,
-                                                    int &i1, int &j1, int &k1, int &l1,
-                                                    int &i2, int &j2, int &k2, int &l2,
-                                                    double fraction) const
+inline bool FreeFormTransformation::BoundingBox(const BaseImage *image, int cp,
+                                                int &i1, int &j1, int &k1, int &l1,
+                                                int &i2, int &j2, int &k2, int &l2,
+                                                double fraction) const
 {
   // Calculate spatial bounding box in image coordinates
   bool bbvalid = BoundingBox(image, cp, i1, j1, k1, i2, j2, k2, fraction);
@@ -1257,10 +1257,10 @@ inline bool FreeFormTransformation::BoundingBox(const Image *image, int cp,
 }
 
 // -----------------------------------------------------------------------------
-inline bool FreeFormTransformation::DOFBoundingBox(const Image *image, int dof,
-                                                       int &i1, int &j1, int &k1,
-                                                       int &i2, int &j2, int &k2,
-                                                       double fraction) const
+inline bool FreeFormTransformation::DOFBoundingBox(const BaseImage *image, int dof,
+                                                   int &i1, int &j1, int &k1,
+                                                   int &i2, int &j2, int &k2,
+                                                   double fraction) const
 {
   return BoundingBox(image, this->DOFToIndex(dof), i1, j1, k1, i2, j2, k2, fraction);
 }

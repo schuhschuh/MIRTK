@@ -97,12 +97,12 @@ void ImageWriter::Run()
   const int   n    = _Input->NumberOfVoxels();
 
   switch (_Input->GetDataType()) {
-    case MIRTK_VOXEL_CHAR:           WriteAsChar  ((char           *)data, n, _Start); break;
-    case MIRTK_VOXEL_UNSIGNED_CHAR:  WriteAsUChar ((unsigned char  *)data, n, _Start); break;
-    case MIRTK_VOXEL_SHORT:          WriteAsShort ((short          *)data, n, _Start); break;
-    case MIRTK_VOXEL_UNSIGNED_SHORT: WriteAsUShort((unsigned short *)data, n, _Start); break;
-    case MIRTK_VOXEL_FLOAT:          WriteAsFloat ((float          *)data, n, _Start); break;
-    case MIRTK_VOXEL_DOUBLE:         WriteAsDouble((double         *)data, n, _Start); break;
+    case T_Char:   WriteAsChar  ((Char   *)data, n, _Start); break;
+    case T_UChar:  WriteAsUChar ((UChar  *)data, n, _Start); break;
+    case T_Short:  WriteAsShort ((Short  *)data, n, _Start); break;
+    case T_UShort: WriteAsUShort((UShort *)data, n, _Start); break;
+    case T_Float:  WriteAsFloat ((Float  *)data, n, _Start); break;
+    case T_Double: WriteAsDouble((Double *)data, n, _Start); break;
     default:
       cerr << this->NameOfClass() << "::Run(): Unsupported voxel type" << endl;
       exit(1);

@@ -60,8 +60,8 @@ set(HEADERS
   CubicBSplineInterpolateImageFunction3D.hxx
   CubicBSplineInterpolateImageFunction4D.h
   CubicBSplineInterpolateImageFunction4D.hxx
-  DataFunctions.h
   DataOp.h
+  DataFunctions.h
   DataStatistics.h
   DifferenceOfCompositionLieBracketImageFilter3D.h
   Dilation.h
@@ -171,7 +171,6 @@ set(HEADERS
   VelocityToDisplacementFieldEuler.h
   VelocityToDisplacementFieldSS.h
   Voxel.h
-  VoxelCast.h
   VoxelDomain.h
   VoxelFunction.h
 )
@@ -217,7 +216,6 @@ set(SOURCES
   VelocityToDisplacementField.cc
   VelocityToDisplacementFieldEuler.cc
   VelocityToDisplacementFieldSS.cc
-  Voxel.cc
 )
 
 set(DEPENDS

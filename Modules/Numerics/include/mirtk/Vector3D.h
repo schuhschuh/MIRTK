@@ -1,8 +1,8 @@
 /*
  * Medical Image Registration ToolKit (MIRTK)
  *
- * Copyright 2008-2015 Imperial College London
- * Copyright 2008-2015 Daniel Rueckert, Julia Schnabel
+ * Copyright 2008-2016 Imperial College London
+ * Copyright 2008-2016 Daniel Rueckert, Julia Schnabel
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@
 #include "mirtk/Math.h"
 #include "mirtk/Point.h"
 #include "mirtk/Vector3.h"
+#include "mirtk/TypeCast.h"
 
 
 namespace mirtk {
@@ -912,6 +913,114 @@ inline double Vector3D<T>::DotProduct(const Vector3D<T> &v1,
 {
   return v1.DotProduct(v2);
 }
+
+// =============================================================================
+// Type limits
+// =============================================================================
+
+// -----------------------------------------------------------------------------
+template <> struct type_limits<Vector3D<float> >
+{
+  static Vector3D<float> min_value() throw()
+  { return Vector3D<float>(type_limits<float>::min_value()); }
+  static Vector3D<float> max_value() throw()
+  { return Vector3D<float>(type_limits<float>::max_value()); }
+  static double min() throw() { return type_limits<float>::min(); }
+  static double max() throw() { return type_limits<float>::max(); }
+};
+
+// -----------------------------------------------------------------------------
+template <> struct type_limits<Vector3D<double> >
+{
+  static Vector3D<double> min_value() throw()
+  { return Vector3D<double>(type_limits<double>::min_value()); }
+  static Vector3D<double> max_value() throw()
+  { return Vector3D<double>(type_limits<double>::max_value()); }
+  static double min() throw() { return type_limits<double>::min(); }
+  static double max() throw() { return type_limits<double>::max(); }
+};
+
+// =============================================================================
+// Type traits
+// =============================================================================
+
+// -----------------------------------------------------------------------------
+template <> struct type_traits<Vector3D<float> >
+{
+  typedef float           ScalarType;
+  typedef Vector3D<float> RealType;
+  static int vector_size()  throw() { return 3; }
+  static int element_type() throw() { return T_Float; }
+  static DataType type()    throw() { return T_Float3; }
+};
+
+// -----------------------------------------------------------------------------
+template <> struct type_traits<Vector3D<double> >
+{
+  typedef double           ScalarType;
+  typedef Vector3D<double> RealType;
+  static int vector_size()  throw() { return 3; }
+  static int element_type() throw() { return T_Double; }
+  static DataType type()    throw() { return T_Double3; }
+};
+
+// =============================================================================
+// Type cast
+// =============================================================================
+
+// -----------------------------------------------------------------------------
+template <class TOut>
+struct TypeCaster<int, Vector3D<TOut> >
+{
+  static Vector3D<TOut> Convert(const int &value)
+  {
+    return Vector3D<TOut>(TypeCaster<int, TOut>::Convert(value));
+  }
+};
+
+// -----------------------------------------------------------------------------
+template <class TOut>
+struct TypeCaster<double, Vector3D<TOut> >
+{
+  static Vector3D<TOut> Convert(const double &value)
+  {
+    return Vector3D<TOut>(TypeCaster<double, TOut>::Convert(value));
+  }
+};
+
+// -----------------------------------------------------------------------------
+template <class TIn, class TOut>
+struct TypeCaster<Vector3D<TIn>, TOut>
+{
+  static TOut Convert(const Vector3D<TIn> &)
+  {
+    cerr << "Cannot cast 3D vector to a scalar!" << endl;
+    cerr << "Set breakpoint in " << __FILE__ << ":" << __LINE__ << " to debug." << endl;
+    exit(1);
+  }
+};
+
+// -----------------------------------------------------------------------------
+template <class TIn, class TOut>
+struct TypeCaster<Vector3D<TIn>, Vector3D<TOut> >
+{
+  static Vector3D<TOut> Convert(const Vector3D<TIn> &value)
+  {
+    return Vector3D<TOut>(TypeCaster<TIn, TOut>::Convert(value._x),
+                          TypeCaster<TIn, TOut>::Convert(value._y),
+                          TypeCaster<TIn, TOut>::Convert(value._z));
+  }
+};
+
+// -----------------------------------------------------------------------------
+template <class T>
+struct TypeCaster<Vector3D<T>, Vector3D<T> >
+{
+  static Vector3D<T> Convert(const Vector3D<T> &value)
+  {
+    return value;
+  }
+};
 
 // =============================================================================
 // Indexed element access

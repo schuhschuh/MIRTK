@@ -26,7 +26,6 @@ set(HEADERS
   ${BINARY_INCLUDE_DIR}/mirtk/NumericsConfig.h
   ${BINARY_INCLUDE_DIR}/mirtk/NumericsExport.h
   AdaptiveLineSearch.h
-  Arith.h
   BrentLineSearch.h
   BSpline.h
   CharbonnierErrorFunction.h
@@ -69,8 +68,8 @@ set(HEADERS
 )
 
 set(SOURCES
+  NumericsConfig.cc
   AdaptiveLineSearch.cc
-  Arith.cc
   BrentLineSearch.cc
   BSpline.cc
   ConjugateGradientDescent.cc
@@ -82,7 +81,6 @@ set(SOURCES
   Matrix.cc
   Matrix3x3.cc
   MaxStepLineSearch.cc
-  NumericsConfig.cc
   Plane.cc
   Point.cc
   PointSamples.cc

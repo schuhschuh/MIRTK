@@ -1031,7 +1031,7 @@ inline ImageRegion::~ImageRegion()
 template <class VoxelType>
 inline const VoxelType *ImageRegion::GetPointerToBegin(const BaseImage &image) const
 {
-  if (image.GetScalarType() != voxel_info<VoxelType>::type()) {
+  if (image.GetScalarType() != type_traits<VoxelType>::type()) {
     cerr << "ImageRegion::GetPointerToBegin: Type of image differs from VoxelType template argument" << endl;
     exit(1);
   }
@@ -1043,7 +1043,7 @@ inline const VoxelType *ImageRegion::GetPointerToBegin(const BaseImage &image) c
 template <class VoxelType>
 inline const VoxelType *ImageRegion::GetPointerToBegin(const BaseImage *image) const
 {
-  if (image->GetScalarType() != voxel_info<VoxelType>::type()) {
+  if (image->GetScalarType() != type_traits<VoxelType>::type()) {
     cerr << "ImageRegion::GetPointerToBegin: Type of image differs from VoxelType template argument" << endl;
     exit(1);
   }
@@ -1087,7 +1087,7 @@ inline VoxelType *ImageRegion::GetPointerToBegin(GenericImage<VoxelType> *image)
 template <class VoxelType>
 inline const VoxelType *ImageRegion::GetPointerToEnd(const BaseImage &image) const
 {
-  if (image.GetScalarType() != voxel_info<VoxelType>::type()) {
+  if (image.GetScalarType() != type_traits<VoxelType>::type()) {
     cerr << "ImageRegion::GetPointerToEnd: Type of image differs from VoxelType template argument" << endl;
     exit(1);
   }
@@ -1099,7 +1099,7 @@ inline const VoxelType *ImageRegion::GetPointerToEnd(const BaseImage &image) con
 template <class VoxelType>
 inline const VoxelType *ImageRegion::GetPointerToEnd(const BaseImage *image) const
 {
-  if (image->GetScalarType() != voxel_info<VoxelType>::type()) {
+  if (image->GetScalarType() != type_traits<VoxelType>::type()) {
     cerr << "ImageRegion::GetPointerToEnd: Type of image differs from VoxelType template argument" << endl;
     exit(1);
   }

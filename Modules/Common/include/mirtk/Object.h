@@ -50,6 +50,11 @@ typedef ParameterList::const_iterator   ParameterConstIterator;
  */
 class Object
 {
+protected:
+
+  /// Swap attributes of this class with those of another object
+  void Swap(Object &) {}
+
 public:
 
   /// Get name of this class type
@@ -332,8 +337,6 @@ inline ParameterList &Remove(ParameterList &params, string name)
   protected:                                                                   \
     typedecl _##name;                                                          \
   public:                                                                      \
-    /** Get value of _##name attribute */                                      \
-    inline type &name() { return _##name; }                                    \
     /** Get value of _##name attribute */                                      \
     inline const type &name() const { return _##name; }                        \
   private:

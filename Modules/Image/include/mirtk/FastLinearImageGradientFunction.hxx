@@ -114,7 +114,7 @@ GenericFastLinearImageGradientFunction<TImage>
       for (int a = 0; a <= 1; ++a) {
         ia = i + a;
         if (0 <= ia && ia < this->Input()->X()) {
-          coeff = voxel_cast<Real>(this->Input()->Get(ia, jb, k, l));
+          coeff = type_cast<Real>(this->Input()->Get(ia, jb, k, l));
           val._x += wd[a] * wy[b] * coeff;
           val._y += wx[a] * wd[b] * coeff;
           nrm    += wx[a] * wy[b];
@@ -158,7 +158,7 @@ GenericFastLinearImageGradientFunction<TImage>
     for (int a = 0; a <= 1; ++a) {
       ia = i + a;
       if (this->Input()->IsInsideForeground(ia, jb, k, l)) {
-        coeff = voxel_cast<Real>(this->Input()->Get(ia, jb, k, l));
+        coeff = type_cast<Real>(this->Input()->Get(ia, jb, k, l));
         val._x += wd[a] * wy[b] * coeff;
         val._y += wx[a] * wd[b] * coeff;
       } else {
@@ -193,7 +193,7 @@ GenericFastLinearImageGradientFunction<TImage>
     jb = j + b;
     for (int a = 0; a <= 1; ++a) {
       ia = i + a;
-      coeff = voxel_cast<Real>(input->Get(ia, jb, k, l));
+      coeff = type_cast<Real>(input->Get(ia, jb, k, l));
       val._x += wd[a] * wy[b] * coeff;
       val._y += wx[a] * wd[b] * coeff;
     }
@@ -231,7 +231,7 @@ GenericFastLinearImageGradientFunction<TImage>
     for (int a = 0; a <= 1; ++a) {
       ia = i + a;
       if (input->IsForeground(ia, jb, k, l)) {
-        coeff = voxel_cast<Real>(input->Get(ia, jb, k, l));
+        coeff = type_cast<Real>(input->Get(ia, jb, k, l));
         val._x += wd[a] * wy[b] * coeff;
         val._y += wx[a] * wd[b] * coeff;
       } else {
@@ -276,7 +276,7 @@ GenericFastLinearImageGradientFunction<TImage>
           for (int a = 0; a <= 1; ++a) {
             ia = i + a;
             if (0 <= ia && ia < this->Input()->X()) {
-              coeff = voxel_cast<Real>(this->Input()->Get(ia, jb, kc, l));
+              coeff = type_cast<Real>(this->Input()->Get(ia, jb, kc, l));
               val._x += wd[a] * wy[b] * wz[c] * coeff;
               val._y += wx[a] * wd[b] * wz[c] * coeff;
               val._z += wx[a] * wy[b] * wd[c] * coeff;
@@ -325,7 +325,7 @@ GenericFastLinearImageGradientFunction<TImage>
       for (int a = 0; a <= 1; ++a) {
         ia = i + a;
         if (this->Input()->IsInsideForeground(ia, jb, kc, l)) {
-          coeff = voxel_cast<Real>(this->Input()->Get(ia, jb, kc, l));
+          coeff = type_cast<Real>(this->Input()->Get(ia, jb, kc, l));
           val._x += wd[a] * wy[b] * wz[c] * coeff;
           val._y += wx[a] * wd[b] * wz[c] * coeff;
           val._z += wx[a] * wy[b] * wd[c] * coeff;
@@ -365,7 +365,7 @@ GenericFastLinearImageGradientFunction<TImage>
       jb = j + b;
       for (int a = 0; a <= 1; ++a) {
         ia = i + a;
-        coeff = voxel_cast<Real>(input->Get(ia, jb, kc, l));
+        coeff = type_cast<Real>(input->Get(ia, jb, kc, l));
         val._x += wd[a] * wy[b] * wz[c] * coeff;
         val._y += wx[a] * wd[b] * wz[c] * coeff;
         val._z += wx[a] * wy[b] * wd[c] * coeff;
@@ -407,7 +407,7 @@ GenericFastLinearImageGradientFunction<TImage>
       for (int a = 0; a <= 1; ++a) {
         ia = i + a;
         if (input->IsForeground(ia, jb, kc, l)) {
-          coeff = voxel_cast<Real>(input->Get(ia, jb, kc, l));
+          coeff = type_cast<Real>(input->Get(ia, jb, kc, l));
           val._x += wd[a] * wy[b] * wz[c] * coeff;
           val._y += wx[a] * wd[b] * wz[c] * coeff;
           val._z += wx[a] * wy[b] * wd[c] * coeff;
@@ -454,7 +454,7 @@ GenericFastLinearImageGradientFunction<TImage>
               for (int a = 0; a <= 1; ++a) {
                 ia = i + a;
                 if (0 <= ia && ia < this->Input()->X()) {
-                  coeff = voxel_cast<Real>(this->Input()->Get(ia, jb, kc, ld));
+                  coeff = type_cast<Real>(this->Input()->Get(ia, jb, kc, ld));
                   val._x += wd[a] * wy[b] * wz[c] * wt[d] * coeff;
                   val._y += wx[a] * wd[b] * wz[c] * wt[d] * coeff;
                   val._z += wx[a] * wy[b] * wd[c] * wt[d] * coeff;
@@ -504,7 +504,7 @@ GenericFastLinearImageGradientFunction<TImage>
         for (int a = 0; a <= 1; ++a) {
           ia = i + a;
           if (this->Input()->IsInsideForeground(ia, jb, kc, ld)) {
-            coeff = voxel_cast<Real>(this->Input()->Get(ia, jb, kc, ld));
+            coeff = type_cast<Real>(this->Input()->Get(ia, jb, kc, ld));
             val._x += wd[a] * wy[b] * wz[c] * wt[d] * coeff;
             val._y += wx[a] * wd[b] * wz[c] * wt[d] * coeff;
             val._z += wx[a] * wy[b] * wd[c] * wt[d] * coeff;
@@ -548,7 +548,7 @@ GenericFastLinearImageGradientFunction<TImage>
         jb = j + b;
         for (int a = 0; a <= 1; ++a) {
           ia = i + a;
-          coeff = voxel_cast<Real>(input->Get(ia, jb, kc, ld));
+          coeff = type_cast<Real>(input->Get(ia, jb, kc, ld));
           val._x += wd[a] * wy[b] * wz[c] * wt[d] * coeff;
           val._y += wx[a] * wd[b] * wz[c] * wt[d] * coeff;
           val._z += wx[a] * wy[b] * wd[c] * wt[d] * coeff;
@@ -590,7 +590,7 @@ GenericFastLinearImageGradientFunction<TImage>
         for (int a = 0; a <= 1; ++a) {
           ia = i + a;
           if (input->IsForeground(ia, jb, kc, ld)) {
-            coeff = voxel_cast<Real>(input->Get(ia, jb, kc, ld));
+            coeff = type_cast<Real>(input->Get(ia, jb, kc, ld));
             val._x += wd[a] * wy[b] * wz[c] * wt[d] * coeff;
             val._y += wx[a] * wd[b] * wz[c] * wt[d] * coeff;
             val._z += wx[a] * wy[b] * wd[c] * wt[d] * coeff;

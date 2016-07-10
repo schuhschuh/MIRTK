@@ -67,7 +67,7 @@ protected:
   virtual void Initialize();
 
   /// Discretize continious kernel
-  void DiscreteKernel(GenericImage<RealPixel> &, double);
+  void DiscreteKernel(GenericImage<Real> &, double);
 
 public:
 

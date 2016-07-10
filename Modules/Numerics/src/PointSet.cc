@@ -1,9 +1,9 @@
 /*
  * Medical Image Registration ToolKit (MIRTK)
  *
- * Copyright 2008-2015 Imperial College London
+ * Copyright 2008-2016 Imperial College London
  * Copyright 2008-2015 Daniel Rueckert, Julia Schnabel
- * Copyright 2013-2015 Andreas Schuh
+ * Copyright 2013-2016 Andreas Schuh
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,7 +25,6 @@
 
 #include "mirtk/NumericsConfig.h"
 #if MIRTK_Numerics_WITH_VTK
-#  include "mirtk/Vtk.h"
 #  include "vtkSmartPointer.h"
 #  include "vtkPoints.h"
 #  include "vtkCellArray.h"
@@ -393,13 +392,13 @@ void PointSet::WriteVTK(const char *fname, vtkAbstractArray *data) const
     vtkSmartPointer<vtkXMLPolyDataWriter> writer;
     writer = vtkSmartPointer<vtkXMLPolyDataWriter>::New();
     writer->SetFileName(fname);
-    SetVTKInput(writer, output);
+    writer->SetInputData(output);
     writer->Update();
   } else {
     vtkSmartPointer<vtkPolyDataWriter> writer;
     writer = vtkSmartPointer<vtkPolyDataWriter>::New();
     writer->SetFileName(fname);
-    SetVTKInput(writer, output);
+    writer->SetInputData(output);
     writer->Update();
   }
 }

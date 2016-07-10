@@ -25,7 +25,6 @@
 #include "mirtk/Memory.h"
 #include "mirtk/Path.h"
 #include "mirtk/Matrix3x3.h"
-#include "mirtk/VoxelCast.h"
 #include "mirtk/Vector3D.h"
 #include "mirtk/Point.h"
 
@@ -173,7 +172,7 @@ GenericImage<VoxelType>::GenericImage(const BaseImage &image)
   // Copy/cast data
   VoxelType *ptr = _data;
   for (int idx = 0; idx < _NumberOfVoxels; ++idx, ++ptr) {
-    (*ptr) = voxel_cast<VoxelType>(image.GetAsVector(idx));
+    (*ptr) = type_cast<VoxelType>(image.GetAsVector(idx));
   }
 }
 
@@ -207,7 +206,7 @@ GenericImage<VoxelType>::GenericImage(const GenericImage<VoxelType2> &image)
   VoxelType        *ptr1 = this->Data();
   const VoxelType2 *ptr2 = image.Data();
   for (int idx = 0; idx < _NumberOfVoxels; ++idx) {
-    ptr1[idx] = voxel_cast<VoxelType>(ptr2[idx]);
+    ptr1[idx] = type_cast<VoxelType>(ptr2[idx]);
   }
 }
 
@@ -304,7 +303,7 @@ void GenericImage<VoxelType>::CopyFrom(const BaseImage &image)
   for (int k = 0; k < _attr._z; ++k)
   for (int j = 0; j < _attr._y; ++j)
   for (int i = 0; i < _attr._x; ++i) {
-    _matrix[l][k][j][i] = voxel_cast<VoxelType>(image.GetAsVector(i, j, k, l));
+    _matrix[l][k][j][i] = type_cast<VoxelType>(image.GetAsVector(i, j, k, l));
   }
   if (_maskOwner) delete _mask;
   if (image.OwnsMask()) {
@@ -741,7 +740,7 @@ GenericImage<VoxelType>& GenericImage<VoxelType>::operator/=(const GenericImage 
     if (IsForeground(idx) && image.IsForeground(idx)) {
       if (ptr2[idx] == VoxelType()) {
         if (HasBackgroundValue()) {
-          ptr1[idx] = voxel_cast<VoxelType>(GetBackgroundValueAsDouble());
+          ptr1[idx] = type_cast<VoxelType>(GetBackgroundValueAsDouble());
         } else {
           ptr1[idx] = VoxelType();
         }
@@ -772,7 +771,7 @@ GenericImage<VoxelType>& GenericImage<VoxelType>::operator+=(double scalar)
   VoxelType *ptr = this->Data();
   for (int idx = 0; idx < _NumberOfVoxels; ++idx) {
     if (IsForeground(idx)) {
-      ptr[idx] = voxel_cast<VoxelType>(voxel_cast<double>(ptr[idx]) + scalar);
+      ptr[idx] = type_cast<VoxelType>(type_cast<double>(ptr[idx]) + scalar);
     }
   }
   return *this;
@@ -785,7 +784,7 @@ GenericImage<VoxelType>& GenericImage<VoxelType>::operator-=(double scalar)
   VoxelType *ptr = this->Data();
   for (int idx = 0; idx < _NumberOfVoxels; ++idx) {
     if (IsForeground(idx)) {
-      ptr[idx] = voxel_cast<VoxelType>(voxel_cast<double>(ptr[idx]) - scalar);
+      ptr[idx] = type_cast<VoxelType>(type_cast<double>(ptr[idx]) - scalar);
     }
   }
   return *this;
@@ -798,7 +797,7 @@ GenericImage<VoxelType>& GenericImage<VoxelType>::operator*=(double scalar)
   VoxelType *ptr = this->Data();
   for (int idx = 0; idx < _NumberOfVoxels; ++idx) {
     if (IsForeground(idx)) {
-      ptr[idx] = voxel_cast<VoxelType>(voxel_cast<double>(ptr[idx]) * scalar);
+      ptr[idx] = type_cast<VoxelType>(type_cast<double>(ptr[idx]) * scalar);
     }
   }
   return *this;
@@ -812,7 +811,7 @@ GenericImage<VoxelType>& GenericImage<VoxelType>::operator/=(double scalar)
     VoxelType *ptr = this->Data();
     for (int idx = 0; idx < _NumberOfVoxels; ++idx) {
       if (IsForeground(idx)) {
-        ptr[idx] = voxel_cast<VoxelType>(voxel_cast<double>(ptr[idx]) / scalar);
+        ptr[idx] = type_cast<VoxelType>(type_cast<double>(ptr[idx]) / scalar);
       }
     }
   } else {
@@ -903,7 +902,7 @@ void GenericImage<VoxelType>::PutBackgroundValueAsDouble(double value, bool thre
 {
   BaseImage::PutBackgroundValueAsDouble(value);
   if (threshold && !IsNaN(value)) {
-    const VoxelType bg = voxel_cast<VoxelType>(this->_bg);
+    const VoxelType bg = type_cast<VoxelType>(this->_bg);
     VoxelType *ptr = this->GetPointerToVoxels();
     for (int idx = 0; idx < _NumberOfVoxels; ++idx, ++ptr) {
       if (*ptr < bg) *ptr = bg;
@@ -1015,7 +1014,7 @@ BinaryImage GenericImage<VoxelType>::operator!=(VoxelType pixel) const
 {
   BinaryImage mask(_attr);
   const VoxelType *ptr1 = this->GetPointerToVoxels();
-  BinaryPixel *ptr2 = mask .GetPointerToVoxels();
+  Binary *ptr2 = mask .GetPointerToVoxels();
   for (int idx = 0; idx < _NumberOfVoxels; ++idx, ++ptr1, ++ptr2) {
     *ptr2 = (*ptr1 != pixel);
   }
@@ -1101,8 +1100,8 @@ void GenericImage<VoxelType>::PutMinMax(VoxelType min, VoxelType max)
   VoxelType min_val, max_val;
   this->GetMinMax(min_val, max_val);
   VoxelType *ptr = this->Data();
-  RealType slope = voxel_cast<RealType>(max  - min)  / voxel_cast<RealType>(max_val - min_val);
-  RealType inter = voxel_cast<RealType>(min) - slope * voxel_cast<RealType>(min_val);
+  RealType slope = type_cast<RealType>(max  - min)  / type_cast<RealType>(max_val - min_val);
+  RealType inter = type_cast<RealType>(min) - slope * type_cast<RealType>(min_val);
   for (int idx = 0; idx < _NumberOfVoxels; ++idx, ++ptr) {
     if (IsForeground(idx)) *ptr = static_cast<VoxelType>(inter + slope * static_cast<RealType>(*ptr));
   }
@@ -1125,8 +1124,8 @@ template <class VoxelType>
 typename GenericImage<VoxelType>::RealType
 GenericImage<VoxelType>::GetAverage(int toggle) const
 {
-  const VoxelType  zero = voxel_cast<VoxelType>(0);
-  RealType         avg  = voxel_cast<RealType >(0);
+  const VoxelType  zero = type_cast<VoxelType>(0);
+  RealType         avg  = type_cast<RealType >(0);
   const VoxelType *ptr;
 
   if (toggle) {
@@ -1136,20 +1135,20 @@ GenericImage<VoxelType>::GetAverage(int toggle) const
       if (IsForeground(i) && (*ptr) > zero) n++;
       ++ptr;
     }
-    const RealType norm = voxel_cast<RealType>(1.0 / n);
+    const RealType norm = type_cast<RealType>(1.0 / n);
     ptr = this->Data();
     for (int i = 0; i < _NumberOfVoxels; i++) {
       if (IsForeground(i) && (*ptr) > zero) {
-        avg += norm * voxel_cast<RealType>(*ptr);
+        avg += norm * type_cast<RealType>(*ptr);
       }
       ++ptr;
     }
   } else {
-    const RealType norm = voxel_cast<RealType>(1.0 / _NumberOfVoxels);
+    const RealType norm = type_cast<RealType>(1.0 / _NumberOfVoxels);
     ptr = this->Data();
     for (int i = 0; i < _NumberOfVoxels; i++) {
       if (IsForeground(i)) {
-        avg += norm * voxel_cast<RealType>(*ptr);
+        avg += norm * type_cast<RealType>(*ptr);
       }
       ++ptr;
     }
@@ -1175,8 +1174,8 @@ template <class VoxelType>
 typename GenericImage<VoxelType>::RealType
 GenericImage<VoxelType>::GetSD(int toggle) const
 {
-  const VoxelType  zero = voxel_cast<VoxelType>(0);
-  RealType         std  = voxel_cast<RealType >(0);
+  const VoxelType  zero = type_cast<VoxelType>(0);
+  RealType         std  = type_cast<RealType >(0);
   const RealType   avg  = this->GetAverage(toggle);
   const VoxelType *ptr;
 
@@ -1187,20 +1186,20 @@ GenericImage<VoxelType>::GetSD(int toggle) const
       if (IsForeground(i) && (*ptr) > zero) n++;
       ++ptr;
     }
-    const RealType norm = voxel_cast<RealType>(1.0 / n);
+    const RealType norm = type_cast<RealType>(1.0 / n);
     ptr = this->Data();
     for (int i = 0; i < _NumberOfVoxels; i++) {
       if (IsForeground(i) && (*ptr) > zero) {
-        std += norm * pow(voxel_cast<RealType>(*ptr) - avg, 2);
+        std += norm * pow(type_cast<RealType>(*ptr) - avg, 2);
       }
       ++ptr;
     }
   } else {
-    const RealType norm = voxel_cast<RealType>(1.0 / _NumberOfVoxels);
+    const RealType norm = type_cast<RealType>(1.0 / _NumberOfVoxels);
     ptr = this->Data();
     for (int i = 0; i < _NumberOfVoxels; i++) {
       if (IsForeground(i)) {
-        std += norm * pow(voxel_cast<RealType>(*ptr) - avg, 2);
+        std += norm * pow(type_cast<RealType>(*ptr) - avg, 2);
       }
       ++ptr;
     }
@@ -1678,7 +1677,7 @@ bool GenericImage<VoxelType>::CropPad(int margin)
       (*data_iter) = Get(i, j, k, l);
     } else {
       // Padded voxel to extend margin
-      (*data_iter) = voxel_cast<VoxelType>(_bg);
+      (*data_iter) = type_cast<VoxelType>(_bg);
     }
   }
   // Initialize new image lattice
@@ -1749,13 +1748,13 @@ void GenericImage<VoxelType>::Read(const char *fname)
   UniquePtr<BaseImage>   image(reader->Run());
   // Convert image
   switch (image->GetDataType()) {
-    case MIRTK_VOXEL_CHAR:           { *this = *(dynamic_cast<GenericImage<char>           *>(image.get())); } break;
-    case MIRTK_VOXEL_UNSIGNED_CHAR:  { *this = *(dynamic_cast<GenericImage<unsigned char>  *>(image.get())); } break;
-    case MIRTK_VOXEL_SHORT:          { *this = *(dynamic_cast<GenericImage<short>          *>(image.get())); } break;
-    case MIRTK_VOXEL_UNSIGNED_SHORT: { *this = *(dynamic_cast<GenericImage<unsigned short> *>(image.get())); } break;
-    case MIRTK_VOXEL_INT:            { *this = *(dynamic_cast<GenericImage<int>            *>(image.get())); } break;
-    case MIRTK_VOXEL_FLOAT:          { *this = *(dynamic_cast<GenericImage<float>          *>(image.get())); } break;
-    case MIRTK_VOXEL_DOUBLE:         { *this = *(dynamic_cast<GenericImage<double>         *>(image.get())); } break;
+    case T_Char:   { *this = *(dynamic_cast<GenericImage<Char>   *>(image.get())); } break;
+    case T_UChar:  { *this = *(dynamic_cast<GenericImage<UChar>  *>(image.get())); } break;
+    case T_Short:  { *this = *(dynamic_cast<GenericImage<Short>  *>(image.get())); } break;
+    case T_UShort: { *this = *(dynamic_cast<GenericImage<UShort> *>(image.get())); } break;
+    case T_Int:    { *this = *(dynamic_cast<GenericImage<Int>    *>(image.get())); } break;
+    case T_Float:  { *this = *(dynamic_cast<GenericImage<Float>  *>(image.get())); } break;
+    case T_Double: { *this = *(dynamic_cast<GenericImage<Double> *>(image.get())); } break;
     default:
       cerr << this->NameOfClass() << "::Read: Unknown data type: " << image->GetDataType() << endl;
       exit(1);

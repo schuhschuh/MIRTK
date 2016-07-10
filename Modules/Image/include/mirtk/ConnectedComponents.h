@@ -45,7 +45,7 @@ enum ConnectedComponentsOrdering
  * The components are sorted by decreasing size, i.e., the first
  * component is the largest connected component.
  */
-template <class TVoxel = GreyPixel>
+template <class TVoxel = Grey>
 class ConnectedComponents : public ImageToImage<TVoxel>
 {
   mirtkImageFilterMacro(ConnectedComponents, TVoxel);

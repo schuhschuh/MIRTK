@@ -1,8 +1,8 @@
 /*
  * Medical Image Registration ToolKit (MIRTK)
  *
- * Copyright 2013-2015 Imperial College London
- * Copyright 2013-2015 Andreas Schuh
+ * Copyright 2013-2016 Imperial College London
+ * Copyright 2013-2016 Andreas Schuh
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,18 +20,13 @@
 #ifndef MIRTK_Status_H
 #define MIRTK_Status_H
 
-namespace mirtk {
 
-
-// -----------------------------------------------------------------------------
-/// Enumeration of common states for entities such as objective function parameters
+/// Common states for entities such as data tuples and objective function parameters
 enum Status
 {
   Active,
   Passive
 };
 
-
-} // namespace mirtk
 
 #endif // MIRTK_Status_H

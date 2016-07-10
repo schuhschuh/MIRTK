@@ -53,10 +53,10 @@ DataFileType FileType(const char *name)
 
 // -----------------------------------------------------------------------------
 #if MIRTK_Image_WITH_VTK
-int Read(const char *name, double *&data, int *dtype, ImageAttributes *attr,
+int Read(const char *name, double *&data, DataType *dtype, ImageAttributes *attr,
          vtkSmartPointer<vtkDataSet> *dataset, const char *scalar_name)
 #else
-int Read(const char *name, double *&data, int *dtype, ImageAttributes *attr)
+int Read(const char *name, double *&data, DataType *dtype, ImageAttributes *attr)
 #endif // MIRTK_Image_WITH_VTK
 {
   int n = 0;
@@ -105,7 +105,7 @@ int Read(const char *name, double *&data, int *dtype, ImageAttributes *attr)
         cerr << "Use -scalars option to specify the name of a point data array to use instead." << endl;
         exit(1);
       }
-      if (dtype) *dtype = FromVTKDataType(scalars->GetDataType());
+      if (dtype) *dtype = FromVtkDataType(scalars->GetDataType());
       n = static_cast<int>(scalars->GetNumberOfTuples()) * scalars->GetNumberOfComponents();
       if (n == 0) {
         cerr << "VTK dataset has empty scalar point data!" << endl;
@@ -128,7 +128,7 @@ int Read(const char *name, double *&data, int *dtype, ImageAttributes *attr)
     case IMAGE: {
       UniquePtr<BaseImage> image(BaseImage::New(name));
       if (attr) *attr = image->Attributes();
-      if (dtype) *dtype = image->GetDataType();
+      if (dtype) *dtype = static_cast<DataType>(image->GetDataType());
       n = image->NumberOfVoxels();
       data = new double[n];
       for (int i = 0; i < n; ++i) data[i] = image->GetAsDouble(i);
@@ -169,7 +169,7 @@ void Write::Process(int n, double *data, bool *)
         cerr << "Cannot write data sequence to file! Length of data sequence changed." << endl;
         exit(1);
       }
-      vtkSmartPointer<vtkDataArray> output_scalars = NewVTKDataArray(ToVTKDataType(_DataType));
+      vtkSmartPointer<vtkDataArray> output_scalars = NewVtkDataArray(ToVtkDataType(_Type));
       if (!_OutputName.empty()) {
         output_scalars->SetName(_OutputName.c_str());
       } else if (!_ArrayName.empty()) {
@@ -219,7 +219,7 @@ void Write::Process(int n, double *data, bool *)
         cerr << "Cannot write data series to file! Length of data series changed." << endl;
         exit(1);
       }
-      UniquePtr<BaseImage> image(BaseImage::New(_DataType));
+      UniquePtr<BaseImage> image(BaseImage::New(_Type));
       image->Initialize(_Attributes);
       for (int i = 0; i < n; ++i) image->PutAsDouble(i, data[i]);
       image->Write(_FileName.c_str());

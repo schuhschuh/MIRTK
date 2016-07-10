@@ -52,27 +52,27 @@ void GIPLImageWriter::Initialize()
 
   // Write type
   switch (_Input->GetScalarType()) {
-    case MIRTK_VOXEL_CHAR: {
+    case T_Char: {
         this->WriteAsShort(GIPL_CHAR, 8);
         break;
       }
-    case MIRTK_VOXEL_UNSIGNED_CHAR: {
+    case T_UChar: {
         this->WriteAsShort(GIPL_U_CHAR, 8);
         break;
      }
-    case MIRTK_VOXEL_SHORT: {
+    case T_Short: {
         this->WriteAsShort(GIPL_SHORT, 8);
         break;
       }
-    case MIRTK_VOXEL_UNSIGNED_SHORT: {
+    case T_UShort: {
         this->WriteAsShort(GIPL_U_SHORT, 8);
         break;
       }
-    case MIRTK_VOXEL_FLOAT: {
+    case T_Float: {
         this->WriteAsShort(GIPL_FLOAT, 8);
         break;
       }
-    case MIRTK_VOXEL_DOUBLE: {
+    case T_Double: {
         this->WriteAsShort(GIPL_DOUBLE, 8);
         break;
       }

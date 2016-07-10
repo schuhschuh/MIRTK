@@ -318,7 +318,7 @@ ImageTransformation::ImageTransformation()
   _Output(NULL),
   _Transformation(NULL),
   _Interpolator(NULL),
-  _TargetPaddingValue(voxel_limits<double>::min()),
+  _TargetPaddingValue(type_limits<double>::min()),
   _SourcePaddingValue(.0),
   _ScaleFactor(1.0),
   _Offset(.0),

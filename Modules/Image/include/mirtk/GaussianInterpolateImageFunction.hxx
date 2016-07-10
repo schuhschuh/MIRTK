@@ -25,7 +25,6 @@
 #include "mirtk/InterpolateImageFunction.hxx"
 
 #include "mirtk/Math.h"
-#include "mirtk/VoxelCast.h"
 #include "mirtk/ScalarGaussian.h"
 
 
@@ -135,7 +134,7 @@ GenericGaussianInterpolateImageFunction<TImage>
 
   if (k < 0 || k >= this->Input()->Z() ||
       l < 0 || l >= this->Input()->T()) {
-    return voxel_cast<VoxelType>(this->DefaultValue());
+    return type_cast<VoxelType>(this->DefaultValue());
   }
 
   const int i1 = ifloor(x - _RadiusX);
@@ -147,7 +146,7 @@ GenericGaussianInterpolateImageFunction<TImage>
   ScalarGaussian kernel(_Sigma/_dx, _Sigma/_dy, .0, x, y, .0);
 
   // Perform Gaussian interpolation
-  RealType val = voxel_cast<RealType>(0);
+  RealType val = type_cast<RealType>(0);
   Real     nrm(0), w;
 
   for (int j = j1; j <= j2; ++j) {
@@ -155,7 +154,7 @@ GenericGaussianInterpolateImageFunction<TImage>
       for (int i = i1; i <= i2; ++i) {
         if (0 <= i && i < this->Input()->X()) {
           w   = static_cast<Real>(kernel.Evaluate(i, j));
-          val += w * voxel_cast<RealType>(this->Input()->Get(i, j, k, l));
+          val += w * type_cast<RealType>(this->Input()->Get(i, j, k, l));
           nrm += w;
         }
       }
@@ -163,9 +162,9 @@ GenericGaussianInterpolateImageFunction<TImage>
   }
 
   if (nrm) val /= nrm;
-  else     val  = voxel_cast<RealType>(this->DefaultValue());
+  else     val  = type_cast<RealType>(this->DefaultValue());
 
-  return voxel_cast<VoxelType>(val);
+  return type_cast<VoxelType>(val);
 }
 
 // -----------------------------------------------------------------------------
@@ -179,7 +178,7 @@ GenericGaussianInterpolateImageFunction<TImage>
 
   if (k < 0 || k >= this->Input()->Z() ||
       l < 0 || l >= this->Input()->T()) {
-    return voxel_cast<VoxelType>(this->DefaultValue());
+    return type_cast<VoxelType>(this->DefaultValue());
   }
 
   const int i1 = ifloor(x - _RadiusX);
@@ -191,14 +190,14 @@ GenericGaussianInterpolateImageFunction<TImage>
   ScalarGaussian kernel(_Sigma/_dx, _Sigma/_dy, .0, x, y, .0);
 
   // Perform Gaussian interpolation
-  RealType val = voxel_cast<RealType>(0);
+  RealType val = type_cast<RealType>(0);
   Real     fgw(0), bgw(0), w;
 
   for (int j = j1; j <= j2; ++j) {
     for (int i = i1; i <= i2; ++i) {
       w = static_cast<Real>(kernel.Evaluate(i, j));
       if (this->Input()->IsInsideForeground(i, j, k, l)) {
-        val += w * voxel_cast<RealType>(this->Input()->Get(i, j, k, l));
+        val += w * type_cast<RealType>(this->Input()->Get(i, j, k, l));
         fgw += w;
       } else {
         bgw += w;
@@ -207,9 +206,9 @@ GenericGaussianInterpolateImageFunction<TImage>
   }
 
   if (fgw > bgw) val /= fgw;
-  else           val  = voxel_cast<RealType>(this->DefaultValue());
+  else           val  = type_cast<RealType>(this->DefaultValue());
 
-  return voxel_cast<VoxelType>(val);
+  return type_cast<VoxelType>(val);
 }
 
 // -----------------------------------------------------------------------------
@@ -233,21 +232,21 @@ GenericGaussianInterpolateImageFunction<TImage>
   ScalarGaussian kernel(_Sigma/_dx, _Sigma/_dy, .0, x, y, .0);
 
   // Perform Gaussian interpolation
-  RealType val = voxel_cast<RealType>(0);
+  RealType val = type_cast<RealType>(0);
   Real     nrm(0), w;
 
   for (int j = j1; j <= j2; ++j) {
     for (int i = i1; i <= i2; ++i) {
       w   = static_cast<Real>(kernel.Evaluate(i, j));
-      val += w * voxel_cast<RealType>(input->Get(i, j, k, l));
+      val += w * type_cast<RealType>(input->Get(i, j, k, l));
       nrm += w;
     }
   }
 
   if (nrm) val /= nrm;
-  else     val  = voxel_cast<RealType>(this->DefaultValue());
+  else     val  = type_cast<RealType>(this->DefaultValue());
 
-  return voxel_cast<VoxelType>(val);
+  return type_cast<VoxelType>(val);
 }
 
 // -----------------------------------------------------------------------------
@@ -271,14 +270,14 @@ GenericGaussianInterpolateImageFunction<TImage>
   ScalarGaussian kernel(_Sigma/_dx, _Sigma/_dy, .0, x, y, .0);
 
   // Perform Gaussian interpolation
-  RealType val = voxel_cast<RealType>(0);
+  RealType val = type_cast<RealType>(0);
   Real     fgw(0), bgw(0), w;
 
   for (int j = j1; j <= j2; ++j) {
     for (int i = i1; i <= i2; ++i) {
       w = static_cast<Real>(kernel.Evaluate(i, j));
       if (input->IsForeground(i, j, k, l)) {
-        val += w * voxel_cast<RealType>(input->Get(i, j, k, l));
+        val += w * type_cast<RealType>(input->Get(i, j, k, l));
         fgw += w;
       } else {
         bgw += w;
@@ -287,9 +286,9 @@ GenericGaussianInterpolateImageFunction<TImage>
   }
 
   if (fgw > bgw) val /= fgw;
-  else           val  = voxel_cast<RealType>(this->DefaultValue());
+  else           val  = type_cast<RealType>(this->DefaultValue());
 
-  return voxel_cast<VoxelType>(val);
+  return type_cast<VoxelType>(val);
 }
 
 // -----------------------------------------------------------------------------
@@ -301,7 +300,7 @@ GenericGaussianInterpolateImageFunction<TImage>
   const int l = iround(t);
 
   if (l < 0 || l >= this->Input()->T()) {
-    return voxel_cast<VoxelType>(this->DefaultValue());
+    return type_cast<VoxelType>(this->DefaultValue());
   }
 
   const int i1 = ifloor(x - _RadiusX);
@@ -315,7 +314,7 @@ GenericGaussianInterpolateImageFunction<TImage>
   ScalarGaussian kernel(_Sigma/_dx, _Sigma/_dy, _Sigma/_dz, x, y, z);
 
   // Perform Gaussian interpolation
-  RealType val = voxel_cast<RealType>(0);
+  RealType val = type_cast<RealType>(0);
   Real     nrm(0), w;
 
   for (int k = k1; k <= k2; ++k) {
@@ -325,7 +324,7 @@ GenericGaussianInterpolateImageFunction<TImage>
           for (int i = i1; i <= i2; ++i) {
             if (0 <= i && i < this->Input()->X()) {
               w   = static_cast<Real>(kernel.Evaluate(i, j, k));
-              val += w * voxel_cast<RealType>(this->Input()->Get(i, j, k, l));
+              val += w * type_cast<RealType>(this->Input()->Get(i, j, k, l));
               nrm += w;
             }
           }
@@ -335,9 +334,9 @@ GenericGaussianInterpolateImageFunction<TImage>
   }
 
   if (nrm) val /= nrm;
-  else     val  = voxel_cast<RealType>(this->DefaultValue());
+  else     val  = type_cast<RealType>(this->DefaultValue());
 
-  return voxel_cast<VoxelType>(val);
+  return type_cast<VoxelType>(val);
 }
 
 // -----------------------------------------------------------------------------
@@ -349,7 +348,7 @@ GenericGaussianInterpolateImageFunction<TImage>
   const int l = iround(t);
 
   if (l < 0 || l >= this->Input()->T()) {
-    return voxel_cast<VoxelType>(this->DefaultValue());
+    return type_cast<VoxelType>(this->DefaultValue());
   }
 
   const int i1 = ifloor(x - _RadiusX);
@@ -363,7 +362,7 @@ GenericGaussianInterpolateImageFunction<TImage>
   ScalarGaussian kernel(_Sigma/_dx, _Sigma/_dy, _Sigma/_dz, x, y, z);
 
   // Perform Gaussian interpolation
-  RealType val = voxel_cast<RealType>(0);
+  RealType val = type_cast<RealType>(0);
   Real     fgw(0), bgw(0), w;
 
   for (int k = k1; k <= k2; ++k) {
@@ -371,7 +370,7 @@ GenericGaussianInterpolateImageFunction<TImage>
       for (int i = i1; i <= i2; ++i) {
         w = static_cast<Real>(kernel.Evaluate(i, j, k));
         if (this->Input()->IsInsideForeground(i, j, k, l)) {
-          val += w * voxel_cast<RealType>(this->Input()->Get(i, j, k, l));
+          val += w * type_cast<RealType>(this->Input()->Get(i, j, k, l));
           fgw += w;
         } else {
           bgw += w;
@@ -381,9 +380,9 @@ GenericGaussianInterpolateImageFunction<TImage>
   }
 
   if (fgw > bgw) val /= fgw;
-  else           val  = voxel_cast<RealType>(this->DefaultValue());
+  else           val  = type_cast<RealType>(this->DefaultValue());
 
-  return voxel_cast<VoxelType>(val);
+  return type_cast<VoxelType>(val);
 }
 
 // -----------------------------------------------------------------------------
@@ -408,23 +407,23 @@ GenericGaussianInterpolateImageFunction<TImage>
   ScalarGaussian kernel(_Sigma/_dx, _Sigma/_dy, _Sigma/_dz, x, y, z);
 
   // Perform Gaussian interpolation
-  RealType val = voxel_cast<RealType>(0);
+  RealType val = type_cast<RealType>(0);
   Real     nrm(0), w;
 
   for (int k = k1; k <= k2; ++k) {
     for (int j = j1; j <= j2; ++j) {
       for (int i = i1; i <= i2; ++i) {
         w   = static_cast<Real>(kernel.Evaluate(i, j, k));
-        val += w * voxel_cast<RealType>(input->Get(i, j, k, l));
+        val += w * type_cast<RealType>(input->Get(i, j, k, l));
         nrm += w;
       }
     }
   }
 
   if (nrm) val /= nrm;
-  else     val  = voxel_cast<RealType>(this->DefaultValue());
+  else     val  = type_cast<RealType>(this->DefaultValue());
 
-  return voxel_cast<VoxelType>(val);
+  return type_cast<VoxelType>(val);
 }
 
 // -----------------------------------------------------------------------------
@@ -449,7 +448,7 @@ GenericGaussianInterpolateImageFunction<TImage>
   ScalarGaussian kernel(_Sigma/_dx, _Sigma/_dy, _Sigma/_dz, x, y, z);
 
   // Perform Gaussian interpolation
-  RealType val = voxel_cast<RealType>(0);
+  RealType val = type_cast<RealType>(0);
   Real     fgw(0), bgw(0), w;
 
   for (int k = k1; k <= k2; ++k) {
@@ -457,7 +456,7 @@ GenericGaussianInterpolateImageFunction<TImage>
       for (int i = i1; i <= i2; ++i) {
         w = static_cast<Real>(kernel.Evaluate(i, j, k));
         if (input->IsForeground(i, j, k, l)) {
-          val += w * voxel_cast<RealType>(input->Get(i, j, k, l));
+          val += w * type_cast<RealType>(input->Get(i, j, k, l));
           fgw += w;
         } else {
           bgw += w;
@@ -467,9 +466,9 @@ GenericGaussianInterpolateImageFunction<TImage>
   }
 
   if (fgw > bgw) val /= fgw;
-  else           val  = voxel_cast<RealType>(this->DefaultValue());
+  else           val  = type_cast<RealType>(this->DefaultValue());
 
-  return voxel_cast<VoxelType>(val);
+  return type_cast<VoxelType>(val);
 }
 
 // -----------------------------------------------------------------------------
@@ -491,7 +490,7 @@ GenericGaussianInterpolateImageFunction<TImage>
   ScalarGaussian kernel(_Sigma/_dx, _Sigma/_dy, _Sigma/_dz, _Sigma/_dt, x, y, z, t);
 
   // Perform Gaussian interpolation
-  RealType val = voxel_cast<RealType>(0);
+  RealType val = type_cast<RealType>(0);
   Real     nrm(0), w;
 
   for (int l = l1; l <= l2; ++l) {
@@ -503,7 +502,7 @@ GenericGaussianInterpolateImageFunction<TImage>
               for (int i = i1; i <= i2; ++i) {
                 if (0 <= i && i < this->Input()->X()) {
                   w   = static_cast<Real>(kernel.Evaluate(i, j, k, l));
-                  val += w * voxel_cast<RealType>(this->Input()->Get(i, j, k, l));
+                  val += w * type_cast<RealType>(this->Input()->Get(i, j, k, l));
                   nrm += w;
                 }
               }
@@ -515,9 +514,9 @@ GenericGaussianInterpolateImageFunction<TImage>
   }
 
   if (nrm) val /= nrm;
-  else     val  = voxel_cast<RealType>(this->DefaultValue());
+  else     val  = type_cast<RealType>(this->DefaultValue());
 
-  return voxel_cast<VoxelType>(val);
+  return type_cast<VoxelType>(val);
 }
 
 // -----------------------------------------------------------------------------
@@ -539,7 +538,7 @@ GenericGaussianInterpolateImageFunction<TImage>
   ScalarGaussian kernel(_Sigma/_dx, _Sigma/_dy, _Sigma/_dz, _Sigma/_dt, x, y, z, t);
 
   // Perform Gaussian interpolation
-  RealType val = voxel_cast<RealType>(0);
+  RealType val = type_cast<RealType>(0);
   Real     fgw(0), bgw(0), w;
 
   for (int l = l1; l <= l2; ++l) {
@@ -548,7 +547,7 @@ GenericGaussianInterpolateImageFunction<TImage>
         for (int i = i1; i <= i2; ++i) {
           w = static_cast<Real>(kernel.Evaluate(i, j, k, l));
           if (this->Input()->IsInsideForeground(i, j, k, l)) {
-            val += w * voxel_cast<RealType>(this->Input()->Get(i, j, k, l));
+            val += w * type_cast<RealType>(this->Input()->Get(i, j, k, l));
             fgw += w;
           } else {
             bgw += w;
@@ -559,9 +558,9 @@ GenericGaussianInterpolateImageFunction<TImage>
   }
 
   if (fgw > bgw) val /= fgw;
-  else           val  = voxel_cast<RealType>(this->DefaultValue());
+  else           val  = type_cast<RealType>(this->DefaultValue());
 
-  return voxel_cast<VoxelType>(val);
+  return type_cast<VoxelType>(val);
 }
 
 // -----------------------------------------------------------------------------
@@ -587,7 +586,7 @@ GenericGaussianInterpolateImageFunction<TImage>
   ScalarGaussian kernel(_Sigma/_dx, _Sigma/_dy, _Sigma/_dz, _Sigma/_dt, x, y, z, t);
 
   // Perform Gaussian interpolation
-  RealType val = voxel_cast<RealType>(0);
+  RealType val = type_cast<RealType>(0);
   Real     nrm(0), w;
 
   for (int l = l1; l <= l2; ++l) {
@@ -595,7 +594,7 @@ GenericGaussianInterpolateImageFunction<TImage>
       for (int j = j1; j <= j2; ++j) {
         for (int i = i1; i <= i2; ++i) {
           w   = static_cast<Real>(kernel.Evaluate(i, j, k, l));
-          val += w * voxel_cast<RealType>(input->Get(i, j, k, l));
+          val += w * type_cast<RealType>(input->Get(i, j, k, l));
           nrm += w;
         }
       }
@@ -603,9 +602,9 @@ GenericGaussianInterpolateImageFunction<TImage>
   }
 
   if (nrm) val /= nrm;
-  else     val  = voxel_cast<RealType>(this->DefaultValue());
+  else     val  = type_cast<RealType>(this->DefaultValue());
 
-  return voxel_cast<VoxelType>(val);
+  return type_cast<VoxelType>(val);
 }
 
 // -----------------------------------------------------------------------------
@@ -631,7 +630,7 @@ GenericGaussianInterpolateImageFunction<TImage>
   ScalarGaussian kernel(_Sigma/_dx, _Sigma/_dy, _Sigma/_dz, _Sigma/_dt, x, y, z, t);
 
   // Perform Gaussian interpolation
-  RealType val = voxel_cast<RealType>(0);
+  RealType val = type_cast<RealType>(0);
   Real     fgw(0), bgw(0), w;
 
   for (int l = l1; l <= l2; ++l) {
@@ -640,7 +639,7 @@ GenericGaussianInterpolateImageFunction<TImage>
         for (int i = i1; i <= i2; ++i) {
           w = static_cast<Real>(kernel.Evaluate(i, j, k, l));
           if (input->IsForeground(i, j, k, l)) {
-            val += w * voxel_cast<RealType>(input->Get(i, j, k, l));
+            val += w * type_cast<RealType>(input->Get(i, j, k, l));
             fgw += w;
           } else {
             bgw += w;
@@ -651,9 +650,9 @@ GenericGaussianInterpolateImageFunction<TImage>
   }
 
   if (fgw > bgw) val /= fgw;
-  else           val  = voxel_cast<RealType>(this->DefaultValue());
+  else           val  = type_cast<RealType>(this->DefaultValue());
 
-  return voxel_cast<VoxelType>(val);
+  return type_cast<VoxelType>(val);
 }
 
 // -----------------------------------------------------------------------------

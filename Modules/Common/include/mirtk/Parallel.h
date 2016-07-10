@@ -23,7 +23,7 @@
 #include "mirtk/CommonExport.h"
 
 #include "mirtk/Stream.h"
-#include "mirtk/Memory.h"
+#include "mirtk/SmartPtr.h"
 
 #ifdef HAVE_TBB
 // TBB includes windows header which defines min/max macros otherwise

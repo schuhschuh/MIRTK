@@ -173,8 +173,8 @@ public:
   /// Gets the spatial bounding box for a transformation parameter in image coordinates.
   /// The last parameter specifies what fraction of the bounding box to return.
   /// The default is 1 which equals 100% of the bounding box.
-  virtual bool DOFBoundingBox(const Image *, int, int &, int &, int &,
-                                                  int &, int &, int &, double = 1) const;
+  virtual bool DOFBoundingBox(const BaseImage *, int, int &, int &, int &,
+                                                      int &, int &, int &, double = 1) const;
 
   /// Reset transformation
   virtual void Reset();
@@ -774,8 +774,8 @@ inline bool Transformation::IsIdentity() const
 
 // -----------------------------------------------------------------------------
 inline bool Transformation
-::DOFBoundingBox(const Image *image, int, int &i1, int &j1, int &k1,
-                                          int &i2, int &j2, int &k2, double fraction) const
+::DOFBoundingBox(const BaseImage *image, int, int &i1, int &j1, int &k1,
+                                              int &i2, int &j2, int &k2, double fraction) const
 {
   i1 = j1 = k1 = 0;
   i2 = image->X() - 1, j2 = image->Y() -1, k2 = image->Z() - 1;

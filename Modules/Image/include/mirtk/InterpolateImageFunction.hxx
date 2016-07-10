@@ -124,16 +124,16 @@ inline void GenericInterpolateImageFunction<TImage>
 // -----------------------------------------------------------------------------
 #define mirtkInterpolatorInstantiations(clsname)                               \
   template class clsname<mirtk::BaseImage>;                                    \
-  template class clsname<mirtk::GenericImage<mirtk::GreyPixel> >;              \
+  template class clsname<mirtk::GenericImage<Grey> >;                          \
   template class clsname<mirtk::GenericImage<float> >;                         \
   template class clsname<mirtk::GenericImage<float2> >;                        \
   template class clsname<mirtk::GenericImage<float3> >;                        \
-  template class clsname<mirtk::GenericImage<mirtk::Float3> >;                 \
+  template class clsname<mirtk::GenericImage<Vector3D<float> > >;              \
   template class clsname<mirtk::GenericImage<float3x3> >;                      \
   template class clsname<mirtk::GenericImage<double> >;                        \
   template class clsname<mirtk::GenericImage<double2> >;                       \
   template class clsname<mirtk::GenericImage<double3> >;                       \
-  template class clsname<mirtk::GenericImage<mirtk::Double3> >;                \
+  template class clsname<mirtk::GenericImage<Vector3D<double> > >;             \
   template class clsname<mirtk::GenericImage<double3x3> >
 
 

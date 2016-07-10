@@ -19,7 +19,9 @@
  */
 
 #include "mirtk/ScalarGaussian.h"
+
 #include "mirtk/Math.h"
+#include "mirtk/Constants.h"
 
 
 namespace mirtk {

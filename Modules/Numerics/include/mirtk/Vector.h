@@ -1,8 +1,8 @@
 /*
  * Medical Image Registration ToolKit (MIRTK)
  *
- * Copyright 2008-2015 Imperial College London
- * Copyright 2008-2015 Daniel Rueckert, Julia Schnabel
+ * Copyright 2008-2016 Imperial College London
+ * Copyright 2008-2016 Daniel Rueckert, Julia Schnabel
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,6 +27,7 @@
 #include "mirtk/Cfstream.h"
 #include "mirtk/Memory.h"
 #include "mirtk/Array.h"
+#include "mirtk/TypeCast.h"
 
 
 namespace mirtk {
@@ -812,6 +813,459 @@ inline void Vector::Permute(const Array<int> &idx)
 {
   PermuteRows(idx);
 }
+
+// =============================================================================
+// Type limits
+// =============================================================================
+
+// -----------------------------------------------------------------------------
+// Variable length vector type not allowed as actual data/voxel type of an
+// array/image instance. Only used as data type by base class methods and general
+// interpolators. Treat data type as if it was a scalar type here.
+template <> struct type_limits<Vector>
+{
+  static double min()       throw() { return numeric_limits<double>::lowest(); }
+  static double max()       throw() { return numeric_limits<double>::max(); }
+  static Vector min_value() throw() { return Vector(1, min()); }
+  static Vector max_value() throw() { return Vector(1, max()); }
+};
+
+// =============================================================================
+// Type traits
+// =============================================================================
+
+// -----------------------------------------------------------------------------
+// Variable length vector type not allowed as actual data/voxel type of an
+// array/image instance. Only used as data type by base class methods and general
+// interpolators. Treat data type as if it was a scalar type here.
+template <> struct type_traits<Vector>
+{
+  typedef double ScalarType;
+  typedef double RealType;
+  static int vector_size()  throw() { return 1; }
+  static int element_type() throw() { return T_Double; }
+  static DataType type()    throw() { return T_Double; }
+};
+
+// =============================================================================
+// Type cast
+// =============================================================================
+
+// -----------------------------------------------------------------------------
+template <class TOut>
+struct TypeCaster<Vector, TOut>
+{
+  static TOut Convert(const Vector &value)
+  {
+    if (value.Rows() == 1) return TypeCaster<double, TOut>::Convert(value(0));
+    cerr << "Can only cast vector with exactly one element to a scalar!" << endl;
+    cerr << "Set breakpoint in " << __FILE__ << ":" << __LINE__ << " to debug." << endl;
+    exit(1);
+  }
+};
+
+// -----------------------------------------------------------------------------
+template <class TIn>
+struct TypeCaster<TIn, Vector>
+{
+  static Vector Convert(const TIn &value)
+  {
+    return Vector(1, TypeCaster<TIn, double>::Convert(value));
+  }
+};
+
+// -----------------------------------------------------------------------------
+template <>
+struct TypeCaster<Vector, Vector>
+{
+  static Vector Convert(const Vector &value)
+  {
+    return value;
+  }
+};
+
+// -----------------------------------------------------------------------------
+template <>
+struct TypeCaster<Vector, float1>
+{
+  static float1 Convert(const Vector &value)
+  {
+    if (value.Rows() == 1) return make_float1(value(0));
+    cerr << "Can only cast vector with exactly one element to a 1D vector!" << endl;
+    cerr << "Set breakpoint in " << __FILE__ << ":" << __LINE__ << " to debug." << endl;
+    exit(1);
+  }
+};
+
+// -----------------------------------------------------------------------------
+template <>
+struct TypeCaster<float1, Vector>
+{
+  static Vector Convert(const float1 &value)
+  {
+    Vector v(1);
+    v(0) = value.x;
+    return v;
+  }
+};
+
+// -----------------------------------------------------------------------------
+template <>
+struct TypeCaster<Vector, float2>
+{
+  static float2 Convert(const Vector &value)
+  {
+    if (value.Rows() == 2) return make_float2(value(0), value(1));
+    cerr << "Can only cast vector with exactly two elements to a 2D vector!" << endl;
+    cerr << "Set breakpoint in " << __FILE__ << ":" << __LINE__ << " to debug." << endl;
+    exit(1);
+  }
+};
+
+// -----------------------------------------------------------------------------
+template <>
+struct TypeCaster<float2, Vector>
+{
+  static Vector Convert(const float2 &value)
+  {
+    Vector v(2);
+    v(0) = value.x;
+    v(1) = value.y;
+    return v;
+  }
+};
+
+// -----------------------------------------------------------------------------
+template <>
+struct TypeCaster<Vector, float3>
+{
+  static float3 Convert(const Vector &value)
+  {
+    if (value.Rows() == 3) return make_float3(value(0), value(1), value(2));
+    cerr << "Can only cast vector with exactly three elements to a 3D vector!" << endl;
+    cerr << "Set breakpoint in " << __FILE__ << ":" << __LINE__ << " to debug." << endl;
+    exit(1);
+  }
+};
+
+// -----------------------------------------------------------------------------
+template <>
+struct TypeCaster<float3, Vector>
+{
+  static Vector Convert(const float3 &value)
+  {
+    Vector v(3);
+    v(0) = value.x;
+    v(1) = value.y;
+    v(2) = value.z;
+    return v;
+  }
+};
+
+// -----------------------------------------------------------------------------
+template <>
+struct TypeCaster<Vector, float4>
+{
+  static float4 Convert(const Vector &value)
+  {
+    if (value.Rows() == 4) return make_float4(value(0), value(1), value(2), value(3));
+    cerr << "Can only cast vector with exactly four elements to a 4D vector!" << endl;
+    cerr << "Set breakpoint in " << __FILE__ << ":" << __LINE__ << " to debug." << endl;
+    exit(1);
+  }
+};
+
+// -----------------------------------------------------------------------------
+template <>
+struct TypeCaster<float4, Vector>
+{
+  static Vector Convert(const float4 &value)
+  {
+    Vector v(4);
+    v(0) = value.x;
+    v(1) = value.y;
+    v(2) = value.z;
+    v(3) = value.w;
+    return v;
+  }
+};
+
+// -----------------------------------------------------------------------------
+template <>
+struct TypeCaster<Vector, double1>
+{
+  static double1 Convert(const Vector &value)
+  {
+    if (value.Rows() == 1) return make_double1(value(0));
+    cerr << "Can only cast vector with exactly one element to a 1D vector!" << endl;
+    cerr << "Set breakpoint in " << __FILE__ << ":" << __LINE__ << " to debug." << endl;
+    exit(1);
+  }
+};
+
+// -----------------------------------------------------------------------------
+template <>
+struct TypeCaster<double1, Vector>
+{
+  static Vector Convert(const double1 &value)
+  {
+    Vector v(1);
+    v(0) = value.x;
+    return v;
+  }
+};
+
+// -----------------------------------------------------------------------------
+template <>
+struct TypeCaster<Vector, double2>
+{
+  static double2 Convert(const Vector &value)
+  {
+    if (value.Rows() == 2) return make_double2(value(0), value(1));
+    cerr << "Can only cast vector with exactly two elements to a 2D vector!" << endl;
+    cerr << "Set breakpoint in " << __FILE__ << ":" << __LINE__ << " to debug." << endl;
+    exit(1);
+  }
+};
+
+// -----------------------------------------------------------------------------
+template <>
+struct TypeCaster<double2, Vector>
+{
+  static Vector Convert(const double2 &value)
+  {
+    Vector v(2);
+    v(0) = value.x;
+    v(1) = value.y;
+    return v;
+  }
+};
+
+// -----------------------------------------------------------------------------
+template <>
+struct TypeCaster<Vector, double3>
+{
+  static double3 Convert(const Vector &value)
+  {
+    if (value.Rows() == 3) return make_double3(value(0), value(1), value(2));
+    cerr << "Can only cast vector with exactly three elements to a 3D vector!" << endl;
+    cerr << "Set breakpoint in " << __FILE__ << ":" << __LINE__ << " to debug." << endl;
+    exit(1);
+  }
+};
+
+// -----------------------------------------------------------------------------
+template <>
+struct TypeCaster<double3, Vector>
+{
+  static Vector Convert(const double3 &value)
+  {
+    Vector v(3);
+    v(0) = value.x;
+    v(1) = value.y;
+    v(2) = value.z;
+    return v;
+  }
+};
+
+// -----------------------------------------------------------------------------
+template <>
+struct TypeCaster<Vector, double4>
+{
+  static double4 Convert(const Vector &value)
+  {
+    if (value.Rows() == 4) return make_double4(value(0), value(1), value(2), value(3));
+    cerr << "Can only cast vector with exactly four elements to a 4D vector!" << endl;
+    cerr << "Set breakpoint in " << __FILE__ << ":" << __LINE__ << " to debug." << endl;
+    exit(1);
+  }
+};
+
+// -----------------------------------------------------------------------------
+template <>
+struct TypeCaster<double4, Vector>
+{
+  static Vector Convert(const double4 &value)
+  {
+    Vector v(4);
+    v(0) = value.x;
+    v(1) = value.y;
+    v(2) = value.z;
+    v(3) = value.w;
+    return v;
+  }
+};
+
+// -----------------------------------------------------------------------------
+template <class TOut>
+struct TypeCaster<Vector, Vector3D<TOut> >
+{
+  static Vector3D<TOut> Convert(const Vector &value)
+  {
+    if (value.Rows() == 3) {
+      return Vector3D<TOut>(TypeCaster<double, TOut>::Convert(value(0)),
+                            TypeCaster<double, TOut>::Convert(value(1)),
+                            TypeCaster<double, TOut>::Convert(value(2)));
+    }
+    cerr << "Can only cast vector with exactly three elements to a 3D vector!" << endl;
+    cerr << "Set breakpoint in " << __FILE__ << ":" << __LINE__ << " to debug." << endl;
+    exit(1);
+  }
+};
+
+// -----------------------------------------------------------------------------
+template <class TOut>
+struct TypeCaster<Vector, Vector4D<TOut> >
+{
+  static Vector4D<TOut> Convert(const Vector &value)
+  {
+    if (value.Rows() == 4) {
+      return Vector4D<TOut>(TypeCaster<double, TOut>::Convert(value(0)),
+                            TypeCaster<double, TOut>::Convert(value(1)),
+                            TypeCaster<double, TOut>::Convert(value(2)),
+                            TypeCaster<double, TOut>::Convert(value(3)));
+    }
+    cerr << "Can only cast vector with exactly four elements to a 4D vector!" << endl;
+    cerr << "Set breakpoint in " << __FILE__ << ":" << __LINE__ << " to debug." << endl;
+    exit(1);
+  }
+};
+
+// -----------------------------------------------------------------------------
+template <class TIn>
+struct TypeCaster<Vector3D<TIn>, Vector>
+{
+  static Vector Convert(const Vector3D<TIn> &value)
+  {
+    Vector v(3);
+    v.Put(value);
+    return v;
+  }
+};
+
+// -----------------------------------------------------------------------------
+template <class TIn>
+struct TypeCaster<Vector4D<TIn>, Vector>
+{
+  static Vector Convert(const Vector4D<TIn> &value)
+  {
+    Vector v(4);
+    v.Put(value);
+    return v;
+  }
+};
+
+// -----------------------------------------------------------------------------
+template <>
+struct TypeCaster<float3x3, Vector>
+{
+  static Vector Convert(const float3x3 &value)
+  {
+    Vector v(9);
+    v(0) = value.a.x;
+    v(1) = value.a.y;
+    v(2) = value.a.z;
+    v(3) = value.b.x;
+    v(4) = value.b.y;
+    v(5) = value.b.z;
+    v(6) = value.c.x;
+    v(7) = value.c.y;
+    v(8) = value.c.z;
+    return v;
+  }
+};
+
+// -----------------------------------------------------------------------------
+template <>
+struct TypeCaster<double3x3, Vector>
+{
+  static Vector Convert(const double3x3 &value)
+  {
+    Vector v(9);
+    v(0) = value.a.x;
+    v(1) = value.a.y;
+    v(2) = value.a.z;
+    v(3) = value.b.x;
+    v(4) = value.b.y;
+    v(5) = value.b.z;
+    v(6) = value.c.x;
+    v(7) = value.c.y;
+    v(8) = value.c.z;
+    return v;
+  }
+};
+
+// -----------------------------------------------------------------------------
+template <>
+struct TypeCaster<Vector, float3x3>
+{
+  static float3x3 Convert(const Vector &v)
+  {
+    float3x3 m;
+    if (v.Rows() == 9) {
+      m.a.x = TypeCaster<double, float>::Convert(v(0));
+      m.a.y = TypeCaster<double, float>::Convert(v(1));
+      m.a.z = TypeCaster<double, float>::Convert(v(2));
+      m.b.x = TypeCaster<double, float>::Convert(v(3));
+      m.b.y = TypeCaster<double, float>::Convert(v(4));
+      m.b.z = TypeCaster<double, float>::Convert(v(5));
+      m.c.x = TypeCaster<double, float>::Convert(v(6));
+      m.c.y = TypeCaster<double, float>::Convert(v(7));
+      m.c.z = TypeCaster<double, float>::Convert(v(8));
+    } else if (v.Rows() == 6) {
+      m.a.x = TypeCaster<double, float>::Convert(v(0));
+      m.a.y = TypeCaster<double, float>::Convert(v(1));
+      m.a.z = TypeCaster<double, float>::Convert(v(2));
+      m.b.x = m.a.y;
+      m.b.y = TypeCaster<double, float>::Convert(v(3));
+      m.b.z = TypeCaster<double, float>::Convert(v(4));
+      m.c.x = m.a.z;
+      m.c.y = m.b.z;
+      m.c.z = TypeCaster<double, float>::Convert(v(5));
+    } else {
+      cerr << "Can only cast vector of size 6 or 9 to a 3x3 matrix!" << endl;
+      cerr << "Set breakpoint in " << __FILE__ << ":" << __LINE__ << " to debug." << endl;
+      exit(1);
+    }
+    return m;
+  }
+};
+
+// -----------------------------------------------------------------------------
+template <>
+struct TypeCaster<Vector, double3x3>
+{
+  static double3x3 Convert(const Vector &v)
+  {
+    double3x3 m;
+    if (v.Rows() == 9) {
+      m.a.x = v(0);
+      m.a.y = v(1);
+      m.a.z = v(2);
+      m.b.x = v(3);
+      m.b.y = v(4);
+      m.b.z = v(5);
+      m.c.x = v(6);
+      m.c.y = v(7);
+      m.c.z = v(8);
+    } else if (v.Rows() == 6) {
+      m.a.x = v(0);
+      m.a.y = v(1);
+      m.a.z = v(2);
+      m.b.x = m.a.y;
+      m.b.y = v(3);
+      m.b.z = v(4);
+      m.c.x = m.a.z;
+      m.c.y = m.b.z;
+      m.c.z = v(5);
+    } else {
+      cerr << "Can only cast vector of size 6 or 9 to a 3x3 matrix!" << endl;
+      cerr << "Set breakpoint in " << __FILE__ << ":" << __LINE__ << " to debug." << endl;
+      exit(1);
+    }
+    return m;
+  }
+};
 
 
 } // namespace mirtk

@@ -35,6 +35,21 @@ using std::uniform_int_distribution;
 using std::random_shuffle;
 
 
+//------------------------------------------------------------------------------
+/// Random number in [0, 1]
+inline double UnitRandom()
+{
+  return double(rand())/double(RAND_MAX);
+}
+
+//------------------------------------------------------------------------------
+/// Random number in [-1, 1]
+inline double SymmetricRandom()
+{
+  return 2.0*double(rand())/double(RAND_MAX) - 1.0;
+}
+
+
 } // namespace mirtk
 
 #endif // MIRTK_Random_H

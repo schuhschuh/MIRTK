@@ -126,35 +126,35 @@ void GIPLImageReader::ReadHeader()
   // Calculate type of voxels and number of bytes per voxel
   switch (type) {
     case GIPL_CHAR:
-      _DataType = MIRTK_VOXEL_CHAR;
+      _DataType = T_Char;
       _Bytes    = 1;
       break;
     case GIPL_U_CHAR:
-      _DataType = MIRTK_VOXEL_UNSIGNED_CHAR;
+      _DataType = T_UChar;
       _Bytes    = 1;
       break;
     case GIPL_SHORT:
-      _DataType = MIRTK_VOXEL_SHORT;
+      _DataType = T_Short;
       _Bytes    = 2;
       break;
     case GIPL_U_SHORT:
-      _DataType = MIRTK_VOXEL_UNSIGNED_SHORT;
+      _DataType = T_UShort;
       _Bytes    = 2;
       break;
     case GIPL_INT:
-      _DataType = MIRTK_VOXEL_INT;
+      _DataType = T_Int;
       _Bytes    = 4;
       break;
     case GIPL_U_INT:
-      _DataType = MIRTK_VOXEL_UNSIGNED_INT;
+      _DataType = T_UInt;
       _Bytes    = 4;
       break;
     case GIPL_FLOAT:
-      _DataType = MIRTK_VOXEL_FLOAT;
+      _DataType = T_Float;
       _Bytes    = 4;
       break;
     case GIPL_DOUBLE:
-      _DataType = MIRTK_VOXEL_DOUBLE;
+      _DataType = T_Double;
       _Bytes    = 8;
       break;
     default:

@@ -72,9 +72,9 @@ void Dilation<VoxelType>::Run()
 // Explicit template instantiations
 // =============================================================================
 
-template class Dilation<BytePixel>;
-template class Dilation<GreyPixel>;
-template class Dilation<RealPixel>;
+template class Dilation<Byte>;
+template class Dilation<Grey>;
+template class Dilation<Real>;
 
 
 } // namespace mirtk

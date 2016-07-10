@@ -19,7 +19,6 @@
 
 #include "mirtk/Assert.h"
 #include "mirtk/Vector3D.h"
-#include "mirtk/Voxel.h"
 #include "mirtk/BaseImage.h"
 #include "mirtk/GenericImage.h"
 #include "mirtk/VoxelFunction.h"
@@ -43,7 +42,7 @@ namespace mirtk {
 template <class ScalarType>
 struct DifferenceOfCompositionLieBracket : public VoxelFunction
 {
-  typedef typename voxel_info<ScalarType>::RealType      RealType;
+  typedef typename type_traits<ScalarType>::RealType     RealType;
   typedef typename WorldCoordsImage::VoxelType           CoordType;
   typedef GenericImage<ScalarType>                       VectorImage;
   typedef GenericInterpolateImageFunction<VectorImage>   InputType;
@@ -189,8 +188,8 @@ template <class VectorType>
 struct DifferenceOfCompositionLieBracket3D : public VoxelFunction
 {
   // TODO: Change WorldCoordsImage to use real3 as voxel type
-  typedef typename voxel_info<VectorType>::ScalarType    ScalarType;
-  typedef typename voxel_info<ScalarType>::RealType      RealType;
+  typedef typename type_traits<VectorType>::ScalarType   ScalarType;
+  typedef typename type_traits<ScalarType>::RealType     RealType;
   typedef typename WorldCoordsImage::VoxelType           CoordType;
   typedef Vector3D<CoordType>                            CoordVector;
   typedef GenericImage<VectorType>                       VectorImage;
@@ -371,14 +370,14 @@ void DifferenceOfCompositionLieBracketImageFilter3D<VoxelType>
 
 // -----------------------------------------------------------------------------
 template <>
-void DifferenceOfCompositionLieBracketImageFilter3D<Float3>
+void DifferenceOfCompositionLieBracketImageFilter3D<Vector3D<float> >
 ::Run(double out[3], int i, int j, int k)
 {
   // FIXME: User cannot initialize interpolators
-  typedef DifferenceOfCompositionLieBracket3D<Float3> LieBracketFunction;
+  typedef DifferenceOfCompositionLieBracket3D<VoxelType> LieBracketFunction;
   LieBracketFunction liebracket(_Scaling[0], _Interpolator[0],
                                 _Scaling[1], _Interpolator[1]);
-  Float3 tmp;
+  VoxelType tmp;
   liebracket.Evaluate(i, j, k, tmp);
   out[0] = static_cast<double>(tmp._x);
   out[1] = static_cast<double>(tmp._y);
@@ -387,14 +386,14 @@ void DifferenceOfCompositionLieBracketImageFilter3D<Float3>
 
 // -----------------------------------------------------------------------------
 template <>
-void DifferenceOfCompositionLieBracketImageFilter3D<Double3>
+void DifferenceOfCompositionLieBracketImageFilter3D<Vector3D<double> >
 ::Run(double out[3], int i, int j, int k)
 {
   // FIXME: User cannot initialize interpolators
-  typedef DifferenceOfCompositionLieBracket3D<Double3> LieBracketFunction;
+  typedef DifferenceOfCompositionLieBracket3D<VoxelType> LieBracketFunction;
   LieBracketFunction liebracket(_Scaling[0], _Interpolator[0],
                                 _Scaling[1], _Interpolator[1]);
-  Double3 tmp;
+  VoxelType tmp;
   liebracket.Evaluate(i, j, k, tmp);
   out[0] = tmp._x;
   out[1] = tmp._y;
@@ -431,11 +430,11 @@ void DifferenceOfCompositionLieBracketImageFilter3D<VoxelType>::Run()
 
 // ---------------------------------------------------------------------------
 template <>
-void DifferenceOfCompositionLieBracketImageFilter3D<Float3>::Run()
+void DifferenceOfCompositionLieBracketImageFilter3D<Vector3D<float>>::Run()
 {
   MIRTK_START_TIMING();
   this->Initialize();
-  typedef DifferenceOfCompositionLieBracket3D<Float3> LieBracketFunction;
+  typedef DifferenceOfCompositionLieBracket3D<VoxelType> LieBracketFunction;
   LieBracketFunction liebracket(_Scaling[0], _Interpolator[0],
                                 _Scaling[1], _Interpolator[1]);
   blocked_range3d<int> roi(0, this->Output()->Z(),
@@ -448,11 +447,11 @@ void DifferenceOfCompositionLieBracketImageFilter3D<Float3>::Run()
 
 // ---------------------------------------------------------------------------
 template <>
-void DifferenceOfCompositionLieBracketImageFilter3D<Double3>::Run()
+void DifferenceOfCompositionLieBracketImageFilter3D<Vector3D<double> >::Run()
 {
   MIRTK_START_TIMING();
   this->Initialize();
-  typedef DifferenceOfCompositionLieBracket3D<Double3> LieBracketFunction;
+  typedef DifferenceOfCompositionLieBracket3D<VoxelType> LieBracketFunction;
   LieBracketFunction liebracket(_Scaling[0], _Interpolator[0],
                                 _Scaling[1], _Interpolator[1]);
   blocked_range3d<int> roi(0, this->Output()->Z(),
@@ -469,8 +468,8 @@ void DifferenceOfCompositionLieBracketImageFilter3D<Double3>::Run()
 
 template class DifferenceOfCompositionLieBracketImageFilter3D<float>;
 template class DifferenceOfCompositionLieBracketImageFilter3D<double>;
-template class DifferenceOfCompositionLieBracketImageFilter3D<Float3>;
-template class DifferenceOfCompositionLieBracketImageFilter3D<Double3>;
+template class DifferenceOfCompositionLieBracketImageFilter3D<Vector3D<float> >;
+template class DifferenceOfCompositionLieBracketImageFilter3D<Vector3D<double> >;
 
 
 } // namespace mirtk

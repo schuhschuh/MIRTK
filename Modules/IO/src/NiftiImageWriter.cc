@@ -53,7 +53,7 @@ Array<string> NiftiImageWriter::Extensions()
 template <class VectorType>
 inline void *ReformatImageData(const void *input, int nx, int ny, int nz, int nt, int nu)
 {
-  typedef typename voxel_info<VectorType>::ScalarType ScalarType;
+  typedef typename type_traits<VectorType>::ScalarType ScalarType;
   void *output = malloc(nx * ny * nz * nt * nu * sizeof(ScalarType));
   const ScalarType *in  = reinterpret_cast<const ScalarType *>(input);
   ScalarType       *out = reinterpret_cast<      ScalarType *>(output);

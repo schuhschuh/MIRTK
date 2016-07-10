@@ -436,7 +436,7 @@ int main(int argc, char *argv[])
       surface->GetCellData()->RemoveArray(source_array_name);
       if (i > 0 || offset <= 1) {
         surface->GetPointData()->RemoveArray(source_array_name);
-        source_array = NewVTKDataArray(VTK_UNSIGNED_SHORT);
+        source_array = NewVtkDataArray(VTK_UNSIGNED_SHORT);
         source_array->SetName(temp_source_array_name);
         source_array->SetNumberOfComponents(1);
         source_array->SetNumberOfTuples(surface->GetNumberOfPoints());

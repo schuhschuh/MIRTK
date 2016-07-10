@@ -1,8 +1,8 @@
 /*
  * Medical Image Registration ToolKit (MIRTK)
  *
- * Copyright 2013-2015 Imperial College London
- * Copyright 2013-2015 Andreas Schuh
+ * Copyright 2013-2016 Imperial College London
+ * Copyright 2013-2016 Andreas Schuh
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,13 +17,11 @@
  * limitations under the License.
  */
 
-#ifndef MIRTK_Image_H
-#define MIRTK_Image_H
+#ifndef MIRTK_LibImage_H
+#define MIRTK_LibImage_H
 
 
 // Image type
-#include "mirtk/Voxel.h"
-#include "mirtk/VoxelCast.h"
 #include "mirtk/BaseImage.h"
 #include "mirtk/GenericImage.h"
 
@@ -41,4 +39,4 @@
 // TODO: Add missing header files
 
 
-#endif // MIRTK_Image_H
+#endif // MIRTK_LibImage_H

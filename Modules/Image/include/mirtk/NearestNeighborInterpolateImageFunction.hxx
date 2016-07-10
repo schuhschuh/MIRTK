@@ -77,7 +77,7 @@ GenericNearestNeighborInterpolateImageFunction<TImage>
   if (this->Input()->IsInside(i, j, k, l)) {
     return this->Input()->Get(i, j, k, l);
   } else {
-    return voxel_cast<VoxelType>(this->DefaultValue());
+    return type_cast<VoxelType>(this->DefaultValue());
   }
 }
 
@@ -95,7 +95,7 @@ GenericNearestNeighborInterpolateImageFunction<TImage>
   if (this->Input()->IsInsideForeground(i, j, k, l)) {
     return this->Input()->Get(i, j, k, l);
   } else {
-    return voxel_cast<VoxelType>(this->DefaultValue());
+    return type_cast<VoxelType>(this->DefaultValue());
   }
 }
 
@@ -122,7 +122,7 @@ GenericNearestNeighborInterpolateImageFunction<TImage>
   if (input->IsForeground(i, j, k, l)) {
     return input->Get(i, j, k, l);
   } else {
-    return voxel_cast<VoxelType>(this->DefaultValue());
+    return type_cast<VoxelType>(this->DefaultValue());
   }
 }
 

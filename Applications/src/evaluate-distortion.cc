@@ -112,7 +112,7 @@ double Angle(vtkPolyData *mesh, vtkIdType cellId, vtkIdType ptId)
   ab = pow(p[1][0] - p[0][0], 2) + pow(p[1][1] - p[0][1], 2) + pow(p[1][2] - p[0][2], 2);
   ac = pow(p[2][0] - p[0][0], 2) + pow(p[2][1] - p[0][1], 2) + pow(p[2][2] - p[0][2], 2);
   bc = pow(p[2][0] - p[1][0], 2) + pow(p[2][1] - p[1][1], 2) + pow(p[2][2] - p[1][2], 2);
-  return acos((ab + ac - bc) / (2.0 * sqrt(ab) * sqrt(ac)));
+  return mirtk::acos((ab + ac - bc) / (2.0 * sqrt(ab) * sqrt(ac)));
 }
 
 // -----------------------------------------------------------------------------

@@ -18,7 +18,7 @@
 # ============================================================================
 
 macro(add_common_test class_name)
-  mirtk_add_test(${class_name} DEPENDS LibCommon)
+  mirtk_add_test(${class_name} DEPENDS LibCommon ${ARGN})
 endmacro ()
 
 

@@ -39,10 +39,10 @@ public:
   // Construction/Destruction
 
   /// Constructor
-  ImageIterator(const ImageAttributes &, int);
+  ImageIterator(const ImageAttributes &, DataType);
 
   /// Constructor
-  ImageIterator(const ImageAttributes &, void * = NULL, int = MIRTK_VOXEL_UNKNOWN);
+  ImageIterator(const ImageAttributes &, void * = NULL, DataType = T_Void);
 
   /// Constructor
   ImageIterator(BaseImage &);
@@ -121,14 +121,14 @@ public:
 // ===========================================================================
 
 // ---------------------------------------------------------------------------
-inline ImageIterator::ImageIterator(const ImageAttributes &attr, int type)
+inline ImageIterator::ImageIterator(const ImageAttributes &attr, DataType type)
 :
   ConstImageIterator(attr, type)
 {
 }
 
 // ---------------------------------------------------------------------------
-inline ImageIterator::ImageIterator(const ImageAttributes &attr, void *data, int type)
+inline ImageIterator::ImageIterator(const ImageAttributes &attr, void *data, DataType type)
 :
   ConstImageIterator(attr, data, type)
 {

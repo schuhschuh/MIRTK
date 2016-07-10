@@ -50,10 +50,10 @@ public:
   // Construction/Destruction
 
   /// Constructor
-  ConstImageIterator(const ImageAttributes &, int);
+  ConstImageIterator(const ImageAttributes &, DataType);
 
   /// Constructor
-  ConstImageIterator(const ImageAttributes &, const void * = NULL, int = MIRTK_VOXEL_UNKNOWN);
+  ConstImageIterator(const ImageAttributes &, const void * = NULL, DataType = T_Void);
 
   /// Constructor
   ConstImageIterator(const BaseImage &);
@@ -86,10 +86,10 @@ public:
   // Image attributes
 
   /// Set data type - defines number of bytes per voxel
-  void SetDataType(int);
+  void SetDataType(DataType);
 
   /// Set raw data pointer to start of entire image
-  void SetData(const void *, int = MIRTK_VOXEL_UNKNOWN);
+  void SetData(const void *, DataType = T_Void);
 
   /// Whether the image is a 3D+t image sequence
   /// (i.e., number of voxels in t dimension is greater 1 and dt is not 0)
@@ -412,7 +412,7 @@ protected:
 // ===========================================================================
 
 // ---------------------------------------------------------------------------
-inline ConstImageIterator::ConstImageIterator(const ImageAttributes &attr, int type)
+inline ConstImageIterator::ConstImageIterator(const ImageAttributes &attr, DataType type)
 :
   _Data             (NULL),
   _DataSize         (attr._x, attr._y, attr._z, attr._t),
@@ -422,7 +422,7 @@ inline ConstImageIterator::ConstImageIterator(const ImageAttributes &attr, int t
   _End              (attr._x-1, attr._y-1, attr._z-1, attr._t-1),
   _Size             (attr._x,   attr._y,   attr._z,   attr._t),
   _XYZ              (attr._x * attr._y * attr._z),
-  _ColumnStride     (DataTypeSize(type)),
+  _ColumnStride     (SizeOf(type)),
   _LineStride       (0),
   _SliceStride      (0),
   _FrameStride      (0),
@@ -432,7 +432,7 @@ inline ConstImageIterator::ConstImageIterator(const ImageAttributes &attr, int t
 }
 
 // ---------------------------------------------------------------------------
-inline ConstImageIterator::ConstImageIterator(const ImageAttributes &attr, const void *data, int type)
+inline ConstImageIterator::ConstImageIterator(const ImageAttributes &attr, const void *data, DataType type)
 :
   _Data             (reinterpret_cast<const char *>(data)),
   _DataSize         (attr._x, attr._y, attr._z, attr._t),
@@ -442,7 +442,7 @@ inline ConstImageIterator::ConstImageIterator(const ImageAttributes &attr, const
   _End              (attr._x-1, attr._y-1, attr._z-1, attr._t-1),
   _Size             (attr._x,   attr._y,   attr._z,   attr._t),
   _XYZ              (attr._x * attr._y * attr._z),
-  _ColumnStride     (DataTypeSize(type)),
+  _ColumnStride     (SizeOf(type)),
   _LineStride       (0),
   _SliceStride      (0),
   _FrameStride      (0),
@@ -579,9 +579,9 @@ inline int ConstImageIterator::FrameStride() const
 // ===========================================================================
 
 // ---------------------------------------------------------------------------
-inline void ConstImageIterator::SetDataType(int type)
+inline void ConstImageIterator::SetDataType(DataType type)
 {
-  const int size = DataTypeSize(type);
+  const int size = static_cast<int>(SizeOf(type));
   if (size == 0) {
     cerr << "ConstImageIterator::SetDataType: Unknown data type: " << type << endl;
     exit(1);
@@ -593,9 +593,9 @@ inline void ConstImageIterator::SetDataType(int type)
 }
 
 // ---------------------------------------------------------------------------
-inline void ConstImageIterator::SetData(const void *data, int type)
+inline void ConstImageIterator::SetData(const void *data, DataType type)
 {
-  if (type != MIRTK_VOXEL_UNKNOWN) {
+  if (type != T_Void) {
     SetDataType(type);
   }
   _Data = reinterpret_cast<const char *>(data);

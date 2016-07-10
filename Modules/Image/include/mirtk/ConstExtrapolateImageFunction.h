@@ -22,7 +22,6 @@
 
 #include "mirtk/ExtrapolateImageFunction.h"
 
-#include "mirtk/VoxelCast.h"
 #include "mirtk/BaseImage.h"
 
 
@@ -65,7 +64,7 @@ public:
         0 <= l && l < this->T()) {
       return this->Input()->Get(i, j, k, l);
     } else {
-      return voxel_cast<VoxelType>(this->_DefaultValue);
+      return type_cast<VoxelType>(this->_DefaultValue);
     }
   }
 

@@ -19,7 +19,7 @@
 
 #include "mirtk/Config.h" // MIRTK_USE_FLOAT_BY_DEFAULT
 
-#include "mirtk/Vtk.h"
+#include "mirtk/VtkTypes.h"
 #include "mirtk/Stream.h"
 
 #include "vtkCharArray.h"
@@ -37,9 +37,9 @@ namespace mirtk {
 
 
 // -----------------------------------------------------------------------------
-vtkSmartPointer<vtkDataArray> NewVTKDataArray(int vtkType)
+vtkSmartPointer<vtkDataArray> NewVtkDataArray(int type)
 {
-  switch (vtkType) {
+  switch (type) {
     case VTK_VOID: {
       #if MIRTK_USE_FLOAT_BY_DEFAULT
         return vtkSmartPointer<vtkFloatArray>::New();
@@ -57,7 +57,7 @@ vtkSmartPointer<vtkDataArray> NewVTKDataArray(int vtkType)
     case VTK_DOUBLE:         return vtkSmartPointer<vtkDoubleArray>::New();
     case VTK_ID_TYPE:        return vtkSmartPointer<vtkIdTypeArray>::New();
     default:
-      cerr << "Invalid VTK data type: " << vtkType << endl;
+      cerr << __FUNCTION__ << ": Unsupported VTK data type: " << type << endl;
       exit(1);
   }
 }

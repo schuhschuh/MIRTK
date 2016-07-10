@@ -19,6 +19,7 @@
 
 #include "mirtk/Sinc.h"
 #include "mirtk/Math.h"
+#include "mirtk/Constants.h"
 
 
 namespace mirtk {

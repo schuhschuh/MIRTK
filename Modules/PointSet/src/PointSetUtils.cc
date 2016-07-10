@@ -1119,9 +1119,9 @@ vtkSmartPointer<vtkImageData> NewVtkMask(int nx, int ny, int nz)
   imagedata->SetDimensions(nx, ny, nz);
   imagedata->SetSpacing(1.0, 1.0, 1.0);
 #if VTK_MAJOR_VERSION >= 6
-  imagedata->AllocateScalars(ToVTKDataType(MIRTK_VOXEL_BINARY), 1);
+  imagedata->AllocateScalars(ToVtkDataType(T_Binary), 1);
 #else
-  imagedata->SetScalarType(ToVTKDataType(MIRTK_VOXEL_BINARY));
+  imagedata->SetScalarType(ToVtkDataType(T_Binary));
   imagedata->AllocateScalars();
 #endif
   return imagedata;
@@ -1165,8 +1165,8 @@ vtkSmartPointer<vtkImageStencilData> ImageStencil(vtkSmartPointer<vtkImageData> 
 void ImageStencilToMask(vtkSmartPointer<vtkImageStencilData> stencil,
                         vtkSmartPointer<vtkImageData>        image)
 {
-  if (image->GetScalarType() != ToVTKDataType(MIRTK_VOXEL_BINARY)) {
-    cerr << "ImageStencilToMask: vtkImageData must have scalar type MIRTK_VOXEL_BINARY" << endl;
+  if (image->GetScalarType() != ToVtkDataType(T_Binary)) {
+    cerr << "ImageStencilToMask: vtkImageData must have scalar type T_Binary" << endl;
     exit(1);
   }
   const vtkIdType nvox = image->GetNumberOfPoints();

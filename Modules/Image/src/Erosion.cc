@@ -72,9 +72,9 @@ void Erosion<VoxelType>::Run()
 // Explicit template instantiations
 // =============================================================================
 
-template class Erosion<BytePixel>;
-template class Erosion<GreyPixel>;
-template class Erosion<RealPixel>;
+template class Erosion<Byte>;
+template class Erosion<Grey>;
+template class Erosion<Real>;
 
 
 } // namespace mirtk

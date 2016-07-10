@@ -23,8 +23,6 @@
 #include "mirtk/InterpolationMode.h"
 #include "mirtk/Point.h"
 #include "mirtk/Vector.h"
-#include "mirtk/Voxel.h"
-#include "mirtk/VoxelCast.h"
 #include "mirtk/BaseImage.h"
 #include "mirtk/ImageFunction.h"
 #include "mirtk/UnaryVoxelFunction.h"
@@ -1057,7 +1055,7 @@ template <class TImage>
 inline double GenericInterpolateImageFunction<TImage>
 ::EvaluateInside(double x, double y, double z, double t) const
 {
-  return voxel_cast<double>(this->GetInside(x, y, z, t));
+  return type_cast<double>(this->GetInside(x, y, z, t));
 }
 
 // -----------------------------------------------------------------------------
@@ -1065,7 +1063,7 @@ template <class TImage>
 inline double GenericInterpolateImageFunction<TImage>
 ::EvaluateOutside(double x, double y, double z, double t) const
 {
-  return voxel_cast<double>(this->GetOutside(x, y, z, t));
+  return type_cast<double>(this->GetOutside(x, y, z, t));
 }
 
 // -----------------------------------------------------------------------------
@@ -1073,7 +1071,7 @@ template <class TImage>
 inline double GenericInterpolateImageFunction<TImage>
 ::EvaluateWithPaddingInside(double x, double y, double z, double t) const
 {
-  return voxel_cast<double>(this->GetWithPaddingInside(x, y, z, t));
+  return type_cast<double>(this->GetWithPaddingInside(x, y, z, t));
 }
 
 // -----------------------------------------------------------------------------
@@ -1081,7 +1079,7 @@ template <class TImage>
 inline double GenericInterpolateImageFunction<TImage>
 ::EvaluateWithPaddingOutside(double x, double y, double z, double t) const
 {
-  return voxel_cast<double>(this->GetWithPaddingOutside(x, y, z, t));
+  return type_cast<double>(this->GetWithPaddingOutside(x, y, z, t));
 }
 
 // -----------------------------------------------------------------------------
@@ -1090,7 +1088,7 @@ inline void GenericInterpolateImageFunction<TImage>
 ::EvaluateInside(double *v, double x, double y, double z, int vt) const
 {
   for (int t = 0; t < Input()->T(); ++t, v += vt) {
-    (*v) = voxel_cast<double>(this->GetInside(x, y, z, static_cast<double>(t)));
+    (*v) = type_cast<double>(this->GetInside(x, y, z, static_cast<double>(t)));
   }
 }
 
@@ -1100,7 +1098,7 @@ inline void GenericInterpolateImageFunction<TImage>
 ::EvaluateOutside(double *v, double x, double y, double z, int vt) const
 {
   for (int t = 0; t < Input()->T(); ++t, v += vt) {
-    (*v) = voxel_cast<double>(this->GetOutside(x, y, z, static_cast<double>(t)));
+    (*v) = type_cast<double>(this->GetOutside(x, y, z, static_cast<double>(t)));
   }
 }
 
@@ -1110,7 +1108,7 @@ inline void GenericInterpolateImageFunction<TImage>
 ::EvaluateWithPaddingInside(double *v, double x, double y, double z, int vt) const
 {
   for (int t = 0; t < Input()->T(); ++t, v += vt) {
-    (*v) = voxel_cast<double>(this->GetWithPaddingInside(x, y, z, static_cast<double>(t)));
+    (*v) = type_cast<double>(this->GetWithPaddingInside(x, y, z, static_cast<double>(t)));
   }
 }
 
@@ -1120,7 +1118,7 @@ inline void GenericInterpolateImageFunction<TImage>
 ::EvaluateWithPaddingOutside(double *v, double x, double y, double z, int vt) const
 {
   for (int t = 0; t < Input()->T(); ++t, v += vt) {
-    (*v) = voxel_cast<double>(this->GetWithPaddingOutside(x, y, z, static_cast<double>(t)));
+    (*v) = type_cast<double>(this->GetWithPaddingOutside(x, y, z, static_cast<double>(t)));
   }
 }
 
@@ -1129,7 +1127,7 @@ template <class TImage>
 inline void GenericInterpolateImageFunction<TImage>
 ::EvaluateInside(Vector &v, double x, double y, double z, double t) const
 {
-  v = voxel_cast<Vector>(this->GetInside(x, y, z, t));
+  v = type_cast<Vector>(this->GetInside(x, y, z, t));
 }
 
 // -----------------------------------------------------------------------------
@@ -1137,7 +1135,7 @@ template <class TImage>
 inline void GenericInterpolateImageFunction<TImage>
 ::EvaluateOutside(Vector &v, double x, double y, double z, double t) const
 {
-  v = voxel_cast<Vector>(this->GetOutside(x, y, z, t));
+  v = type_cast<Vector>(this->GetOutside(x, y, z, t));
 }
 
 // -----------------------------------------------------------------------------
@@ -1145,7 +1143,7 @@ template <class TImage>
 inline void GenericInterpolateImageFunction<TImage>
 ::EvaluateWithPaddingInside(Vector &v, double x, double y, double z, double t) const
 {
-  v = voxel_cast<Vector>(this->GetWithPaddingInside(x, y, z, t));
+  v = type_cast<Vector>(this->GetWithPaddingInside(x, y, z, t));
 }
 
 // -----------------------------------------------------------------------------
@@ -1153,7 +1151,7 @@ template <class TImage>
 inline void GenericInterpolateImageFunction<TImage>
 ::EvaluateWithPaddingOutside(Vector &v, double x, double y, double z, double t) const
 {
-  v = voxel_cast<Vector>(this->GetWithPaddingOutside(x, y, z, t));
+  v = type_cast<Vector>(this->GetWithPaddingOutside(x, y, z, t));
 }
 
 

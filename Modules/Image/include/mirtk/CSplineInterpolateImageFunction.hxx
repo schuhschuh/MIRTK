@@ -23,7 +23,6 @@
 #include "mirtk/CSplineInterpolateImageFunction.h"
 
 #include "mirtk/Math.h"
-#include "mirtk/VoxelCast.h"
 #include "mirtk/InterpolateImageFunction.hxx"
 
 
@@ -117,7 +116,7 @@ GenericCSplineInterpolateImageFunction<TImage>
 
   if (k < 0 || k >= this->Input()->Z() ||
       l < 0 || l >= this->Input()->T()) {
-    return voxel_cast<VoxelType>(this->DefaultValue());
+    return type_cast<VoxelType>(this->DefaultValue());
   }
 
   const int i1 = i - 1;
@@ -125,7 +124,7 @@ GenericCSplineInterpolateImageFunction<TImage>
   const int i2 = i + 2;
   const int j2 = j + 2;
 
-  RealType val = voxel_cast<RealType>(0);
+  RealType val = type_cast<RealType>(0);
   Real     nrm(0), wy, w;
 
   for (j = j1; j <= j2; ++j) {
@@ -134,7 +133,7 @@ GenericCSplineInterpolateImageFunction<TImage>
       for (i = i1; i <= i2; ++i) {
         if (0 <= i && i < this->Input()->X()) {
           w    = CSpline(Real(x - i)) * wy;
-          val += w * voxel_cast<RealType>(this->Input()->Get(i, j, k, l));
+          val += w * type_cast<RealType>(this->Input()->Get(i, j, k, l));
           nrm += w;
         }
       }
@@ -142,9 +141,9 @@ GenericCSplineInterpolateImageFunction<TImage>
   }
 
   if (nrm) val /= nrm;
-  else     val  = voxel_cast<RealType>(this->DefaultValue());
+  else     val  = type_cast<RealType>(this->DefaultValue());
 
-  return voxel_cast<VoxelType>(val);
+  return type_cast<VoxelType>(val);
 }
 
 // -----------------------------------------------------------------------------
@@ -160,7 +159,7 @@ GenericCSplineInterpolateImageFunction<TImage>
 
   if (k < 0 || k >= this->Input()->Z() ||
       l < 0 || l >= this->Input()->T()) {
-    return voxel_cast<VoxelType>(this->DefaultValue());
+    return type_cast<VoxelType>(this->DefaultValue());
   }
 
   const int i1 = i - 1;
@@ -168,7 +167,7 @@ GenericCSplineInterpolateImageFunction<TImage>
   const int i2 = i + 2;
   const int j2 = j + 2;
 
-  RealType val = voxel_cast<RealType>(0);
+  RealType val = type_cast<RealType>(0);
   Real     fgw(0), bgw(0), wy, w;
 
   for (j = j1; j <= j2; ++j) {
@@ -176,7 +175,7 @@ GenericCSplineInterpolateImageFunction<TImage>
     for (i = i1; i <= i2; ++i) {
       w = CSpline(Real(x - i)) * wy;
       if (this->Input()->IsInsideForeground(i, j, k, l)) {
-        val += w * voxel_cast<RealType>(this->Input()->Get(i, j, k, l));
+        val += w * type_cast<RealType>(this->Input()->Get(i, j, k, l));
         fgw += w;
       } else {
         bgw += w;
@@ -185,9 +184,9 @@ GenericCSplineInterpolateImageFunction<TImage>
   }
 
   if (fgw > bgw) val /= fgw;
-  else           val  = voxel_cast<RealType>(this->DefaultValue());
+  else           val  = type_cast<RealType>(this->DefaultValue());
 
-  return voxel_cast<VoxelType>(val);
+  return type_cast<VoxelType>(val);
 }
 
 // -----------------------------------------------------------------------------
@@ -209,22 +208,22 @@ GenericCSplineInterpolateImageFunction<TImage>
   const int i2 = i + 2;
   const int j2 = j + 2;
 
-  RealType val = voxel_cast<RealType>(0);
+  RealType val = type_cast<RealType>(0);
   Real     nrm(0), wy, w;
 
   for (j = j1; j <= j2; ++j) {
     wy = CSpline(Real(y - j));
     for (i = i1; i <= i2; ++i) {
       w    = CSpline(Real(x - i)) * wy;
-      val += w * voxel_cast<RealType>(input->Get(i, j, k, l));
+      val += w * type_cast<RealType>(input->Get(i, j, k, l));
       nrm += w;
     }
   }
 
   if (nrm) val /= nrm;
-  else     val  = voxel_cast<RealType>(this->DefaultValue());
+  else     val  = type_cast<RealType>(this->DefaultValue());
 
-  return voxel_cast<VoxelType>(val);
+  return type_cast<VoxelType>(val);
 }
 
 // -----------------------------------------------------------------------------
@@ -246,7 +245,7 @@ GenericCSplineInterpolateImageFunction<TImage>
   const int i2 = i + 2;
   const int j2 = j + 2;
 
-  RealType val = voxel_cast<RealType>(0);
+  RealType val = type_cast<RealType>(0);
   Real     fgw(0), bgw(0), wy, w;
 
   for (j = j1; j <= j2; ++j) {
@@ -254,7 +253,7 @@ GenericCSplineInterpolateImageFunction<TImage>
     for (i = i1; i <= i2; ++i) {
       w    = CSpline(Real(x - i)) * wy;
       if (input->IsForeground(i, j, k, l)) {
-        val += w * voxel_cast<RealType>(input->Get(i, j, k, l));
+        val += w * type_cast<RealType>(input->Get(i, j, k, l));
         fgw += w;
       } else {
         bgw += w;
@@ -263,9 +262,9 @@ GenericCSplineInterpolateImageFunction<TImage>
   }
 
   if (fgw > bgw) val /= fgw;
-  else           val  = voxel_cast<RealType>(this->DefaultValue());
+  else           val  = type_cast<RealType>(this->DefaultValue());
 
-  return voxel_cast<VoxelType>(val);
+  return type_cast<VoxelType>(val);
 }
 
 // -----------------------------------------------------------------------------
@@ -280,7 +279,7 @@ GenericCSplineInterpolateImageFunction<TImage>
   int l = iround(t);
 
   if (l < 0 || l >= this->Input()->T()) {
-    return voxel_cast<VoxelType>(this->DefaultValue());
+    return type_cast<VoxelType>(this->DefaultValue());
   }
 
   const int i1 = i - 1;
@@ -290,7 +289,7 @@ GenericCSplineInterpolateImageFunction<TImage>
   const int j2 = j + 2;
   const int k2 = k + 2;
 
-  RealType val = voxel_cast<RealType>(0);
+  RealType val = type_cast<RealType>(0);
   Real     nrm(0), wz, wyz, w;
 
   for (k = k1; k <= k2; ++k) {
@@ -302,7 +301,7 @@ GenericCSplineInterpolateImageFunction<TImage>
           for (i = i1; i <= i2; ++i) {
             if (0 <= i && i < this->Input()->X()) {
               w    = CSpline(Real(x - i)) * wyz;
-              val += w * voxel_cast<RealType>(this->Input()->Get(i, j, k, l));
+              val += w * type_cast<RealType>(this->Input()->Get(i, j, k, l));
               nrm += w;
             }
           }
@@ -312,9 +311,9 @@ GenericCSplineInterpolateImageFunction<TImage>
   }
 
   if (nrm) val /= nrm;
-  else     val  = voxel_cast<RealType>(this->DefaultValue());
+  else     val  = type_cast<RealType>(this->DefaultValue());
 
-  return voxel_cast<VoxelType>(val);
+  return type_cast<VoxelType>(val);
 }
 
 // -----------------------------------------------------------------------------
@@ -329,7 +328,7 @@ GenericCSplineInterpolateImageFunction<TImage>
   int l = iround(t);
 
   if (l < 0 || l >= this->Input()->T()) {
-    return voxel_cast<VoxelType>(this->DefaultValue());
+    return type_cast<VoxelType>(this->DefaultValue());
   }
 
   const int i1 = i - 1;
@@ -339,7 +338,7 @@ GenericCSplineInterpolateImageFunction<TImage>
   const int j2 = j + 2;
   const int k2 = k + 2;
 
-  RealType val = voxel_cast<RealType>(0);
+  RealType val = type_cast<RealType>(0);
   Real     fgw(0), bgw(0), wz, wyz, w;
 
   for (k = k1; k <= k2; ++k) {
@@ -349,7 +348,7 @@ GenericCSplineInterpolateImageFunction<TImage>
       for (i = i1; i <= i2; ++i) {
         w = CSpline(Real(x - i)) * wyz;
         if (this->Input()->IsInsideForeground(i, j, k, l)) {
-          val += w * voxel_cast<RealType>(this->Input()->Get(i, j, k, l));
+          val += w * type_cast<RealType>(this->Input()->Get(i, j, k, l));
           fgw += w;
         } else {
           bgw += w;
@@ -359,9 +358,9 @@ GenericCSplineInterpolateImageFunction<TImage>
   }
 
   if (fgw > bgw) val /= fgw;
-  else           val  = voxel_cast<RealType>(this->DefaultValue());
+  else           val  = type_cast<RealType>(this->DefaultValue());
 
-  return voxel_cast<VoxelType>(val);
+  return type_cast<VoxelType>(val);
 }
 
 // -----------------------------------------------------------------------------
@@ -385,7 +384,7 @@ GenericCSplineInterpolateImageFunction<TImage>
   const int j2 = j + 2;
   const int k2 = k + 2;
 
-  RealType val = voxel_cast<RealType>(0);
+  RealType val = type_cast<RealType>(0);
   Real     nrm(0), wz, wyz, w;
 
   for (k = k1; k <= k2; ++k) {
@@ -394,16 +393,16 @@ GenericCSplineInterpolateImageFunction<TImage>
       wyz = CSpline(Real(y - j)) * wz;
       for (i = i1; i < i2; ++i) {
         w    = CSpline(Real(x - i)) * wyz;
-        val += w * voxel_cast<RealType>(input->Get(i, j, k, l));
+        val += w * type_cast<RealType>(input->Get(i, j, k, l));
         nrm += w;
       }
     }
   }
 
   if (nrm) val /= nrm;
-  else     val  = voxel_cast<RealType>(this->DefaultValue());
+  else     val  = type_cast<RealType>(this->DefaultValue());
 
-  return voxel_cast<VoxelType>(val);
+  return type_cast<VoxelType>(val);
 }
 
 // -----------------------------------------------------------------------------
@@ -427,7 +426,7 @@ GenericCSplineInterpolateImageFunction<TImage>
   const int j2 = j + 2;
   const int k2 = k + 2;
 
-  RealType val = voxel_cast<RealType>(0);
+  RealType val = type_cast<RealType>(0);
   Real     fgw(0), bgw(0), wz, wyz, w;
 
   for (k = k1; k <= k2; ++k) {
@@ -437,7 +436,7 @@ GenericCSplineInterpolateImageFunction<TImage>
       for (i = i1; i < i2; ++i) {
         w = CSpline(Real(x - i)) * wyz;
         if (input->IsForeground(i, j, k, l)) {
-          val += w * voxel_cast<RealType>(input->Get(i, j, k, l));
+          val += w * type_cast<RealType>(input->Get(i, j, k, l));
           fgw += w;
         } else {
           bgw += w;
@@ -447,9 +446,9 @@ GenericCSplineInterpolateImageFunction<TImage>
   }
 
   if (fgw > bgw) val /= fgw;
-  else           val  = voxel_cast<RealType>(this->DefaultValue());
+  else           val  = type_cast<RealType>(this->DefaultValue());
 
-  return voxel_cast<VoxelType>(val);
+  return type_cast<VoxelType>(val);
 }
 
 // -----------------------------------------------------------------------------
@@ -472,7 +471,7 @@ GenericCSplineInterpolateImageFunction<TImage>
   const int k2 = k + 2;
   const int l2 = l + 2;
 
-  RealType val = voxel_cast<RealType>(0);
+  RealType val = type_cast<RealType>(0);
   Real     nrm(0), wt, wzt, wyzt, w;
 
   for (l = l1; l <= l2; ++l) {
@@ -487,7 +486,7 @@ GenericCSplineInterpolateImageFunction<TImage>
               for (i = i1; i <= i2; ++i) {
                 if (0 <= i && i < this->Input()->X()) {
                   w    = CSpline(Real(x - i)) * wyzt;
-                  val += w * voxel_cast<RealType>(this->Input()->Get(i, j, k, l));
+                  val += w * type_cast<RealType>(this->Input()->Get(i, j, k, l));
                   nrm += w;
                 }
               }
@@ -499,9 +498,9 @@ GenericCSplineInterpolateImageFunction<TImage>
   }
 
   if (nrm) val /= nrm;
-  else     val  = voxel_cast<RealType>(this->DefaultValue());
+  else     val  = type_cast<RealType>(this->DefaultValue());
 
-  return voxel_cast<VoxelType>(val);
+  return type_cast<VoxelType>(val);
 }
 
 // -----------------------------------------------------------------------------
@@ -524,7 +523,7 @@ GenericCSplineInterpolateImageFunction<TImage>
   const int k2 = k + 2;
   const int l2 = l + 2;
 
-  RealType val = voxel_cast<RealType>(0);
+  RealType val = type_cast<RealType>(0);
   Real     fgw(0), bgw(0), wt, wzt, wyzt, w;
 
   for (l = l1; l <= l2; ++l) {
@@ -536,7 +535,7 @@ GenericCSplineInterpolateImageFunction<TImage>
         for (i = i1; i <= i2; ++i) {
           w = CSpline(Real(x - i)) * wyzt;
           if (this->Input()->IsInsideForeground(i, j, k, l)) {
-            val += w * voxel_cast<RealType>(this->Input()->Get(i, j, k, l));
+            val += w * type_cast<RealType>(this->Input()->Get(i, j, k, l));
             fgw += w;
           } else {
             bgw += w;
@@ -547,9 +546,9 @@ GenericCSplineInterpolateImageFunction<TImage>
   }
 
   if (fgw > bgw) val /= fgw;
-  else           val  = voxel_cast<RealType>(this->DefaultValue());
+  else           val  = type_cast<RealType>(this->DefaultValue());
 
-  return voxel_cast<VoxelType>(val);
+  return type_cast<VoxelType>(val);
 }
 
 // -----------------------------------------------------------------------------
@@ -575,7 +574,7 @@ GenericCSplineInterpolateImageFunction<TImage>
   const int k2 = k + 2;
   const int l2 = l + 2;
 
-  RealType val = voxel_cast<RealType>(0);
+  RealType val = type_cast<RealType>(0);
   Real     nrm(0), wt, wzt, wyzt, w;
 
   for (l = l1; l <= l2; ++l) {
@@ -586,7 +585,7 @@ GenericCSplineInterpolateImageFunction<TImage>
         wyzt = CSpline(Real(y - j)) * wzt;
         for (i = i1; i <= i2; ++i) {
           w    = CSpline(Real(x - i)) * wyzt;
-          val += w * voxel_cast<RealType>(input->Get(i, j, k, l));
+          val += w * type_cast<RealType>(input->Get(i, j, k, l));
           nrm += w;
         }
       }
@@ -594,9 +593,9 @@ GenericCSplineInterpolateImageFunction<TImage>
   }
 
   if (nrm) val /= nrm;
-  else     val  = voxel_cast<RealType>(this->DefaultValue());
+  else     val  = type_cast<RealType>(this->DefaultValue());
 
-  return voxel_cast<VoxelType>(val);
+  return type_cast<VoxelType>(val);
 }
 
 // -----------------------------------------------------------------------------
@@ -622,7 +621,7 @@ GenericCSplineInterpolateImageFunction<TImage>
   const int k2 = k + 2;
   const int l2 = l + 2;
 
-  RealType val = voxel_cast<RealType>(0);
+  RealType val = type_cast<RealType>(0);
   Real     fgw(0), bgw(0), wt, wzt, wyzt, w;
 
   for (l = l1; l <= l2; ++l) {
@@ -634,7 +633,7 @@ GenericCSplineInterpolateImageFunction<TImage>
         for (i = i1; i <= i2; ++i) {
           w = CSpline(Real(x - i)) * wyzt;
           if (input->IsForeground(i, j, k, l)) {
-            val += w * voxel_cast<RealType>(input->Get(i, j, k, l));
+            val += w * type_cast<RealType>(input->Get(i, j, k, l));
             fgw += w;
           } else {
             bgw += w;
@@ -645,9 +644,9 @@ GenericCSplineInterpolateImageFunction<TImage>
   }
 
   if (fgw > bgw) val /= fgw;
-  else           val  = voxel_cast<RealType>(this->DefaultValue());
+  else           val  = type_cast<RealType>(this->DefaultValue());
 
-  return voxel_cast<VoxelType>(val);
+  return type_cast<VoxelType>(val);
 }
 
 // -----------------------------------------------------------------------------

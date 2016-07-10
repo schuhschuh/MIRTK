@@ -18,6 +18,7 @@
  */
 
 #define _NIFTI2_IO_C_
+#define NO_NIFTI_DT_DEFINES
 #include "NiftiImage.h"
 
 #include "mirtk/NiftiImageReader.h"

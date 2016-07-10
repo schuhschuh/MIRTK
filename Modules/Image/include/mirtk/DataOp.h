@@ -113,10 +113,10 @@ DataFileType FileType(const char *name);
 // -----------------------------------------------------------------------------
 /// Read data sequence from any supported input file type
 #if MIRTK_Image_WITH_VTK
-int Read(const char *name, double *&data, int *dtype = nullptr, ImageAttributes *attr = nullptr,
+int Read(const char *name, double *&data, DataType *dtype = nullptr, ImageAttributes *attr = nullptr,
          vtkSmartPointer<vtkDataSet> *dataset= nullptr, const char *scalar_name = nullptr);
 #else
-int Read(const char *name, double *&data, int *dtype = nullptr, ImageAttributes *attr = nullptr);
+int Read(const char *name, double *&data, DataType *dtype = nullptr, ImageAttributes *attr = nullptr);
 #endif // MIRTK_Image_WITH_VTK
 
 // -----------------------------------------------------------------------------
@@ -143,14 +143,14 @@ class Write : public Op
   mirtkPublicAttributeMacro(ImageAttributes, Attributes);
 
   /// Output data type
-  mirtkPublicAttributeMacro(int, DataType);
+  mirtkPublicAttributeMacro(DataType, Type);
 
 public:
 
   /// Constructor
 #if MIRTK_Image_WITH_VTK
 
-  Write(const char *fname, int dtype = MIRTK_VOXEL_DOUBLE,
+  Write(const char *fname, DataType dtype = T_Double,
         ImageAttributes attr = ImageAttributes(),
         vtkDataSet *dataset     = nullptr,
         const char *array_name  = nullptr,
@@ -159,7 +159,7 @@ public:
     _FileName(fname),
     _DataSet(dataset),
     _Attributes(attr),
-    _DataType(dtype)
+    _Type(dtype)
   {
     if (array_name)  _ArrayName  = array_name;
     if (output_name) _OutputName = output_name;
@@ -167,12 +167,12 @@ public:
 
 #else // MIRTK_Image_WITH_VTK
 
-  Write(const char *fname, int dtype = MIRTK_VOXEL_DOUBLE,
+  Write(const char *fname, DataType dtype = T_Double,
         ImageAttributes attr = ImageAttributes())
   :
     _FileName(fname),
     _Attributes(attr),
-    _DataType(dtype)
+    _Type(dtype)
   {}
 
 #endif // MIRTK_Image_WITH_VTK

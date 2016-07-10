@@ -37,9 +37,12 @@ set(HEADERS
   Common.h
   Config.h
   Configurable.h
+  Constants.h
   Cuda.h
-  CudaRuntime.h
+  CudaTypes.h
   CutilMath.h
+  DataType.h
+  DataTypes.h
   Deallocate.h
   EnergyMeasure.h
   Event.h
@@ -65,6 +68,7 @@ set(HEADERS
   PriorityQueue.h
   Queue.h
   Random.h
+  SmartPtr.h
   Stack.h
   Status.h
   Stream.h
@@ -72,6 +76,7 @@ set(HEADERS
   System.h
   Terminal.h
   TestProd.h
+  TypeCast.h
   UnorderedMap.h
   UnorderedSet.h
   Utils.h
@@ -82,7 +87,8 @@ set(SOURCES
   Cifstream.cc
   Cofstream.cc
   Configurable.cc
-  Math.cc
+  Constants.cc
+  DataType.cc
   Memory.cc
   Observer.cc
   Options.cc
@@ -95,20 +101,20 @@ set(SOURCES
   Version.cc
 )
 
-if (VTK_FOUND)
-  list(APPEND HEADERS Vtk.h VtkMath.h)
-  list(APPEND SOURCES Vtk.cc)
-  list(APPEND DEPENDS ${VTK_LIBRARIES})
-endif ()
-
 if (MATLAB_FOUND)
   list(APPEND HEADERS Matlab.h)
   list(APPEND SOURCES Matlab.cc)
   list(APPEND DEPENDS ${MATLAB_mwmclmcrrt_LIBRARY})
 endif ()
 
-if (TARGET TBB::tbb)
+if (TBB_FOUND)
   list(APPEND DEPENDS TBB::tbb)
+endif ()
+
+if (VTK_FOUND)
+  list(APPEND HEADERS VtkTypes.h VtkMath.h Vtk.h)
+  list(APPEND SOURCES VtkTypes.cc )
+  list(APPEND DEPENDS ${VTK_LIBRARIES})
 endif ()
 
 if (ZLIB_FOUND)

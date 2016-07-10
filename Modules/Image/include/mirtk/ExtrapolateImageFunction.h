@@ -22,7 +22,6 @@
 
 #include "mirtk/ExtrapolationMode.h"
 #include "mirtk/Vector.h"
-#include "mirtk/VoxelCast.h"
 #include "mirtk/BaseImage.h"
 #include "mirtk/ImageFunction.h"
 
@@ -524,7 +523,7 @@ inline typename GenericExtrapolateImageFunction<TImage>::VoxelType
 GenericExtrapolateImageFunction<TImage>::Get(int i, int j, int k, int l) const
 {
   // Must be implemented by subclass
-  return voxel_cast<VoxelType>(this->_DefaultValue);
+  return type_cast<VoxelType>(this->_DefaultValue);
 }
 
 // -----------------------------------------------------------------------------
@@ -559,7 +558,7 @@ template <class TImage>
 inline double GenericExtrapolateImageFunction<TImage>
 ::GetAsDouble(int i, int j, int k, int l) const
 {
-  return voxel_cast<double>(this->Get(i, j, k, l));
+  return type_cast<double>(this->Get(i, j, k, l));
 }
 
 // -----------------------------------------------------------------------------
@@ -567,7 +566,7 @@ template <class TImage>
 inline void GenericExtrapolateImageFunction<TImage>
 ::GetAsVector(Vector &v, int i, int j, int k, int l) const
 {
-  v = voxel_cast<Vector>(this->Get(i, j, k, l));
+  v = type_cast<Vector>(this->Get(i, j, k, l));
 }
 
 ////////////////////////////////////////////////////////////////////////////////

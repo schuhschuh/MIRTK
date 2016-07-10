@@ -477,6 +477,7 @@ typedef struct nifti1_extension nifti1_extension ;
     \brief nifti1 datatype codes
     @{
  */
+#ifndef NO_NIFTI_DT_DEFINES
                             /*--- the original ANALYZE 7.5 type codes ---*/
 #define DT_NONE                    0
 #define DT_UNKNOWN                 0     /* what it says, dude           */
@@ -509,6 +510,8 @@ typedef struct nifti1_extension nifti1_extension ;
 #define DT_COMPLEX128           1792     /* double pair (128 bits)       */
 #define DT_COMPLEX256           2048     /* long double pair (256 bits)  */
 #define DT_RGBA32               2304     /* 4 byte RGBA (32 bits/voxel)  */
+
+#endif // NO_NIFTI_DT_DEFINES
 /* @} */
 
 

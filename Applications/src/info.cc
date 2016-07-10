@@ -681,7 +681,7 @@ int main(int argc, char *argv[])
 
         if (nbounds > 0 && output_surface_name) {
           UnorderedSet<int> boundaryPtIds = BoundaryPoints(polydata);
-          vtkSmartPointer<vtkDataArray> boundaryMask = NewVTKDataArray(VTK_UNSIGNED_CHAR);
+          vtkSmartPointer<vtkDataArray> boundaryMask = NewVtkDataArray(VTK_UNSIGNED_CHAR);
           boundaryMask->SetName("BoundaryMask");
           boundaryMask->SetNumberOfComponents(1);
           boundaryMask->SetNumberOfTuples(polydata->GetNumberOfPoints());

@@ -20,7 +20,6 @@
 #define MIRTK_HashImage_H
 
 #include "mirtk/BaseImage.h" 
-#include "mirtk/VoxelCast.h"
 #include "mirtk/UnorderedMap.h"
 
 namespace mirtk {
@@ -49,7 +48,7 @@ public:
 
   /// Floating point type corresponding to voxel type
   /// \note The VoxelType as well as the RealType may be a matrix/vector type!
-  typedef typename voxel_info<VoxelType>::RealType RealType;
+  typedef typename type_traits<VoxelType>::RealType RealType;
 
   /// Data map (hashmap)
   typedef UnorderedMap<int, VoxelType> DataMap;
@@ -58,7 +57,7 @@ public:
   typedef typename DataMap::const_iterator DataIterator;
 
   /// Scalar type corresponding to voxel type
-  typedef typename voxel_info<VoxelType>::ScalarType ScalarType;
+  typedef typename type_traits<VoxelType>::ScalarType ScalarType;
 
   // ---------------------------------------------------------------------------
   // Data members
@@ -457,7 +456,7 @@ public:
 template <class VoxelType>
 inline int HashImage<VoxelType>::N() const
 {
-  return voxel_info<VoxelType>::vector_size();
+  return type_traits<VoxelType>::vector_size();
 }
 
 // -----------------------------------------------------------------------------
@@ -544,7 +543,7 @@ inline VoxelType HashImage<VoxelType>::Get(int index) const
 {
   auto pos=_Data.find (index);
   if ( pos == End() ) return _DefaultValue;
-  return voxel_cast<VoxelType>(pos->second);
+  return type_cast<VoxelType>(pos->second);
 }
 
 // -----------------------------------------------------------------------------
@@ -562,98 +561,98 @@ inline VoxelType HashImage<VoxelType>::Get(int x, int y, int z, int t) const
 template <class VoxelType>
 inline void HashImage<VoxelType>::PutAsDouble(int index, double val)
 {
-  Put(index, voxel_cast<VoxelType>(val));
+  Put(index, type_cast<VoxelType>(val));
 }
 
 // -----------------------------------------------------------------------------
 template <class VoxelType>
 inline void HashImage<VoxelType>::PutAsDouble(int x, int y, double val)
 {
-  Put(VoxelToIndex(x, y, 0, 0), voxel_cast<VoxelType>(val));
+  Put(VoxelToIndex(x, y, 0, 0), type_cast<VoxelType>(val));
 }
 
 // -----------------------------------------------------------------------------
 template <class VoxelType>
 inline void HashImage<VoxelType>::PutAsDouble(int x, int y, int z, double val)
 {
-  Put(VoxelToIndex(x, y, z, 0), voxel_cast<VoxelType>(val));
+  Put(VoxelToIndex(x, y, z, 0), type_cast<VoxelType>(val));
 }
 
 // -----------------------------------------------------------------------------
 template <class VoxelType>
 inline void HashImage<VoxelType>::PutAsDouble(int x, int y, int z, int t, double val)
 {
-  Put(VoxelToIndex(x, y, z, t), voxel_cast<VoxelType>(val));
+  Put(VoxelToIndex(x, y, z, t), type_cast<VoxelType>(val));
 }
 
 // -----------------------------------------------------------------------------
 template <class VoxelType>
 inline double HashImage<VoxelType>::GetAsDouble(int index) const
 {
-  return voxel_cast<double>(Get(index));
+  return type_cast<double>(Get(index));
 }
 
 // -----------------------------------------------------------------------------
 template <class VoxelType>
 inline double HashImage<VoxelType>::GetAsDouble(int x, int y, int z, int t) const
 {
-  return voxel_cast<double>(Get(VoxelToIndex(x, y, z, t)));
+  return type_cast<double>(Get(VoxelToIndex(x, y, z, t)));
 }
 
 // -----------------------------------------------------------------------------
 template <class VoxelType>
 inline void HashImage<VoxelType>::PutAsVector(int index, const Vector &value)
 {
-  Put(index, voxel_cast<VoxelType>(value));
+  Put(index, type_cast<VoxelType>(value));
 }
 
 // -----------------------------------------------------------------------------
 template <class VoxelType>
 inline void HashImage<VoxelType>::PutAsVector(int x, int y, const Vector &value)
 {
-  Put(VoxelToIndex(x, y, 0, 0), voxel_cast<VoxelType>(value));
+  Put(VoxelToIndex(x, y, 0, 0), type_cast<VoxelType>(value));
 }
 
 // -----------------------------------------------------------------------------
 template <class VoxelType>
 inline void HashImage<VoxelType>::PutAsVector(int x, int y, int z, const Vector &value)
 {
-  Put(VoxelToIndex(x, y, z, 0), voxel_cast<VoxelType>(value));
+  Put(VoxelToIndex(x, y, z, 0), type_cast<VoxelType>(value));
 }
 
 // -----------------------------------------------------------------------------
 template <class VoxelType>
 inline void HashImage<VoxelType>::PutAsVector(int x, int y, int z, int t, const Vector &value)
 {
-  Put(VoxelToIndex(x, y, z, t), voxel_cast<VoxelType>(value));
+  Put(VoxelToIndex(x, y, z, t), type_cast<VoxelType>(value));
 }
 
 // -----------------------------------------------------------------------------
 template <class VoxelType>
 inline void HashImage<VoxelType>::GetAsVector(Vector &value, int index) const
 {
-  value = voxel_cast<Vector>(Get(index));
+  value = type_cast<Vector>(Get(index));
 }
 
 // -----------------------------------------------------------------------------
 template <class VoxelType>
 inline void HashImage<VoxelType>::GetAsVector(Vector &value, int x, int y, int z, int t) const
 {
-  value = voxel_cast<Vector>(Get(VoxelToIndex(x, y, z, t)));
+  value = type_cast<Vector>(Get(VoxelToIndex(x, y, z, t)));
 }
 
 // -----------------------------------------------------------------------------
 template <class VoxelType>
 inline Vector HashImage<VoxelType>::GetAsVector(int index) const
 {
-  return voxel_cast<Vector>(Get(index));
+  return type_cast<Vector>(Get(index));
 }
 
 // -----------------------------------------------------------------------------
 template <class VoxelType>
 inline Vector HashImage<VoxelType>::GetAsVector(int x, int y, int z, int t) const
 {
-  return voxel_cast<Vector>(Get(VoxelToIndex(x, y, z, t)));
+  return type_cast<Vector>(Get(VoxelToIndex(x, y, z, t)));
 }
 
 // =============================================================================
@@ -698,7 +697,7 @@ inline const void *HashImage<VoxelType>::GetDataPointer(int x, int y, int z, int
 template <class VoxelType>
 inline int HashImage<VoxelType>::GetDataType() const
 {
-  return voxel_info<VoxelType>::type();
+  return type_traits<VoxelType>::type();
 }
 
 // -----------------------------------------------------------------------------
@@ -712,14 +711,14 @@ inline int HashImage<VoxelType>::GetDataTypeSize() const
 template <class VoxelType>
 inline double HashImage<VoxelType>::GetDataTypeMin() const
 {
-  return voxel_limits<VoxelType>::min();
+  return type_limits<VoxelType>::min();
 }
 
 // -----------------------------------------------------------------------------
 template <class VoxelType>
 inline double HashImage<VoxelType>::GetDataTypeMax() const
 {
-  return voxel_limits<VoxelType>::max();
+  return type_limits<VoxelType>::max();
 }
 
 // =============================================================================

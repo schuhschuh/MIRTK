@@ -26,6 +26,7 @@
 #include "mirtk/PointSamples.h"
 
 #include "mirtk/Math.h"
+#include "mirtk/Constants.h"
 #include "mirtk/Memory.h"
 #include "mirtk/Array.h"
 

@@ -23,8 +23,6 @@
 #include "mirtk/VoxelFunction.h"
 
 #include "mirtk/Assert.h"
-#include "mirtk/Voxel.h"
-#include "mirtk/VoxelCast.h"
 #include "mirtk/BaseImage.h"
 #include "mirtk/GenericImage.h"
 #include "mirtk/Math.h"
@@ -66,7 +64,7 @@ namespace UnaryVoxelFunction {
  */
 struct GetMin : public VoxelReduction
 {
-  void Reset() { _Min = voxel_limits<double>::max(); }
+  void Reset() { _Min = type_limits<double>::max(); }
 
   GetMin() { Reset(); }
   GetMin(const GetMin &o) : _Min(o._Min) {}
@@ -88,9 +86,7 @@ struct GetMin : public VoxelReduction
 
   double GetMinAsDouble() const
   {
-    if (_Min == voxel_limits<double>::max()) {
-      return numeric_limits<double>::quiet_NaN();
-    }
+    if (_Min == type_limits<double>::max()) return NaN;
     return _Min;
   }
 
@@ -104,7 +100,7 @@ protected:
  */
 struct GetMax : public VoxelReduction
 {
-  void Reset() { _Max = voxel_limits<double>::min(); }
+  void Reset() { _Max = type_limits<double>::min(); }
 
   GetMax() { Reset(); }
   GetMax(const GetMax &o) : _Max(o._Max) {}
@@ -126,9 +122,7 @@ struct GetMax : public VoxelReduction
 
   double GetMaxAsDouble() const
   {
-    if (_Max == voxel_limits<double>::min()) {
-      return numeric_limits<double>::quiet_NaN();
-    }
+    if (_Max == type_limits<double>::min()) return NaN;
     return _Max;
   }
 
@@ -144,8 +138,8 @@ struct GetMinMax : public VoxelReduction
 {
   void Reset()
   {
-    _Min = voxel_limits<double>::max();
-    _Max = voxel_limits<double>::min();
+    _Min = type_limits<double>::max();
+    _Max = type_limits<double>::min();
   }
 
   GetMinMax() { Reset(); }
@@ -179,17 +173,13 @@ struct GetMinMax : public VoxelReduction
 
   double GetMinAsDouble() const
   {
-    if (_Min == voxel_limits<double>::max()) {
-      return numeric_limits<double>::quiet_NaN();
-    }
+    if (_Min == type_limits<double>::max()) return NaN;
     return _Min;
   }
 
   double GetMaxAsDouble() const
   {
-    if (_Max == voxel_limits<double>::min()) {
-      return numeric_limits<double>::quiet_NaN();
-    }
+    if (_Max == type_limits<double>::min()) return NaN;
     return _Max;
   }
 
@@ -304,7 +294,7 @@ struct CastToGreyValue : public VoxelFunction
   template <class TImage, class T>
   void operator ()(const TImage &, int, T *v)
   {
-    *v = static_cast<GreyPixel>(*v);
+    *v = static_cast<Grey>(*v);
   }
 };
 
@@ -352,7 +342,7 @@ struct InterpolateImage : public VoxelFunction
     // Interpolate input scalar or vector
     Vector v;
     _Interpolator->Evaluate(v, x, y, z, t);
-    (*o) = voxel_cast<T>(v); // Convert to output type
+    (*o) = type_cast<T>(v); // Convert to output type
   }
 };
 
@@ -393,7 +383,7 @@ struct InterpolateScalarImage : public VoxelFunction
     _Input->WorldToImage(x, y, z);
     t = _Input->TimeToImage (t);
     // Interpolate input scalar and convert to output type
-    (*o) = voxel_cast<T>(_Interpolator->Evaluate(x, y, z, t));
+    (*o) = type_cast<T>(_Interpolator->Evaluate(x, y, z, t));
   }
 };
 
@@ -440,7 +430,7 @@ struct InterpolateMultiChannelImage : public VoxelFunction
     double *v = new double[_Output->T()];
     _Interpolator->Evaluate(v, x, y, z);
     for (int l = 0; l < _Output->T(); ++l, o += _NumberOfVoxels) {
-      (*o) = voxel_cast<T>(v[l]); // Convert to output type
+      (*o) = type_cast<T>(v[l]); // Convert to output type
     }
     delete[] v;
   }

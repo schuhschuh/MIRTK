@@ -1,8 +1,8 @@
 /*
  * Medical Image Registration ToolKit (MIRTK)
  *
- * Copyright 2008-2015 Imperial College London
- * Copyright 2008-2015 Daniel Rueckert, Julia Schnabel
+ * Copyright 2008-2016 Imperial College London
+ * Copyright 2008-2016 Daniel Rueckert, Julia Schnabel
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,10 +23,6 @@
 namespace mirtk {
 
 
-// ========================================================================
-// Swap bytes
-// ========================================================================
-
 // -----------------------------------------------------------------------------
 // See nifti_short_order implementation
 ByteOrder GetByteOrder()
@@ -40,7 +36,7 @@ ByteOrder GetByteOrder()
   return (fred.ss == 1 ? LittleEndian : BigEndian);
 }
 
-// ------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 void swap16(char *a, char *b, long n)
 {
   char c;
@@ -51,7 +47,7 @@ void swap16(char *a, char *b, long n)
   }
 }
 
-// ------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 void swap32(char *a, char *b, long n)
 {
   char c;
@@ -65,7 +61,7 @@ void swap32(char *a, char *b, long n)
   }
 }
 
-// ------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 void swap64(char *a, char *b, long n)
 {
   char c;

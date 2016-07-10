@@ -1,9 +1,9 @@
 /*
  * Medical Image Registration ToolKit (MIRTK)
  *
- * Copyright 2008-2015 Imperial College London
+ * Copyright 2008-2016 Imperial College London
  * Copyright 2008-2013 Daniel Rueckert, Julia Schnabel
- * Copyright 2013-2015 Andreas Schuh
+ * Copyright 2013-2016 Andreas Schuh
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,11 +22,11 @@
 #define MIRTK_BaseImage_H
 
 #include "mirtk/Object.h"
-#include "mirtk/Voxel.h"
 #include "mirtk/Point.h"
 #include "mirtk/PointSet.h"
 #include "mirtk/Vector.h"
 #include "mirtk/Matrix.h"
+#include "mirtk/Voxel.h"
 #include "mirtk/ImageAttributes.h"
 
 
@@ -51,7 +51,7 @@ namespace mirtk {
 template <class VoxelType> class GenericImage;
 
 /// Binary image as used for masks (0: off, otherwise: on)
-typedef GenericImage<BinaryPixel> BinaryImage;
+typedef GenericImage<Binary> BinaryImage;
 
 /// FIXME: Use double3 as voxel type instead
 typedef GenericImage<double> WorldCoordsImage;
@@ -180,6 +180,9 @@ public:
 
   /// Gets the image attributes
   const ImageAttributes &Attributes() const;
+
+  /// Returns the number of image dimensions
+  int NumberOfDimensions() const;
 
   /// Returns the total number of voxels
   int NumberOfVoxels() const;
@@ -742,10 +745,10 @@ public:
   /// Default voxel type used by generic interpolate/extrapolate image functions
   /// when instantiated with BaseImage as template argument as done by the
   /// general interpolate image functions which thus can interpolate any scalar image.
-  typedef double                             VoxelType;
-  typedef voxel_info<VoxelType>::ScalarType  ScalarType;
-  typedef voxel_info<VoxelType>::RealType    RealType;
-  typedef voxel_info<RealType>::ScalarType   RealScalarType;
+  typedef double                              VoxelType;
+  typedef type_traits<VoxelType>::ScalarType  ScalarType;
+  typedef type_traits<VoxelType>::RealType    RealType;
+  typedef type_traits<RealType>::ScalarType   RealScalarType;
 
   /// Get pixel value at voxel with given index
   VoxelType Get(int) const;
@@ -800,7 +803,7 @@ public:
 };
 
 /// Alternative/backwards compatible type name
-typedef BaseImage Image;
+//typedef BaseImage Image;
 
 
 } // namespace mirtk
@@ -831,6 +834,12 @@ namespace mirtk {
 inline const ImageAttributes &BaseImage::Attributes() const
 {
   return _attr;
+}
+
+// -----------------------------------------------------------------------------
+inline int BaseImage::NumberOfDimensions() const
+{
+  return _attr.NumberOfDimensions();
 }
 
 // -----------------------------------------------------------------------------
@@ -1389,7 +1398,7 @@ inline bool BaseImage::IsForeground(int idx) const
 {
   if (_mask) {
     if (_mask->T() != _attr._t) idx = idx % (_attr._x * _attr._y * _attr._z);
-    return _mask->Get(idx) != BinaryPixel(0);
+    return _mask->Get(idx) != Binary(0);
   } else if (_bgSet) {
     const double value = this->GetAsDouble(idx);
     return (value != _bg) && (!IsNaN(value) || !IsNaN(_bg));
@@ -1402,7 +1411,7 @@ inline bool BaseImage::IsForeground(int i, int j, int k, int l) const
 {
   if (_mask) {
     if (_mask->T() != _attr._t) l = 0;
-    return _mask->Get(i, j, k, l) != BinaryPixel(0);
+    return _mask->Get(i, j, k, l) != Binary(0);
   } else if (_bgSet) {
     const double value = this->GetAsDouble(i, j, k, l);
     return (value != _bg) && (!IsNaN(value) || !IsNaN(_bg));

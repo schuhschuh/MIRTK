@@ -40,7 +40,7 @@ void MarkUnvisited(const GenericImage<TLabel> &segmentation,
 {
   for (int idx = 0; idx < segmentation.NumberOfVoxels(); ++idx) {
     if (segmentation(idx)) {
-      components(idx) = voxel_limits<TLabel>::max_value();
+      components(idx) = type_limits<TLabel>::max_value();
     } else {
       components(idx) = TLabel(0);
     }
@@ -53,7 +53,7 @@ template <class TLabel>
 int NextSeed(const GenericImage<TLabel> &components)
 {
   for (int idx = 0; idx < components.NumberOfVoxels(); ++idx) {
-    if (components(idx) == voxel_limits<TLabel>::max_value()) return idx;
+    if (components(idx) == type_limits<TLabel>::max_value()) return idx;
   }
   return -1;
 }
@@ -67,7 +67,7 @@ int LabelComponent(const NeighborhoodOffsets  &offsets,
                    int                         seed,
                    TLabel                      component_label)
 {
-  const TLabel unvisited     = voxel_limits<TLabel>::max_value();
+  const TLabel unvisited     = type_limits<TLabel>::max_value();
   const TLabel current_label = segmentation(seed);
   const TLabel * start_label = segmentation.Data();
 
@@ -156,7 +156,7 @@ void ConnectedComponents<VoxelType>::Run()
   int num, seed;
   VoxelType c(0);
   while ((seed = NextSeed(*this->Output())) != -1) {
-    if (++c == voxel_limits<VoxelType>::max_value()) {
+    if (++c == type_limits<VoxelType>::max_value()) {
       cerr << "ConnectedComponents::Run: No. of components exceeded maximum label value!" << endl;
       exit(1);
     }
@@ -182,7 +182,7 @@ void ConnectedComponents<VoxelType>::Finalize()
     }
     Array<VoxelType> new_label(_NumberOfComponents);
     for (int i = 0; i < _NumberOfComponents; ++i) {
-      new_label[order[i]] = voxel_cast<VoxelType>(i + 1);
+      new_label[order[i]] = type_cast<VoxelType>(i + 1);
     }
     GenericImage<VoxelType> &output = *this->Output();
     const Array<int> new_size = _ComponentSize; // make copy
@@ -218,7 +218,7 @@ void ConnectedComponents<VoxelType>::DeleteComponent(VoxelType c)
 // Explicit template instantiations
 // =============================================================================
 
-template class ConnectedComponents<GreyPixel>;
+template class ConnectedComponents<Grey>;
 
 
 } // namespace mirtk

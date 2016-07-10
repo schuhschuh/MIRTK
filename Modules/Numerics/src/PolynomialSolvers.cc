@@ -19,6 +19,7 @@
 
 #include "mirtk/PolynomialSolvers.h"
 
+#include "mirtk/Constants.h"
 #include "mirtk/Math.h"
 
 

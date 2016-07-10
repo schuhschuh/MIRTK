@@ -185,7 +185,7 @@ void CityBlockDistanceTransform<VoxelType>::Run2D()
 {
   VoxelType  val;
   int        borderVoxelCount = 0, objectVoxelCount = 0;
-  GreyPixel *ptr2current, *ptr2offset;
+  Grey      *ptr2current, *ptr2offset;
 
   GenericImage<VoxelType> * const output = this->Output();
 
@@ -224,7 +224,7 @@ void CityBlockDistanceTransform<VoxelType>::Run2D()
 
       // Remove the border from the current object(s).
       borderVoxelCount = 0;
-      GreyPixel * const ptr2start = _data.Data(0, 0, 0, l);
+      Grey * const ptr2start = _data.Data(0, 0, 0, l);
       for (int j = 1; j < ny - 1; ++j)
       for (int i = 1; i < nx - 1; ++i) {
         if (_data(i, j, 0, l) > 0) {
@@ -262,7 +262,7 @@ void CityBlockDistanceTransform<VoxelType>::Run3D()
 {
   VoxelType  val;
   int        borderVoxelCount = 0, objectVoxelCount = 0;
-  GreyPixel *ptr2current, *ptr2offset;
+  Grey      *ptr2current, *ptr2offset;
 
   GenericImage<VoxelType> * const output = this->Output();
 
@@ -298,7 +298,7 @@ void CityBlockDistanceTransform<VoxelType>::Run3D()
 
       // Remove the border from the current object.
       borderVoxelCount = 0;
-      GreyPixel * const ptr2start = _data.Data(0, 0, 0, l);
+      Grey * const ptr2start = _data.Data(0, 0, 0, l);
       for (int k = 1; k < nz - 1; ++k)
       for (int j = 1; j < ny - 1; ++j)
       for (int i = 1; i < nx - 1; ++i) {
@@ -377,8 +377,8 @@ void CityBlockDistanceTransform<VoxelType>::Finalize()
 // Explicit template instantiations
 // =============================================================================
 
-template class CityBlockDistanceTransform<RealPixel>;
-template class CityBlockDistanceTransform<GreyPixel>;
+template class CityBlockDistanceTransform<Real>;
+template class CityBlockDistanceTransform<Grey>;
 
 
 } // namespace mirtk

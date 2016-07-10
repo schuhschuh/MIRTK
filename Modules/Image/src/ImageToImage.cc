@@ -181,8 +181,9 @@ template class ImageToImage<int>;
 template class ImageToImage<unsigned int>;
 template class ImageToImage<float>;
 template class ImageToImage<double>;
-template class ImageToImage<Float3>;
-template class ImageToImage<Double3>;
+
+template class ImageToImage<Vector3D<float> >;
+template class ImageToImage<Vector3D<double> >;
 
 
 } // namespace mirtk

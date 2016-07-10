@@ -407,8 +407,8 @@ void SplinePoles(int degree, TReal pole[2], int &npoles)
 template <class TData>
 void ConvertToSplineCoefficients(int degree, GenericImage<TData> &image, int k, int l)
 {
-  typename voxel_info<TData>::ScalarType poles[2];
-  int                                    npoles;
+  typename type_traits<TData>::ScalarType poles[2];
+  int                                     npoles;
   SplinePoles(degree, poles, npoles);
   ConvertToInterpolationCoefficients(image, k, l, poles, npoles);
 }
@@ -418,8 +418,8 @@ void ConvertToSplineCoefficients(int degree, GenericImage<TData> &image, int k, 
 template <class TData>
 void ConvertToSplineCoefficients(int degree, GenericImage<TData> &image, int l)
 {
-  typename voxel_info<TData>::ScalarType poles[2];
-  int                                    npoles;
+  typename type_traits<TData>::ScalarType poles[2];
+  int                                     npoles;
   SplinePoles(degree, poles, npoles);
   ConvertToInterpolationCoefficients(image, l, poles, npoles);
 }
@@ -429,8 +429,8 @@ void ConvertToSplineCoefficients(int degree, GenericImage<TData> &image, int l)
 template <class TData>
 void ConvertToSplineCoefficients(int degree, GenericImage<TData> &image)
 {
-  typename voxel_info<TData>::ScalarType poles[2];
-  int                                    npoles;
+  typename type_traits<TData>::ScalarType poles[2];
+  int                                     npoles;
   SplinePoles(degree, poles, npoles);
   ConvertToInterpolationCoefficients(image, poles, npoles);
 }

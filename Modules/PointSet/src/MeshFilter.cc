@@ -136,7 +136,7 @@ vtkSmartPointer<vtkDataArray>
 MeshFilter::NewArray(const char *name, vtkIdType n, int c, int type) const
 {
   if (type == VTK_VOID) type = (_DoublePrecision ? VTK_DOUBLE : VTK_FLOAT);
-  vtkSmartPointer<vtkDataArray> array = NewVTKDataArray(type);
+  vtkSmartPointer<vtkDataArray> array = NewVtkDataArray(type);
   array->SetName(name);
   array->SetNumberOfComponents(c);
   array->SetNumberOfTuples(n);

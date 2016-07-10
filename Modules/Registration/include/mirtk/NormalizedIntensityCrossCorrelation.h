@@ -42,7 +42,7 @@ class NormalizedIntensityCrossCorrelation : public ImageSimilarity
   // Types
 public:
 
-  typedef voxel_info<VoxelType>::RealType   RealType;
+  typedef type_traits<VoxelType>::RealType   RealType;
   typedef GenericImage<RealType>            RealImage;
   typedef GenericImage<RealPixel>           KernelImage;
 

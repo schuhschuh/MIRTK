@@ -99,8 +99,8 @@ public:
   /// Gets the spatial bounding box for a transformation parameter in image coordinates.
   /// The last parameter specifies what fraction of the bounding box to return.
   /// The default is 1 which equals 100% of the bounding box.
-  virtual bool DOFBoundingBox(const Image *, int, int &, int &, int &,
-                                                  int &, int &, int &, double = 1) const;
+  virtual bool DOFBoundingBox(const BaseImage *, int, int &, int &, int &,
+                                                      int &, int &, int &, double = 1) const;
 
   // ---------------------------------------------------------------------------
   // Approximation
@@ -334,8 +334,8 @@ inline  const AffineTransformation *FluidFreeFormTransformation::GetAffineTransf
 
 // -----------------------------------------------------------------------------
 inline bool FluidFreeFormTransformation
-::DOFBoundingBox(const Image *image, int dof, int &i1, int &j1, int &k1,
-                                              int &i2, int &j2, int &k2, double fraction) const
+::DOFBoundingBox(const BaseImage *image, int dof, int &i1, int &j1, int &k1,
+                                                  int &i2, int &j2, int &k2, double fraction) const
 {
   // Get local transformation and corresponding parameter index
   const FreeFormTransformation *ffd;

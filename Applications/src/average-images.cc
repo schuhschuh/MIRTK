@@ -527,7 +527,7 @@ int main(int argc, char **argv)
     padding = min(.0, double(min_value) - 1.0);
     for (int idx = 0; idx < average.NumberOfVoxels(); ++idx) {
       if (IsNaN(average(idx))) {
-        average(idx) = voxel_cast<OutputImage::VoxelType>(padding);
+        average(idx) = type_cast<OutputImage::VoxelType>(padding);
       }
     }
     average.PutBackgroundValueAsDouble(padding);

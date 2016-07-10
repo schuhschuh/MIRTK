@@ -25,7 +25,6 @@
 #include "mirtk/Parallel.h"
 #include "mirtk/Profiling.h"
 #include "mirtk/Vector3D.h"
-#include "mirtk/VoxelCast.h"
 #include "mirtk/VoxelFunction.h"
 #include "mirtk/BinaryVoxelFunction.h"
 #include "mirtk/ScalarFunctionToImage.h"
@@ -357,13 +356,13 @@ struct UpdateBoxWindowLNCC : public VoxelFunction
     if (cnt) {
       const double ms = sums / cnt;
       const double mt = sumt / cnt;
-      *a = voxel_cast<VoxelType>(sumts - ms * sumt - mt * sums + cnt * ms * mt); // <T, S>
-      *b = voxel_cast<VoxelType>(sumss -       2.0 * ms * sums + cnt * ms * ms); // <S, S>
-      *c = voxel_cast<VoxelType>(sumtt -       2.0 * mt * sumt + cnt * mt * mt); // <T, T>
-      *s = voxel_cast<VoxelType>((*src) - ms);
-      *t = voxel_cast<VoxelType>((*tgt) - mt);
+      *a = type_cast<VoxelType>(sumts - ms * sumt - mt * sums + cnt * ms * mt); // <T, S>
+      *b = type_cast<VoxelType>(sumss -       2.0 * ms * sums + cnt * ms * ms); // <S, S>
+      *c = type_cast<VoxelType>(sumtt -       2.0 * mt * sumt + cnt * mt * mt); // <T, T>
+      *s = type_cast<VoxelType>((*src) - ms);
+      *t = type_cast<VoxelType>((*tgt) - mt);
     } else {
-      *a = *b = *c = *s = *t = voxel_cast<VoxelType>(.0);
+      *a = *b = *c = *s = *t = type_cast<VoxelType>(.0);
     }
   }
 };

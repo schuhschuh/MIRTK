@@ -322,7 +322,7 @@ int main(int argc, char **argv)
   REQUIRES_POSARGS(1);
 
   double *data = NULL;
-  int datatype = MIRTK_VOXEL_DOUBLE;
+  DataType datatype = T_Double;
   ImageAttributes attr;
 
 #if MIRTK_Image_WITH_VTK
@@ -669,14 +669,14 @@ int main(int argc, char **argv)
       #endif
     } else if (OPTION("-o") || OPTION("-out") || OPTION("-output")) {
       const char *fname = ARGUMENT;
-      int         dtype = datatype;
+      DataType    dtype = datatype;
       #if MIRTK_Image_WITH_VTK
         const char *output_scalars_name = scalars_name;
       #endif
       if (HAS_ARGUMENT) {
         const char *arg = ARGUMENT;
         dtype = ToDataType(arg);
-        if (dtype == MIRTK_VOXEL_UNKNOWN) {
+        if (dtype == T_Void) {
           cerr << "Invalid -out data type " << arg << endl;
           exit(1);
         }

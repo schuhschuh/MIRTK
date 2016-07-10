@@ -117,7 +117,7 @@ template <class VoxelType>
 inline GenericImageIterator<VoxelType>
 ::GenericImageIterator(const ImageAttributes &attr, VoxelType *data)
 :
-  ImageIterator(attr, data, voxel_info<VoxelType>::type())
+  ImageIterator(attr, data, type_traits<VoxelType>::type())
 {
 }
 
