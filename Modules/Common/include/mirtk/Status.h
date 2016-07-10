@@ -21,11 +21,15 @@
 #define MIRTK_Status_H
 
 
+// -----------------------------------------------------------------------------
 /// Common states for entities such as data tuples and objective function parameters
+///
+/// \note The Active status has value 0 such that a zero-initialized array
+///       corresponds to all status values set to Active.
 enum Status
 {
-  Active,
-  Passive
+  Active  = 0,
+  Passive = 1
 };
 
 
