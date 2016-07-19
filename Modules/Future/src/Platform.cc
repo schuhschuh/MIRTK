@@ -55,52 +55,10 @@ DeviceId ActiveDevice(PlatformId platform)
 {
   int device = 0;
   #if MIRTK_Future_WITH_ArrayFire
-    // DO NOT use PlatformSwitch here as its constructor calls this function!
     af::BackendSwitch with(platform);
     device = af::getDevice();
   #endif
   return static_cast<DeviceId>(device);
-}
-
-// -----------------------------------------------------------------------------
-PlatformSwitch::PlatformSwitch(PlatformId platform, DeviceId device)
-:
-  _PrevActivePlatform(ActivePlatform()),
-  _PrevActiveDevice(ActiveDevice(_PrevActivePlatform))
-{
-  #if MIRTK_Future_WITH_ArrayFire
-    const af::Backend af_backend = af::ToArrayFireBackend(platform);
-    if (af_backend != AF_BACKEND_DEFAULT) {
-      if (af_backend != af::getActiveBackend()) {
-        af::setBackend(af_backend);
-      }
-      const int af_device = static_cast<int>(device);
-      if (af_device >= 0 && af_device != af::getDevice()) {
-        af::setDevice(af_device);
-      }
-    }
-  #else
-    if (platform != Platform_Default && platform != _PrevActivePlatform) {
-      cerr << __FUNCTION__ << ": " << ToString(platform) << " currently only supported with ArrayFire!" << endl;
-      exit(1);
-    }
-  #endif
-}
-
-// -----------------------------------------------------------------------------
-PlatformSwitch::~PlatformSwitch()
-{
-  #if MIRTK_Future_WITH_ArrayFire
-    const af::Backend af_backend = af::ToArrayFireBackend(_PrevActivePlatform);
-    if (af_backend != AF_BACKEND_DEFAULT &&
-        af_backend != af::getActiveBackend()) {
-      af::setBackend(af_backend);
-    }
-    const int af_device = static_cast<int>(_PrevActiveDevice);
-    if (af_device != af::getDevice()) {
-      af::setDevice(af_device);
-    }
-  #endif
 }
 
 

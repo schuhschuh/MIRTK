@@ -42,7 +42,7 @@ void LowerThreshold::operator ()(DataArray &data) const
 {
   #if MIRTK_Future_WITH_ArrayFire
     const double l = GetThreshold();
-    PlatformSwitch with(data.Platform());
+    af::BackendSwitch with(data.Platform(), data.Device());
     af::array values = af::ToValuesArray(data);
     values(values < l) = l;
     af::WriteValues(data, values);
@@ -56,7 +56,7 @@ void UpperThreshold::operator ()(DataArray &data) const
 {
   #if MIRTK_Future_WITH_ArrayFire
     const double u = GetThreshold();
-    PlatformSwitch with(data.Platform());
+    af::BackendSwitch with(data.Platform(), data.Device());
     af::array values = af::ToValuesArray(data);
     values(values > u) = u;
     af::WriteValues(data, values);
@@ -71,7 +71,7 @@ void Clamp::operator ()(DataArray &data) const
   #if MIRTK_Future_WITH_ArrayFire
     const double l = GetLowerThreshold();
     const double u = GetUpperThreshold();
-    PlatformSwitch with(data.Platform());
+    af::BackendSwitch with(data.Platform(), data.Device());
     af::array values = af::ToValuesArray(data);
     values(values < l) = l;
     values(values > u) = u;
@@ -87,7 +87,7 @@ void Binarize::operator ()(DataArray &data) const
   #if MIRTK_Future_WITH_ArrayFire
     const double l = GetLowerThreshold();
     const double u = GetUpperThreshold();
-    PlatformSwitch with(data.Platform());
+    af::BackendSwitch with(data.Platform(), data.Device());
     af::array values = af::ToValuesArray(data);
     af::array masked;
     if (l > u) masked = (u  > values || values >  l);

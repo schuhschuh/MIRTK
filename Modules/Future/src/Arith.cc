@@ -51,7 +51,7 @@ namespace mirtk { namespace future { namespace op {
 #if MIRTK_Future_WITH_ArrayFire
   // without arguments
   #define __MIRTK_ELEMENTWISE_UNARY_OP_0(data, op) \
-    PlatformSwitch with(data.Platform()); \
+    af::BackendSwitch with(data.Platform(), data.Device()); \
     af::array values = af::ToValuesArray(data); \
     af::array status = af::ToStatusArray(data, true); \
     values = af::select(status == Active, af::op(values), values); \
@@ -59,7 +59,7 @@ namespace mirtk { namespace future { namespace op {
     return
   // with arguments
   #define __MIRTK_ELEMENTWISE_UNARY_OP_N(data, op, ...) \
-    PlatformSwitch with(data.Platform()); \
+    af::BackendSwitch with(data.Platform(), data.Device()); \
     af::array values = af::ToValuesArray(data); \
     af::array status = af::ToStatusArray(data, true); \
     values = af::select(status == Active, af::op(values, __VA_ARGS__), values); \
@@ -67,7 +67,7 @@ namespace mirtk { namespace future { namespace op {
     return
   // log with negative value clamping
   #define __MIRTK_ELEMENTWISE_UNARY_OP_L(data, op) \
-    PlatformSwitch with(data.Platform()); \
+    af::BackendSwitch with(data.Platform(), data.Device()); \
     af::array values = af::ToValuesArray(data); \
     af::array status = af::ToStatusArray(data, true); \
     af::array result = af::op(values); \
@@ -106,7 +106,7 @@ void Exp::operator ()(DataArray &data) const
 void Log::operator ()(DataArray &data) const
 {
   #if MIRTK_Future_WITH_ArrayFire
-    PlatformSwitch with(data.Platform());
+    af::BackendSwitch with(data.Platform(), data.Device());
     af::array values = af::ToValuesArray(data);
     af::array status = af::ToStatusArray(data, true);
     af::array result = af::log(values) / _LogBase;
@@ -159,7 +159,7 @@ const double Div::_Epsilon;
 #if MIRTK_Future_WITH_ArrayFire
   // array + scalar
   #define __MIRTK_ELEMENTWISE_BINARY_OP_SCALAR(lhs, op, rhs) \
-    PlatformSwitch with(lhs.Platform()); \
+    af::BackendSwitch with(lhs.Platform(), lhs.Device()); \
     af::array lhvals = af::ToValuesArray(lhs); \
     af::array status = af::ToStatusArray(lhs, true); \
     lhvals = af::select(status == Active, lhvals op rhs, lhvals); \
@@ -167,7 +167,7 @@ const double Div::_Epsilon;
     return
   // array + array
   #define __MIRTK_ELEMENTWISE_BINARY_OP_DARRAY(lhs, op, rhs) \
-    PlatformSwitch with(lhs.Platform()); \
+    af::BackendSwitch with(lhs.Platform(), lhs.Device()); \
     af::array lhvals = af::ToValuesArray(lhs); \
     af::array rhvals = af::ToValuesArray(rhs); \
     af::array status = af::ToStatusArray(lhs, true); \
@@ -210,7 +210,7 @@ void Div::operator ()(DataArray &lhs, double rhs) const
     return;
   }
   #if MIRTK_Future_WITH_ArrayFire
-    PlatformSwitch with(lhs.Platform());
+    af::BackendSwitch with(lhs.Platform(), lhs.Device());
     af::array lhvals = af::ToValuesArray(lhs);
     af::array status = af::ToStatusArray(lhs, true);
     lhvals = af::select(status == Active, lhvals / rhs, lhvals);
@@ -224,7 +224,7 @@ void Div::operator ()(DataArray &lhs, double rhs) const
 void Div::operator ()(DataArray &lhs, const DataArray &rhs) const
 {
   #if MIRTK_Future_WITH_ArrayFire
-    PlatformSwitch with(lhs.Platform());
+    af::BackendSwitch with(lhs.Platform(), lhs.Device());
     af::array lhvals = af::ToValuesArray(lhs);
     af::array rhvals = af::ToValuesArray(rhs);
     af::array status = af::ToStatusArray(lhs, true);

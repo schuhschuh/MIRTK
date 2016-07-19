@@ -51,7 +51,7 @@ namespace mirtk { namespace future { namespace op {
 void NegateStatus::operator ()(DataArray &data) const
 {
   #if MIRTK_Future_WITH_ArrayFire
-    PlatformSwitch with(data.Platform());
+    af::BackendSwitch with(data.Platform(), data.Device());
     af::array status = !af::ToStatusArray(data, false);
     af::WriteStatus(data, status);
   #else
@@ -63,7 +63,7 @@ void NegateStatus::operator ()(DataArray &data) const
 void Mask::operator ()(DataArray &data) const
 {
   #if MIRTK_Future_WITH_ArrayFire
-    PlatformSwitch with(data.Platform());
+    af::BackendSwitch with(data.Platform(), data.Device());
     af::array status = af::ToStatusArray(data, true);
     af::array masked = (data == _Value);
     af::WriteStatus(data, status || masked);
@@ -76,7 +76,7 @@ void Mask::operator ()(DataArray &data) const
 void ApplyMask::operator ()(DataArray &data, double value) const
 {
   #if MIRTK_Future_WITH_ArrayFire
-    PlatformSwitch with(data.Platform());
+    af::BackendSwitch with(data.Platform(), data.Device());
     af::array status = af::ToStatusArray(data, true);
     af::WriteStatus(data, status || Mask::Status(value, _Value) == Passive);
   #else
@@ -88,7 +88,7 @@ void ApplyMask::operator ()(DataArray &data, double value) const
 void ApplyMask::operator ()(DataArray &data, const DataArray &mask) const
 {
   #if MIRTK_Future_WITH_ArrayFire
-    PlatformSwitch with(data.Platform());
+    af::BackendSwitch with(data.Platform(), data.Device());
     af::array status = af::ToStatusArray(data, true);
     af::array masked = (mask == _Value);
     af::WriteStatus(data, status || masked);
@@ -103,7 +103,7 @@ void MaskOutsideInterval::operator ()(DataArray &data) const
   #if MIRTK_Future_WITH_ArrayFire
     const double l = GetLowerThreshold();
     const double u = GetUpperThreshold();
-    PlatformSwitch with(data.Platform());
+    af::BackendSwitch with(data.Platform(), data.Device());
     af::array values = af::ToValuesArray(data);
     af::array status = af::ToStatusArray(data, true);
     af::array masked;
@@ -121,7 +121,7 @@ void MaskOutsideOpenInterval::operator ()(DataArray &data) const
   #if MIRTK_Future_WITH_ArrayFire
     const double l = GetLowerThreshold();
     const double u = GetUpperThreshold();
-    PlatformSwitch with(data.Platform());
+    af::BackendSwitch with(data.Platform(), data.Device());
     af::array values = af::ToValuesArray(data);
     af::array status = af::ToStatusArray(data, true);
     af::array masked;
@@ -139,7 +139,7 @@ void MaskInsideInterval::operator ()(DataArray &data) const
   #if MIRTK_Future_WITH_ArrayFire
     const double l = GetLowerThreshold();
     const double u = GetUpperThreshold();
-    PlatformSwitch with(data.Platform());
+    af::BackendSwitch with(data.Platform(), data.Device());
     af::array values = af::ToValuesArray(data);
     af::array status = af::ToStatusArray(data, true);
     af::array masked;
@@ -157,7 +157,7 @@ void MaskInsideOpenInterval::operator ()(DataArray &data) const
   #if MIRTK_Future_WITH_ArrayFire
     const double l = GetLowerThreshold();
     const double u = GetUpperThreshold();
-    PlatformSwitch with(data.Platform());
+    af::BackendSwitch with(data.Platform(), data.Device());
     af::array values = af::ToValuesArray(data);
     af::array status = af::ToStatusArray(data, true);
     af::array masked;
@@ -173,7 +173,7 @@ void MaskInsideOpenInterval::operator ()(DataArray &data) const
 void MaskEvenValues::operator ()(DataArray &data) const
 {
   #if MIRTK_Future_WITH_ArrayFire
-    PlatformSwitch with(data.Platform());
+    af::BackendSwitch with(data.Platform(), data.Device());
     af::array values = af::ToValuesArray(data);
     af::array status = af::ToStatusArray(data, true);
     af::array masked;
@@ -188,7 +188,7 @@ void MaskEvenValues::operator ()(DataArray &data) const
 void MaskOddValues::operator ()(DataArray &data) const
 {
   #if MIRTK_Future_WITH_ArrayFire
-    PlatformSwitch with(data.Platform());
+    af::BackendSwitch with(data.Platform(), data.Device());
     af::array values = af::ToValuesArray(data);
     af::array status = af::ToStatusArray(data, true);
     af::array masked;

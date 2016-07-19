@@ -26,13 +26,14 @@
 namespace mirtk { namespace future {
 
 
-/// Computational platform
+/// Computing platform
 enum PlatformId
 {
-  Platform_Default, ///< Default/active platform
-  Platform_CPU,     ///< Native CPU implementation
-  Platform_CUDA,    ///< CUDA framework
-  Platform_OpenCL   ///< OpenCL framework
+  // Powers of 2 such that bitwise combination possible
+  Platform_Default = 0, ///< Default/active platform
+  Platform_CPU     = 1, ///< CPU/TBB implementation
+  Platform_CUDA    = 2, ///< CUDA framework
+  Platform_OpenCL  = 4, ///< OpenCL framework
 };
 
 /// ID of device
@@ -51,23 +52,6 @@ PlatformId ActivePlatform();
 /// \param[in] platform Platform for which to query the number of
 ///                     devices. Use active platform if Platform_Default.
 DeviceId ActiveDevice(PlatformId = Platform_Default);
-
-/**
- * Auxiliary class to temporarily switch the platform used by the current scope
- */
-class PlatformSwitch
-{
-  const PlatformId _PrevActivePlatform;
-  const DeviceId   _PrevActiveDevice;
-
-public:
-
-  /// Constructor, switches to specified platform if not active
-  PlatformSwitch(PlatformId, DeviceId = -1);
-
-  /// Destructor, switches to previously active platform
-  ~PlatformSwitch();
-};
 
 
 } // namespace future
