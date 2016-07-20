@@ -22,6 +22,12 @@
 #include "mirtk/future/ArrayFire.h"
 #include "af/internal.h"
 
+#include "mirtk/Parallel.h"
+#include "mirtk/Profiling.h"
+
+#include <numeric>
+
+
 using namespace mirtk;
 using namespace mirtk::future;
 
@@ -36,9 +42,87 @@ af::array clamp(const af::array &in, double min, double max)
     return ((in < min) * min + (in > max) * max + (in >= min && in <= max) * in);
 }
 
+// -----------------------------------------------------------------------------
+template <class T>
+struct MedianFilterKernel
+{
+  const T   *_Input;
+  T         *_Output;
+  const int *_Offsets;
+  int        _NumberOfVoxels;
+  int        _NumberOfOffsets;
+
+  MedianFilterKernel()  = default;
+  ~MedianFilterKernel() = default;
+
+  // Get median of values within window centered at i-th voxel
+  MIRTKCU_API T median(int i, std::vector<T> &values) const
+  {
+    for (int j = 0, idx; j < _NumberOfOffsets; ++j) {
+      idx = i + _Offsets[j];
+      if (idx < 0 || idx >= _NumberOfVoxels) {
+        values[j] = 0.;
+      } else {
+        values[j] = _Input[i + _Offsets[j]];
+      }
+    }
+    std::partial_sort(values.begin(), values.begin() + (_NumberOfOffsets+1)/2, values.end());
+    return values[_NumberOfOffsets/2];
+  }
+
+  // Unary operator for use by thrust::for_each or custom CUDA kernel
+  MIRTKCU_API T operator ()(int i) const
+  {
+    std::vector<T> values(_NumberOfOffsets);
+    return median(i, values);
+  }
+
+  // Unary operator for TBB parallel_for
+  void operator ()(const blocked_range<int> &range) const
+  {
+    std::vector<T> values(_NumberOfOffsets);
+    for (int i = range.begin(); i != range.end(); ++i) {
+      _Output[i] = median(i, values);
+    }
+  }
+};
+
 // =============================================================================
 // 3D median filter
 // =============================================================================
+
+// -----------------------------------------------------------------------------
+TEST(ArrayFire, NonLinearFilterWithTBB)
+{
+  const int nx = 256, ny = 256, nz = 256;
+  const int rx =   3, ry =   3, rz =   3;
+  const int nv = nx * ny * nz;
+  const int nw = (2*rx+1) * (2*ry+1) * (2*rz+1);
+
+  Array<int> input (nv);
+  Array<int> output(input.size());
+  std::iota(input.begin(), input.end(), 1);
+
+  MIRTK_START_TIMING();
+
+  int offsets[nw];
+  int *offset = offsets;
+  for (int k = -rz; k <= rz; ++k)
+  for (int j = -ry; j <= ry; ++j)
+  for (int i = -rx; i <= rx; ++i, ++offset) {
+    *offset = i + nx * (j + k * ny);
+  }
+
+  MedianFilterKernel<int> kernel;
+  kernel._Input           = input.data();
+  kernel._Output          = output.data();
+  kernel._NumberOfVoxels  = static_cast<int>(input.size());
+  kernel._NumberOfOffsets = nw;
+  kernel._Offsets         = offsets;
+  parallel_for(blocked_range<int>(0, kernel._NumberOfVoxels), kernel);
+
+  MIRTK_END_TIMING("median filtering");
+}
 
 // -----------------------------------------------------------------------------
 TEST(ArrayFire, NonLinearFilterWithGfor)
