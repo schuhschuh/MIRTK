@@ -42,6 +42,18 @@ af::array clamp(const af::array &in, double min, double max)
     return ((in < min) * min + (in > max) * max + (in >= min && in <= max) * in);
 }
 
+//// -----------------------------------------------------------------------------
+//af::array unwrap3(af::array in, int wx, int wy, int wz)
+//{
+//    af::array out1 = af::unwrap(in, wx, wy, 1, 1);
+//    af::array out2 = af::moddims(out1, wx * wy * in2.dims(1), in2.dims(2), in2.dims(3));
+//    return af::unwrap(out2, wx * wy, wz, 1, 1);
+//}
+
+// =============================================================================
+// 3D median filter
+// =============================================================================
+
 // -----------------------------------------------------------------------------
 template <class T>
 struct MedianFilterKernel
@@ -56,7 +68,7 @@ struct MedianFilterKernel
   ~MedianFilterKernel() = default;
 
   // Get median of values within window centered at i-th voxel
-  MIRTKCU_API T median(int i, std::vector<T> &values) const
+  T median(int i, std::vector<T> &values) const
   {
     for (int j = 0, idx; j < _NumberOfOffsets; ++j) {
       idx = i + _Offsets[j];
@@ -64,13 +76,6 @@ struct MedianFilterKernel
     }
     std::partial_sort(values.begin(), values.begin() + (_NumberOfOffsets+1)/2, values.end());
     return values[_NumberOfOffsets/2];
-  }
-
-  // Unary operator for use by thrust::for_each or custom CUDA kernel
-  MIRTKCU_API T operator ()(int i) const
-  {
-    std::vector<T> values(_NumberOfOffsets);
-    return median(i, values);
   }
 
   // Unary operator for TBB parallel_for
@@ -83,15 +88,11 @@ struct MedianFilterKernel
   }
 };
 
-// =============================================================================
-// 3D median filter
-// =============================================================================
-
 // -----------------------------------------------------------------------------
 TEST(ArrayFire, NonLinearFilterWithTBB)
 {
   const int nx = 256, ny = 256, nz = 256;
-  const int rx =   3, ry =   3, rz =   3;
+  const int rx =   1, ry =   1, rz =   1;
   const int nv = nx * ny * nz;
   const int nw = (2*rx+1) * (2*ry+1) * (2*rz+1);
 
@@ -121,108 +122,157 @@ TEST(ArrayFire, NonLinearFilterWithTBB)
 }
 
 // -----------------------------------------------------------------------------
-TEST(ArrayFire, NonLinearFilterWithGfor)
+TEST(ArrayFire, NonLinearFilterWithUnwrap)
 {
   using namespace af;
-  // create image of typical brain MR image size, where
-  // voxel values correspond to their linear one-based index
-  const dim_t nx = 256; // no. of voxels in x dimension
-  const dim_t ny = 256; // no. of voxels in y dimension
-  const dim_t nz = 256; // no. of voxels in z dimension
-  const dim_t rx =   3; // window radius in x dimension
-  const dim_t ry =   3; // window radius in y dimension
-  const dim_t rz =   3; // window radius in z dimension
-  const dim_t nw = (2*rx+1) * (2*ry+1) * (2*rz+1); // no. of voxels in window
+
+  // image size
+  const dim_t nx = 256;
+  const dim_t ny = 256;
+  const dim_t nz = 256;
+
+  // window size
+  const int wx = 3, rx = wx / 2;
+  const int wy = 3, ry = wy / 2;
+  const int wz = 3, rz = wz / 2;
+
+  // create test image
   array image = range(dim4(nx*ny*nz), 0, s32) + 1;
   image = moddims(image, nx, ny, nz);
-  // BEGIN of non-linear filter execution
+
+  // non-linear 3D filter (i.e., median)
   timer start = timer::start();
   {
+    // size of padded image
+    const dim_t mx = nx + wx - 1;
+    const dim_t my = ny + wy - 1;
+    const dim_t mz = nz + wz - 1;
+    // index ranges for original image
+    const dim_t x1 = rx, x2 = x1 + nx - 1;
+    const dim_t y1 = ry, y2 = y1 + ny - 1;
+    const dim_t z1 = rz, z2 = z1 + nz - 1;
     // pad image with zeros
-    array padded_image = constant(0, nx+2*rx, ny+2*ry, nz+2*rz, image.type());
-    padded_image(seq(rx, nx+rx-1), seq(ry, ny+ry-1), seq(rz, nz+rz-1)) = image;
-    // compute linear index offsets of local window into padded image
-    const dim4 strides = getStrides(padded_image);
-    dim_t h_offsets[nw];
-    dim_t *offset = h_offsets;
-    for (dim_t k = -rz; k <= rz; ++k)
-    for (dim_t j = -ry; j <= ry; ++j)
-    for (dim_t i = -rx; i <= rx; ++i, ++offset) {
-      *offset = i * strides[0] + j * strides[1] + k * strides[2];
+    array input = constant(0, mx, my, mz, image.type());
+    input(seq(x1, x2), seq(y1, y2), seq(z1, z2)) = image;
+    // apply filter for each slab in z of depth wz
+    for (dim_t z = z1; z <= z2; ++z) {
+      // extract window values and rearrange to get vector with dims=[nw nv 1 1]
+      array values = unwrap(input(span, span, seq(z-rz, z+rz)), wx, wy, 1, 1);
+      values = reorder(values, 0, 2, 1);
+      values = moddims(values, values.dims(0) * values.dims(1), values.dims(2));
+      // compute non-linear filter response for given window values
+      values = median(values, 0);
+      // reshape result for current slice and write to output
+      values = moddims(values, nx, ny);
+      image(span, span, z-z1) = values;
     }
-    array offsets(nw, h_offsets);
-    // flatten the image because we want a single loop over all voxels and
-    // therefore use linear indices to reference the voxels within a window
-    array flat_image = flat(padded_image);
-    // for each voxel, extract grey values within local window
-    // and compute non-linear filter response for this voxel
-    //
-    // note: the following is similar to af::unwarp,
-    //       which however only supports 2D images/windows
-    //
-    // have to split the processing into smaller batches
-    // due to device memory restrictions; unfortunately af::getDeviceMemorySize
-    // is not part of the public API to split accordingly
-    const size_t dbytes    = .8 * 1073414144;         // 80% out of 1GB available (GeForce GT 650M)
-    const size_t rbytes    = nw * flat_image.bytes(); // estimated memory requirement for full unwrap
-    const dim_t  nbatches  = (rbytes + dbytes - 1) / dbytes;
-    const dim_t  batchsize = (flat_image.elements() + nbatches - 1) / nbatches;
-    for (dim_t batch = 0; batch < nbatches; ++batch) {
-      dim_t begin = batch * batchsize;
-      dim_t end   = begin + batchsize - 1;
-      if (end >= flat_image.elements()) {
-        end = flat_image.elements() - 1;
-      }
-      gfor(seq i, begin, end) {
-        // compute linear indices of voxels within i-th local window
-        array indices = i + offsets;
-        // when there are any out-of-bounds indices, the center voxel i is within
-        // the padded boundary zone and we won't use the result anyway; however,
-        // branching is not possible in gfor loop; hence, just compute something
-        // using the clamped indices and discard those results afterwards
-        indices = clamp(indices, 0, flat_image.elements()-1);
-        // get vector of image values within local window
-        array values = flat_image(indices);
-        // FIXME: the following reshaping of the values array is necessary
-        //        because indices array has dims [nw 1 1 nv], but the array
-        //        returnd by flat_image(indices) has dims [nw*nv 1 1 1]!
-        //        This would not be the case if this were a regular for loop.
-        //        It is a side effect of how the gfor loop works. My guess,
-        //        flat_image(indices) is doing the wrong thing here. It is
-        //        supposed to give me a result array with the same shape as
-        //        the indices argument array.
-        values = moddims(values, nw, 1, 1, values.elements() / nw /* == i.size */);
-        // reduction of local window values
-        #if 0 // custom median implementation
-          // FIXME: minor issue/comment
-          //
-          //        a custom implementation of extracting the median would be
-          //        to call sort on the vector and then extract the middle
-          //        element. this is not possible in gfor loop without adjusting
-          //        the array indexing call. all four arguments are required
-          //        instead of just one vector index. thus, I must know that
-          //        I am dealing with a matrix rather than a vector here and
-          //        that the return value should not a scalar but a vector.
-          //
-          //        in other words, the following
-          //          flat_image(i) = values(values.dims(0)/2);
-          //        does not produce the same result as
-          //          flat_image(i) = values(values.dims(0)/2, span, span, i);
-          //        but in a regular for loop I would be writing the first line.
-          values = sort(values, 0);
-          flat_image(i) = values(values.dims(0)/2, span, span, span /* == i.size */);
-        #else
-          flat_image(i) = median(values, 0);
-        #endif
-      }
-    }
-    // get result of non-linear filter at non-padded voxels
-    padded_image = af::moddims(flat_image, nx+2*rx, ny+2*ry, nz+2*rz);
-    image = padded_image(seq(rx, nx+rx-1), seq(ry, ny+ry-1), seq(rz, nz+rz-1));
   }
-  // END of non-linear filter execution
   printf("elapsed seconds: %g\n", timer::stop(start));
 }
+
+//// -----------------------------------------------------------------------------
+//TEST(ArrayFire, NonLinearFilterWithGfor)
+//{
+//  using namespace af;
+//  // create image of typical brain MR image size, where
+//  // voxel values correspond to their linear one-based index
+//  const dim_t nx = 256; // no. of voxels in x dimension
+//  const dim_t ny = 256; // no. of voxels in y dimension
+//  const dim_t nz = 256; // no. of voxels in z dimension
+//  const dim_t rx =   3; // window radius in x dimension
+//  const dim_t ry =   3; // window radius in y dimension
+//  const dim_t rz =   3; // window radius in z dimension
+//  const dim_t nw = (2*rx+1) * (2*ry+1) * (2*rz+1); // no. of voxels in window
+//  array image = range(dim4(nx*ny*nz), 0, s32) + 1;
+//  image = moddims(image, nx, ny, nz);
+//  // BEGIN of non-linear filter execution
+//  timer start = timer::start();
+//  {
+//    // pad image with zeros
+//    array padded_image = constant(0, nx+2*rx, ny+2*ry, nz+2*rz, image.type());
+//    padded_image(seq(rx, nx+rx-1), seq(ry, ny+ry-1), seq(rz, nz+rz-1)) = image;
+//    // compute linear index offsets of local window into padded image
+//    const dim4 strides = getStrides(padded_image);
+//    dim_t h_offsets[nw];
+//    dim_t *offset = h_offsets;
+//    for (dim_t k = -rz; k <= rz; ++k)
+//    for (dim_t j = -ry; j <= ry; ++j)
+//    for (dim_t i = -rx; i <= rx; ++i, ++offset) {
+//      *offset = i * strides[0] + j * strides[1] + k * strides[2];
+//    }
+//    array offsets(nw, h_offsets);
+//    // flatten the image because we want a single loop over all voxels and
+//    // therefore use linear indices to reference the voxels within a window
+//    array flat_image = flat(padded_image);
+//    // for each voxel, extract grey values within local window
+//    // and compute non-linear filter response for this voxel
+//    //
+//    // note: the following is similar to af::unwarp,
+//    //       which however only supports 2D images/windows
+//    //
+//    // have to split the processing into smaller batches
+//    // due to device memory restrictions; unfortunately af::getDeviceMemorySize
+//    // is not part of the public API to split accordingly
+//    const size_t dbytes    = .8 * 1073414144;         // 80% out of 1GB available (GeForce GT 650M)
+//    const size_t rbytes    = nw * flat_image.bytes(); // estimated memory requirement for full unwrap
+//    const dim_t  nbatches  = (rbytes + dbytes - 1) / dbytes;
+//    const dim_t  batchsize = (flat_image.elements() + nbatches - 1) / nbatches;
+//    for (dim_t batch = 0; batch < nbatches; ++batch) {
+//      dim_t begin = batch * batchsize;
+//      dim_t end   = begin + batchsize - 1;
+//      if (end >= flat_image.elements()) {
+//        end = flat_image.elements() - 1;
+//      }
+//      gfor(seq i, begin, end) {
+//        // compute linear indices of voxels within i-th local window
+//        array indices = i + offsets;
+//        // when there are any out-of-bounds indices, the center voxel i is within
+//        // the padded boundary zone and we won't use the result anyway; however,
+//        // branching is not possible in gfor loop; hence, just compute something
+//        // using the clamped indices and discard those results afterwards
+//        indices = clamp(indices, 0, flat_image.elements()-1);
+//        // get vector of image values within local window
+//        array values = flat_image(indices);
+//        // FIXME: the following reshaping of the values array is necessary
+//        //        because indices array has dims [nw 1 1 nv], but the array
+//        //        returnd by flat_image(indices) has dims [nw*nv 1 1 1]!
+//        //        This would not be the case if this were a regular for loop.
+//        //        It is a side effect of how the gfor loop works. My guess,
+//        //        flat_image(indices) is doing the wrong thing here. It is
+//        //        supposed to give me a result array with the same shape as
+//        //        the indices argument array.
+//        values = moddims(values, nw, 1, 1, values.elements() / nw /* == i.size */);
+//        // reduction of local window values
+//        #if 0 // custom median implementation
+//          // FIXME: minor issue/comment
+//          //
+//          //        a custom implementation of extracting the median would be
+//          //        to call sort on the vector and then extract the middle
+//          //        element. this is not possible in gfor loop without adjusting
+//          //        the array indexing call. all four arguments are required
+//          //        instead of just one vector index. thus, I must know that
+//          //        I am dealing with a matrix rather than a vector here and
+//          //        that the return value should not a scalar but a vector.
+//          //
+//          //        in other words, the following
+//          //          flat_image(i) = values(values.dims(0)/2);
+//          //        does not produce the same result as
+//          //          flat_image(i) = values(values.dims(0)/2, span, span, i);
+//          //        but in a regular for loop I would be writing the first line.
+//          values = sort(values, 0);
+//          flat_image(i) = values(values.dims(0)/2, span, span, span /* == i.size */);
+//        #else
+//          flat_image(i) = median(values, 0);
+//        #endif
+//      }
+//    }
+//    // get result of non-linear filter at non-padded voxels
+//    padded_image = af::moddims(flat_image, nx+2*rx, ny+2*ry, nz+2*rz);
+//    image = padded_image(seq(rx, nx+rx-1), seq(ry, ny+ry-1), seq(rz, nz+rz-1));
+//  }
+//  // END of non-linear filter execution
+//  printf("elapsed seconds: %g\n", timer::stop(start));
+//}
 
 // =============================================================================
 // Main
