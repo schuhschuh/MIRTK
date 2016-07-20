@@ -23,3 +23,7 @@ endmacro ()
 
 
 add_common_test(DataArray)
+
+if (ArrayFire_Unified_FOUND)
+  add_common_test(ArrayFire ${ArrayFire_Unified_LIBRARIES})
+endif ()
