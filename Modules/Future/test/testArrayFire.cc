@@ -60,11 +60,7 @@ struct MedianFilterKernel
   {
     for (int j = 0, idx; j < _NumberOfOffsets; ++j) {
       idx = i + _Offsets[j];
-      if (idx < 0 || idx >= _NumberOfVoxels) {
-        values[j] = 0.;
-      } else {
-        values[j] = _Input[i + _Offsets[j]];
-      }
+      values[j] = ((idx < 0 || idx >= _NumberOfVoxels) ? 0. : _Input[idx]);
     }
     std::partial_sort(values.begin(), values.begin() + (_NumberOfOffsets+1)/2, values.end());
     return values[_NumberOfOffsets/2];
