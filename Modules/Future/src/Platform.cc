@@ -31,9 +31,9 @@ namespace mirtk { namespace future {
 bool IsAvailable(PlatformId platform)
 {
   #if MIRTK_Future_WITH_ArrayFire
-    af::Backend backend = af::ToArrayFireBackend(platform);
+    af::Backend backend = arrayfire::ToArrayFireBackend(platform);
     if ((af::getAvailableBackends() & static_cast<int>(backend)) != 0) {
-      af::BackendSwitch with(backend);
+      arrayfire::BackendSwitch with(backend);
       return (af::getDeviceCount() > 0);
     }
   #endif
@@ -45,7 +45,7 @@ PlatformId ActivePlatform()
 {
   PlatformId platform = Platform_CPU;
   #if MIRTK_Future_WITH_ArrayFire
-    platform = af::ToPlatform(af::getActiveBackend());
+    platform = arrayfire::ToPlatform(af::getActiveBackend());
   #endif
   return platform;
 }
@@ -55,7 +55,7 @@ DeviceId ActiveDevice(PlatformId platform)
 {
   int device = 0;
   #if MIRTK_Future_WITH_ArrayFire
-    af::BackendSwitch with(platform);
+    arrayfire::BackendSwitch with(platform);
     device = af::getDevice();
   #endif
   return static_cast<DeviceId>(device);

@@ -26,7 +26,7 @@
                        // case file system is not case sensitive!
 
 
-namespace mirtk { namespace future { namespace af {
+namespace mirtk { namespace future { namespace arrayfire {
 using namespace ::af;
 
 

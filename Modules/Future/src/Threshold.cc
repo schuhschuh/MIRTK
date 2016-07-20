@@ -23,6 +23,7 @@
 #include "mirtk/FutureConfig.h"
 #if MIRTK_Future_WITH_ArrayFire
   #include "mirtk/future/ArrayFire.h"
+  namespace mirtk { namespace af = mirtk::future::arrayfire; }
 #endif
 
 

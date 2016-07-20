@@ -33,7 +33,7 @@ DeviceId NumberOfDevices(PlatformId platform)
 {
   DeviceId n = 1;
   #if MIRTK_Future_WITH_ArrayFire
-    af::BackendSwitch with(platform);
+    arrayfire::BackendSwitch with(platform);
     n = static_cast<DeviceId>(af::getDeviceCount());
   #endif
   return n;
@@ -45,7 +45,7 @@ DeviceInfo GetDeviceInfo(PlatformId platform, DeviceId device)
   DeviceInfo info;
   #if MIRTK_Future_WITH_ArrayFire
     char name[64], platform_name[10], toolkit[64], compute[10];
-    af::BackendSwitch with(platform, device);
+    arrayfire::BackendSwitch with(platform, device);
     af::deviceInfo(name, platform_name, toolkit, compute);
     info._Name    = name;
     info._Compute = Version(compute);

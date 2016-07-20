@@ -40,7 +40,7 @@ namespace mirtk { namespace future {
 static void *Allocate(int n, DataType type, PlatformId platform, DeviceId device)
 {
   #if MIRTK_Future_WITH_ArrayFire
-    return af::Allocate(n, type, platform, device);
+    return arrayfire::Allocate(n, type, platform, device);
   #else
     if (platform == Platform_CUDA || platform == Platform_OpenCL) {
       cerr << __FUNCTION__ << ": " << ToString(platform) << " only supported when built with ArrayFire" << endl;
@@ -79,7 +79,7 @@ static void Deallocate(void *&ptr, DataType type, PlatformId platform, DeviceId 
 {
   if (ptr != nullptr) {
     #if MIRTK_Future_WITH_ArrayFire
-      af::Deallocate(ptr, platform, device);
+      arrayfire::Deallocate(ptr, platform, device);
     #else
       if (platform == Platform_CUDA || platform == Platform_OpenCL) {
         cerr << __FUNCTION__ << ": " << ToString(platform) << " only supported when built with ArrayFire" << endl;
@@ -154,7 +154,7 @@ static void *MemSet(void *ptr, double value, Id n, DataType type, PlatformId pla
     }
   } else {
     #if MIRTK_Future_WITH_ArrayFire
-      return af::MemSet(ptr, value, n, type, platform, device);
+      return arrayfire::MemSet(ptr, value, n, type, platform, device);
     #else
       cerr << __FUNCTION__ << ": " << ToString(platform) << " only supported when built with ArrayFire" << endl;
       exit(1);
@@ -174,7 +174,7 @@ static void *MemCpy(void       *dst, PlatformId dst_bknd, DeviceId dst_device,
                     Id n, DataType type)
 {
   #if MIRTK_Future_WITH_ArrayFire
-    af::MemCpy(dst, dst_bknd, dst_device, src, src_bknd, src_device, n, type);
+    arrayfire::MemCpy(dst, dst_bknd, dst_device, src, src_bknd, src_device, n, type);
   #else
     if (src_bknd == Platform_Default) src_bknd = ActivePlatform();
     if (dst_bknd == Platform_Default) dst_bknd = src_bknd;
@@ -238,7 +238,7 @@ static void *MemCst(DataType dst_type, const void *src, DataType src_type, Id n,
 {
   void *dst = nullptr;
   #if MIRTK_Future_WITH_ArrayFire
-    dst = af::MemCst(dst_type, src, src_type, n, platform, device);
+    dst = arrayfire::MemCst(dst_type, src, src_type, n, platform, device);
   #else
     if (platform == Platform_CUDA || platform == Platform_OpenCL) {
       cerr << __FUNCTION__ << ": " << ToString(platform) << " only supported when built with ArrayFire" << endl;

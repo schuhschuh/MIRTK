@@ -20,7 +20,7 @@
 #include "mirtk/future/ArrayFire.h"
 
 
-namespace mirtk { namespace future { namespace af {
+namespace mirtk { namespace future { namespace arrayfire {
 
 
 // -----------------------------------------------------------------------------
