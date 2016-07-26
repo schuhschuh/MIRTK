@@ -21,6 +21,7 @@
 #define MIRTK_Future_ArrayFire_H
 
 #include "mirtk/future/DataArray.h"
+#include "mirtk/future/Image.h"
 
 #include <arrayfire.h> // MUST be included using <> notation in
                        // case file system is not case sensitive!
@@ -100,6 +101,17 @@ array ToValuesArray(DataArray &data);
 inline const array ToValuesArray(const DataArray &data)
 {
   return ToValuesArray(const_cast<DataArray &>(data));
+}
+
+/// Wrap image values in ArrayFire array
+///
+/// \param[in] image Image managed by ArrayFire backend.
+array ToValuesArray(Image &image);
+
+/// Wrap const image values in ArrayFire array
+inline const array ToValuesArray(const Image &image)
+{
+  return ToValuesArray(const_cast<Image &>(image));
 }
 
 /// Wrap tuple status in 1D/2D ArrayFire array

@@ -38,14 +38,7 @@ void DataArray::CopyAttributes(const DataArray &other,
                                PlatformId platform, DeviceId device,
                                bool copy_values, bool copy_status)
 {
-  if (platform == Platform_Default) {
-    platform = other.Platform();
-    device   = other.Device();
-  } else if (device < 0) {
-    if (platform == other.Platform()) device = other.Device();
-    else                              device = ActiveDevice(platform);
-  }
-
+  SelectPlatformAndDevice(platform, device, other.Platform(), other.Device());
   copy_values = (copy_values || platform != other.Platform() || device != other.Device());
   copy_status = (copy_status || platform != other.Platform() || device != other.Device());
   if (other._Values == nullptr) copy_values = false;
@@ -99,18 +92,30 @@ DataArray::DataArray()
 }
 
 // -----------------------------------------------------------------------------
+DataArray::DataArray(Id n, DataType type, PlatformId platform, DeviceId device)
+:
+  DataArray(n, 1, type, platform, device)
+{
+}
+
+// -----------------------------------------------------------------------------
+DataArray::DataArray(Id n, int m, DataType type, PlatformId platform, DeviceId device)
+:
+  _Tuples(n),
+  _Components(m),
+  _Values(NewShared<DataMemory  >(n * m, type, platform, device)),
+  _Status(NewShared<StatusMemory>(n,           platform, device))
+{
+  _Values->Initialize();
+  _Status->Initialize();
+}
+
+// -----------------------------------------------------------------------------
 DataArray::DataArray(Id n, SharedPtr<DataMemory> values, PlatformId platform, DeviceId device)
 :
   _Tuples(n), _Components(values->Size() / _Tuples)
 {
-  mirtkAssert(values->Size() % _Tuples == 0, "number of elements is dividable by number of tuples");
-  if (platform == Platform_Default) {
-    platform = values->Platform();
-    device   = values->Device();
-  } else if (device < 0) {
-    if (platform == values->Platform()) device = values->Device();
-    else                                device = ActiveDevice(platform);
-  }
+  SelectPlatformAndDevice(platform, device, values->Platform(), values->Device());
   if (platform == values->Platform() && device == values->Device()) {
     _Values = values;
   } else {
@@ -128,20 +133,13 @@ DataArray::DataArray(SharedPtr<DataMemory> values, PlatformId platform, DeviceId
 }
 
 // -----------------------------------------------------------------------------
-DataArray::DataArray(SharedPtr<DataMemory> values,
+DataArray::DataArray(SharedPtr<DataMemory>   values,
                      SharedPtr<StatusMemory> status,
                      PlatformId platform, DeviceId device)
 :
   _Tuples(status->Size()), _Components(values->Size() / _Tuples)
 {
-  mirtkAssert(values->Size() % _Tuples == 0, "number of elements is dividable by number of tuples");
-  if (platform == Platform_Default) {
-    platform = values->Platform();
-    device   = values->Device();
-  } else if (device < 0) {
-    if (platform == values->Platform()) device = values->Device();
-    else                                device = ActiveDevice(platform);
-  }
+  SelectPlatformAndDevice(platform, device, values->Platform(), values->Device());
   if (values->Platform() == platform && values->Device() == device) {
     _Values = values;
   } else {
@@ -155,14 +153,8 @@ DataArray::DataArray(SharedPtr<DataMemory> values,
 }
 
 // -----------------------------------------------------------------------------
-DataArray::DataArray(DataArray &other, PlatformId platform, DeviceId device, bool copy_data)
-:
-  DataArray(other, platform, device, copy_data, copy_data)
-{
-}
-
-// -----------------------------------------------------------------------------
-DataArray::DataArray(DataArray &other, PlatformId platform, DeviceId device, bool copy_values, bool copy_status)
+DataArray::DataArray(const DataArray &other, PlatformId platform, DeviceId device,
+                     bool copy_values, bool copy_status)
 :
   DataObject(other)
 {
@@ -172,9 +164,8 @@ DataArray::DataArray(DataArray &other, PlatformId platform, DeviceId device, boo
 // -----------------------------------------------------------------------------
 DataArray::DataArray(const DataArray &other, PlatformId platform, DeviceId device)
 :
-  DataObject(other)
+  DataArray(other, platform, device, false, false)
 {
-  CopyAttributes(other, platform, device, true, true);
 }
 
 // -----------------------------------------------------------------------------
@@ -197,7 +188,7 @@ DataArray &DataArray::operator =(const DataArray &other)
 {
   if (this != &other) {
     DataObject::operator =(other);
-    CopyAttributes(other, other.Platform(), other.Device(), true, true);
+    CopyAttributes(other, other.Platform(), other.Device());
   }
   return *this;
 }
@@ -217,7 +208,7 @@ DataArray &DataArray::operator =(DataArray &&other)
 SharedPtr<DataArray> DataArray
 ::Copy(PlatformId platform, DeviceId device, bool copy_values, bool copy_status)
 {
-  return NewShared<DataArray>(*this, platform, device, copy_values, copy_status);
+  return SharedPtr<DataArray>(new DataArray(*this, platform, device, copy_values, copy_status));
 }
 
 // =============================================================================

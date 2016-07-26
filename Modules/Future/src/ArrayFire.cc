@@ -413,6 +413,15 @@ array ToValuesArray(DataArray &data)
 }
 
 // -----------------------------------------------------------------------------
+array ToValuesArray(Image &image)
+{
+  BackendSwitch with(image.Platform(), image.Device());
+  array a = ToArray(image.Values());
+  a = moddims(a, image.X(), image.Y(), image.Z(), image.T());
+  return a;
+}
+
+// -----------------------------------------------------------------------------
 array ToStatusArray(DataArray &data, bool btile)
 {
   BackendSwitch with(data.Platform(), data.Device());

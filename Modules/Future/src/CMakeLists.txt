@@ -42,6 +42,7 @@ set(HEADERS
   future/Masking.h
   future/NeighborhoodIterator.h
   future/Platform.h
+  future/RegularGrid.h
   future/Threshold.h
 )
 
@@ -57,6 +58,7 @@ set(SOURCES
   InPlaceDataFilter.cc
   Masking.cc
   Platform.cc
+  RegularGrid.cc
   Threshold.cc
 )
 

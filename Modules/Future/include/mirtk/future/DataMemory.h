@@ -22,10 +22,13 @@
 
 #include "mirtk/Object.h"
 
-#include "mirtk/DataTypes.h"
+#include "mirtk/DataType.h"
+#include "mirtk/Types.h"
 #include "mirtk/SmartPtr.h"
 
 #include "mirtk/future/Platform.h"
+
+#include <functional>
 
 
 namespace mirtk { namespace future {
@@ -50,7 +53,20 @@ class DataMemory : public Object
   mirtkObjectMacro(DataMemory);
 
   // ---------------------------------------------------------------------------
+  // Types
+
+public:
+
+  /// Type of UniquePtr function used to free the memory
+  using DeleteFn = std::function<void(void *)>;
+
+  /// Type of pointer to allocated memory
+  using MemoryPtr = UniquePtr<void, DeleteFn>;
+
+  // ---------------------------------------------------------------------------
   // Attributes
+
+private:
 
   /// Platform which manages this memory
   mirtkReadOnlyAttributeMacro(PlatformId, Platform);
@@ -64,13 +80,10 @@ class DataMemory : public Object
   /// Number of elements
   mirtkReadOnlyAttributeMacro(Id, Size);
 
-  /// Whether this instance is owner of the memory
-  mirtkReadOnlyAttributeMacro(bool, Owner);
-
 protected:
 
   /// Pointer to allocated memory
-  void *_Memory;
+  MemoryPtr _Memory;
 
 private:
 
@@ -82,7 +95,7 @@ private:
 
 protected:
 
-  /// Swap attributes of this class and super classes with another instance
+  /// Swap attributes of this and super classes with another instance
   void Swap(DataMemory &);
 
 public:
@@ -103,16 +116,34 @@ public:
                    PlatformId platform = Platform_Default,
                    DeviceId   device   = -1);
 
-  /// Constructor
+  /// Construct from pre-allocated/external library memory
+  ///
+  /// \param[in] n        Number of elements.
+  /// \param[in] ptr      Pointer to memory with corresponding delete function
+  ///                     used by the unique memory pointer to free the memory.
+  /// \param[in] type     Data type of elements.
+  /// \param[in] platform Platform used to allocate the memory.
+  /// \param[in] device   Device on which memory is located.
+  DataMemory(Id n, MemoryPtr ptr, DataType type,
+             PlatformId platform, DeviceId device);
+
+  /// Construct from pre-allocated/external library memory
   ///
   /// \param[in] n        Number of elements.
   /// \param[in] ptr      Pointer to memory.
   /// \param[in] type     Data type of elements.
   /// \param[in] platform Platform used to allocate the memory.
   /// \param[in] device   Device on which memory is located.
-  /// \param[in] owner    Whether the new instance should take over the ownership
-  ///                     of the pre-allocated memory and free it upon destruction.
-  DataMemory(Id n, void *ptr, DataType type, PlatformId platform, DeviceId device, bool owner = true);
+  /// \param[in] deletefn Delete function that will be called to free the memory.
+  ///                     The default delete function is an NOP function which
+  ///                     does not actually free the memory. The ownership of the
+  ///                     memory pointer to by \p ptr therefore remains with the
+  ///                     caller who creates this DataMemory instance. Specify a
+  ///                     custom delete function suitable for freeing the memory
+  ///                     when the new DataMemory instance should take ownership.
+  DataMemory(Id n, void *ptr, DataType type,
+             PlatformId platform, DeviceId device,
+             DeleteFn deletefn = [](void *) -> void {});
 
   /// Copy constructor
   DataMemory(const DataMemory &, PlatformId = Platform_Default, DeviceId = -1);
@@ -187,27 +218,27 @@ inline bool DataMemory::IsEmpty() const
 // -----------------------------------------------------------------------------
 inline void *DataMemory::VoidPointer()
 {
-  return _Memory;
+  return _Memory.get();
 }
 
 // -----------------------------------------------------------------------------
 inline const void *DataMemory::VoidPointer() const
 {
-  return _Memory;
+  return _Memory.get();
 }
 
 // -----------------------------------------------------------------------------
 template <class T>
 inline T *DataMemory::Pointer()
 {
-  return static_cast<T *>(_Memory);
+  return static_cast<T *>(VoidPointer());
 }
 
 // -----------------------------------------------------------------------------
 template <class T>
 inline const T *DataMemory::Pointer() const
 {
-  return static_cast<const T *>(_Memory);
+  return static_cast<const T *>(VoidPointer());
 }
 
 

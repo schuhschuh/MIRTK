@@ -36,11 +36,14 @@ namespace mirtk { namespace future {
 // Auxiliary functions
 // =============================================================================
 
+using MemoryPtr = DataMemory::MemoryPtr;
+
 // -----------------------------------------------------------------------------
-static void *Allocate(int n, DataType type, PlatformId platform, DeviceId device)
+static MemoryPtr Allocate(int n, DataType type, PlatformId platform, DeviceId device)
 {
   #if MIRTK_Future_WITH_ArrayFire
-    return arrayfire::Allocate(n, type, platform, device);
+    return MemoryPtr(arrayfire::Allocate(n, type, platform, device),
+                     [=](void *ptr) -> void { arrayfire::Deallocate(ptr, platform, device); });
   #else
     if (platform == Platform_CUDA || platform == Platform_OpenCL) {
       cerr << __FUNCTION__ << ": " << ToString(platform) << " only supported when built with ArrayFire" << endl;
@@ -50,7 +53,7 @@ static void *Allocate(int n, DataType type, PlatformId platform, DeviceId device
       switch (type)
       {
         #define __MIRTK_ALLOCATE_CASE(type) \
-          case DT_##type: return Allocate<type>(n)
+          case DT_##type: return MemoryPtr(new type[n], [=](void *ptr) -> void { delete[] static_cast<type *>(ptr); })
         __MIRTK_ALLOCATE_CASE(Binary);
         __MIRTK_ALLOCATE_CASE(StatusValue);
         __MIRTK_ALLOCATE_CASE(Char);
@@ -70,45 +73,7 @@ static void *Allocate(int n, DataType type, PlatformId platform, DeviceId device
         }
       }
     }
-    return nullptr;
   #endif
-}
-
-// -----------------------------------------------------------------------------
-static void Deallocate(void *&ptr, DataType type, PlatformId platform, DeviceId device)
-{
-  if (ptr != nullptr) {
-    #if MIRTK_Future_WITH_ArrayFire
-      arrayfire::Deallocate(ptr, platform, device);
-    #else
-      if (platform == Platform_CUDA || platform == Platform_OpenCL) {
-        cerr << __FUNCTION__ << ": " << ToString(platform) << " only supported when built with ArrayFire" << endl;
-        exit(1);
-      }
-      switch (type)
-      {
-        #define __MIRTK_DEALLOCATE_CASE(type) \
-          case DT_##type: { delete[] static_cast<type *>(ptr); } break
-        __MIRTK_DEALLOCATE_CASE(Binary);
-        __MIRTK_DEALLOCATE_CASE(StatusValue);
-        __MIRTK_DEALLOCATE_CASE(Char);
-        __MIRTK_DEALLOCATE_CASE(UChar);
-        __MIRTK_DEALLOCATE_CASE(Short);
-        __MIRTK_DEALLOCATE_CASE(UShort);
-        __MIRTK_DEALLOCATE_CASE(Int);
-        __MIRTK_DEALLOCATE_CASE(UInt);
-        __MIRTK_DEALLOCATE_CASE(Long);
-        __MIRTK_DEALLOCATE_CASE(ULong);
-        __MIRTK_DEALLOCATE_CASE(Float);
-        __MIRTK_DEALLOCATE_CASE(Double);
-        #undef __MIRTK_DEALLOCATE_CASE
-        default: {
-          cerr << __FUNCTION__ << ": Unknown type: " << type << ", leaking memory..." << endl;
-        }
-      }
-      ptr = nullptr;
-    #endif
-  }
 }
 
 // -----------------------------------------------------------------------------
@@ -130,7 +95,6 @@ static void *MemSet(void *ptr, double value, Id n, DataType type, PlatformId pla
   if (platform == Platform_Default) {
     platform = ActivePlatform();
   }
-
   if (platform == Platform_CPU) {
     switch (type) {
       #define __MIRTK_MEMSET_CASE(type) \
@@ -159,11 +123,6 @@ static void *MemSet(void *ptr, double value, Id n, DataType type, PlatformId pla
       cerr << __FUNCTION__ << ": " << ToString(platform) << " only supported when built with ArrayFire" << endl;
       exit(1);
     #endif
-  }
-  if (value == 0.) {
-    memset(ptr, 0, n * SizeOf(type));
-  } else {
-    
   }
   return ptr;
 }
@@ -197,10 +156,10 @@ static void *MemCpy(void       *dst, PlatformId dst_bknd, DeviceId dst_device,
 
 // -----------------------------------------------------------------------------
 template <class TIn, class TOut>
-static void *CpuMemCst2(DataType dst_type, const TIn *src, Id n)
+static MemoryPtr CpuMemCst2(DataType dst_type, const TIn *src, Id n)
 {
-  void *ptr = Allocate(n, dst_type, Platform_CPU, -1);
-  TOut *dst = static_cast<TOut *>(ptr);
+  MemoryPtr ptr = Allocate(n, dst_type, Platform_CPU, -1);
+  TOut *dst = static_cast<TOut *>(ptr.get());
   for (Id i = 0; i < n; ++i, ++src, ++dst) {
     *dst = type_cast<TOut>(*src);
   }
@@ -209,11 +168,11 @@ static void *CpuMemCst2(DataType dst_type, const TIn *src, Id n)
 
 // -----------------------------------------------------------------------------
 template <class T>
-static void *CpuMemCst1(DataType dst_type, const T *src, Id n)
+static MemoryPtr CpuMemCst1(DataType dst_type, const T *src, Id n)
 {
   switch (dst_type) {
     #define __MIRTK_MEMCST_CASE(type) \
-      case T_##type: { CpuMemCst2<T, type>(dst_type, src, n); } break
+      case T_##type: return CpuMemCst2<T, type>(dst_type, src, n)
     __MIRTK_MEMCST_CASE(Binary);
     __MIRTK_MEMCST_CASE(StatusValue);
     __MIRTK_MEMCST_CASE(Char);
@@ -234,11 +193,11 @@ static void *CpuMemCst1(DataType dst_type, const T *src, Id n)
 }
 
 // -----------------------------------------------------------------------------
-static void *MemCst(DataType dst_type, const void *src, DataType src_type, Id n, PlatformId platform, DeviceId device)
+static MemoryPtr MemCst(DataType dst_type, const void *src, DataType src_type, Id n, PlatformId platform, DeviceId device)
 {
-  void *dst = nullptr;
   #if MIRTK_Future_WITH_ArrayFire
-    dst = arrayfire::MemCst(dst_type, src, src_type, n, platform, device);
+    return MemoryPtr(arrayfire::MemCst(dst_type, src, src_type, n, platform, device),
+                     [=](void *ptr) -> void { arrayfire::Deallocate(ptr, platform, device); });
   #else
     if (platform == Platform_CUDA || platform == Platform_OpenCL) {
       cerr << __FUNCTION__ << ": " << ToString(platform) << " only supported when built with ArrayFire" << endl;
@@ -246,7 +205,7 @@ static void *MemCst(DataType dst_type, const void *src, DataType src_type, Id n,
     }
     switch (src_type) {
       #define __MIRTK_MEMCST_CASE(type) \
-        case DT_##type: { CpuMemCst1(dst_type, static_cast<type *>(src), n); } break
+        case DT_##type: return CpuMemCst1(dst_type, static_cast<type *>(src), n)
       __MIRTK_MEMCST_CASE(Binary);
       __MIRTK_MEMCST_CASE(StatusValue);
       __MIRTK_MEMCST_CASE(Char);
@@ -265,7 +224,6 @@ static void *MemCst(DataType dst_type, const void *src, DataType src_type, Id n,
         exit(1);
     }
   #endif
-  return dst;
 }
 
 // =============================================================================
@@ -276,8 +234,6 @@ static void *MemCst(DataType dst_type, const void *src, DataType src_type, Id n,
 void DataMemory
 ::CopyAttributes(const DataMemory &other, PlatformId platform, DeviceId device)
 {
-  this->Free();
-
   if (platform == Platform_Default) {
     _Platform = other._Platform;
     _Device   = other._Device;
@@ -286,14 +242,14 @@ void DataMemory
     _Device   = (device < 0 ? ActiveDevice(_Platform) : device);
   }
 
-  _Type  = other._Type;
-  _Size  = other._Size;
-
+  _Type = other._Type;
+  _Size = other._Size;
   if (_Size > 0) {
-    _Owner  = true;
     _Memory = Allocate(_Size, _Type, _Platform, _Device);
-    MemCpy(this->_Memory, this->_Platform, this->_Device,
-           other._Memory, other._Platform, other._Device, _Size, _Type);
+    MemCpy(this->_Memory.get(), this->_Platform, this->_Device,
+           other._Memory.get(), other._Platform, other._Device, _Size, _Type);
+  } else {
+    _Memory = nullptr;
   }
 }
 
@@ -304,7 +260,6 @@ void DataMemory::SwapAttributes(DataMemory &other)
   swap(_Device,  other._Device);
   swap(_Type,    other._Type);
   swap(_Size,    other._Size);
-  swap(_Owner,   other._Owner);
   swap(_Memory,  other._Memory);
 }
 
@@ -324,7 +279,7 @@ DataMemory::DataMemory()
   _Device(-1),
   _Type(T_Void),
   _Size(0),
-  _Owner(false)
+  _Memory(nullptr, [](void *) -> void {})
 {
 }
 
@@ -344,23 +299,28 @@ DataMemory::DataMemory(Id n, DataType type, PlatformId platform, DeviceId device
     }
     _Size   = n;
     _Type   = type;
-    _Owner  = true;
     _Memory = Allocate(_Size, _Type, _Platform, _Device);
   }
 }
 
 // -----------------------------------------------------------------------------
-DataMemory::DataMemory(Id n, void *ptr, DataType type, PlatformId platform, DeviceId device, bool owner)
+DataMemory::DataMemory(Id n, MemoryPtr ptr, DataType type, PlatformId platform, DeviceId device)
 :
   _Platform(platform),
   _Device(device),
   _Type(type),
   _Size(n),
-  _Owner(owner),
-  _Memory(ptr)
+  _Memory(move(ptr))
 {
   mirtkAssert(platform != Platform_Default, "platform must be specified");
   mirtkAssert(device   < 0                , "device   must be specified");
+}
+
+// -----------------------------------------------------------------------------
+DataMemory::DataMemory(Id n, void *ptr, DataType type, PlatformId platform, DeviceId device, DeleteFn deletefn)
+:
+  DataMemory(n, MemoryPtr(ptr, deletefn), type, platform, device)
+{
 }
 
 // -----------------------------------------------------------------------------
@@ -378,6 +338,11 @@ DataMemory::DataMemory(DataMemory &&other)
   DataMemory()
 {
   Swap(other);
+}
+
+// -----------------------------------------------------------------------------
+DataMemory::~DataMemory()
+{
 }
 
 // -----------------------------------------------------------------------------
@@ -400,7 +365,7 @@ DataMemory &DataMemory::operator =(DataMemory &&other)
 // -----------------------------------------------------------------------------
 DataMemory &DataMemory::operator =(double value)
 {
-  MemSet(_Memory, value, _Size, _Type, _Platform, _Device);
+  MemSet(_Memory.get(), value, _Size, _Type, _Platform, _Device);
   return *this;
 }
 
@@ -420,8 +385,8 @@ SharedPtr<DataMemory> DataMemory::Cast(DataType type) const
     if (type == _Type) {
       mem = this->Copy();
     } else {
-      void *ptr = MemCst(type, _Memory, _Type, _Size, _Platform, _Device);
-      mem = NewShared<DataMemory>(_Size, ptr, _Type, _Platform, _Device);
+      MemoryPtr ptr = MemCst(type, _Memory.get(), _Type, _Size, _Platform, _Device);
+      mem = SharedPtr<DataMemory>(new DataMemory(_Size, move(ptr), _Type, _Platform, _Device));
     }
   }
   return mem;
@@ -436,17 +401,8 @@ void DataMemory::Initialize()
 // -----------------------------------------------------------------------------
 void DataMemory::Free()
 {
-  if (_Owner) {
-    Deallocate(_Memory, _Type, _Platform, _Device);
-    _Owner = false;
-  }
-  _Size = 0;
-}
-
-// -----------------------------------------------------------------------------
-DataMemory::~DataMemory()
-{
-  Deallocate(_Memory, _Type, _Platform, _Device);
+  _Memory = nullptr;
+  _Size   = 0;
 }
 
 

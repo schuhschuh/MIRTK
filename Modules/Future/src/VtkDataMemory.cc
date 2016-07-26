@@ -33,14 +33,12 @@ void VtkDataMemory::UpdateAttributes()
   if (_VtkArray) {
     _Platform = Platform_CPU;
     _Device  = 0;
-    _Owner   = false;
-    _Memory  = _VtkArray->GetVoidPointer(0);
+    _Memory  = MemoryPtr(_VtkArray->GetVoidPointer(0), [](void *) -> void {});
     _Type    = FromVtkDataType(_VtkArray->GetDataType());
     _Size    = static_cast<int>(_VtkArray->GetDataSize());
   } else {
     _Platform = Platform_Default;
     _Device  = -1;
-    _Owner   = false;
     _Memory  = nullptr;
     _Type    = T_Void;
     _Size    = 0;
@@ -115,12 +113,12 @@ VtkDataMemory &VtkDataMemory::operator =(double value)
 }
 
 // -----------------------------------------------------------------------------
-SharedPtr<DataMemory> VtkDataMemory::Copy(PlatformId backend, DeviceId device) const
+SharedPtr<DataMemory> VtkDataMemory::Copy(PlatformId platform, DeviceId device) const
 {
-  if (backend == Platform_Default || backend == Platform_CPU) {
+  if (platform == Platform_Default || platform == Platform_CPU) {
     return NewShared<VtkDataMemory>(*this);
   } else {
-    return DataMemory::Copy(backend, device);
+    return DataMemory::Copy(platform, device);
   }
 }
 

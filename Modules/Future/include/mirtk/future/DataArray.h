@@ -23,7 +23,8 @@
 #include "mirtk/future/DataObject.h"
 
 #include "mirtk/SmartPtr.h"
-#include "mirtk/DataTypes.h"
+#include "mirtk/DataType.h"
+#include "mirtk/Types.h"
 #include "mirtk/future/DataMemory.h"
 #include "mirtk/future/GenericMemory.h"
 
@@ -62,63 +63,6 @@ namespace mirtk { namespace future {
  *              Otherwise, a tuple element consists of more than one, but fixed
  *              number of scalar components. For example, a double has 1 scalar,
  *              whereas a double3 has 3 scalars.
- *
- * How to make a copy of DataArray \c a:
- *
- * \code
- * DataArray b(a.Copy());
- * DataArray c = a.Copy();
- * DataArray d = const_cast<const DataArray>(a); // makes copy of const DataArray
- * DataArray e(const_cast<const DataArray>(a));  // makes copy of const DataArray
- * \endcode
- *
- * How to only make a copy of the mask, but share the data:
- *
- * \code
- * DataArray b(a.Data()); // initializes new mask for b
- * DataArray c = a.CopyMask();
- * DataArray d = DataArray(a.Data());
- * \endcode
- *
- * How to avoid any copy and share both data and mask:
- *
- * \code
- * DataArray b(a);   // no copy when other     array is non-const DataArray
- * DataArray c = a;  // no copy when right-hand side is non-const DataArray
- * DataArray d(a.Data(), a.Mask());
- * \endcode
- *
- * How to move the data and mask, leaving the DataArray \c a empty:
- *
- * \code
- * DataArray b;
- * move(b, a);
- * DataArray c = static_cast<DataArray &&>(a);
- * \endcode
- *
- * How to switch platforms and transfer a copy of the data between devices:
- *
- * \code
- * DataArray b(a, Platform_CUDA);
- * // Get CUDA device memory and lock it
- * real_t *p = static_cast<real_t *>(b.RawPointer());
- * // Run CUDA kernel, then unlock memory
- * b.Unlock();
- * // Result is in b
- * \endcode
- *
- * How to ensure a certain platform with copying and transferring between devices
- * only performed when necessary, i.e., when the platform of the DataArray \c a
- * differs from the platform used to process the data:
- *
- * \code
- * DataArray b(a.Data(), a.Mask(), Platform_CUDA);
- * // Get CUDA device memory and lock it
- * real_t *p = static_cast<real_t *>(b.RawPointer());
- * // Run CUDA kernel, then unlock memory
- * b.Unlock();
- * // Result is in both a and b
- * \endcode
  */
 class DataArray : public DataObject
 {
@@ -160,7 +104,8 @@ private:
   /// \param[in] copy_status Force copy of tuple status.
   void CopyAttributes(const DataArray &other,
                       PlatformId platform, DeviceId device,
-                      bool copy_values, bool copy_status);
+                      bool copy_values = false,
+                      bool copy_status = false);
 
   /// Swap attributes of this class with those of another instance
   void SwapAttributes(DataArray &);
@@ -170,6 +115,16 @@ protected:
   /// Swap attributes of this class and superclasses with those of another instance
   void Swap(DataArray &);
 
+  /// Copy constructor
+  ///
+  /// \param[in] other       Instance.
+  /// \param[in] platform    Target platform.
+  /// \param[in] device      Target device of \p platform.
+  /// \param[in] copy_values Force copy of tuple values.
+  /// \param[in] copy_status Force copy of tuple status.
+  DataArray(const DataArray &other, PlatformId platform, DeviceId device,
+                                    bool copy_values, bool copy_status);
+
 public:
 
   // ---------------------------------------------------------------------------
@@ -178,114 +133,101 @@ public:
   /// Default constructor
   DataArray();
 
-  /// Construct from shared values memory
+  /// Construct new data array
   ///
-  /// When the platform which manages the memory of the given device \p data
-  /// differs from the target \p platform, a copy of the array. When the
-  /// device of the target \p platform differs from the device on which the
-  /// source \p data array is stored, the copy includes a transfer between
-  /// the two devices. When the source and target platforms are identical or
-  /// when the target \p platform is Platform_Default, no copy is made and
-  /// both data arrays share the \p data array. A copy of the mask array
-  /// is still made such that both arrays can have different data masks.
+  /// \param[in] n        Number of tuples.
+  /// \param[in] type     Type of tuple values.
+  /// \param[in] platform Platform for which to create array.
+  /// \param[in] device   Platform device on which to allocate memory.
+  DataArray(Id n, DataType   type     = T_Real,
+                  PlatformId platform = Platform_Default,
+                  DeviceId   device   = -1);
+
+  /// Construct new data array
   ///
-  /// \param[in] tuples   Number of tuples. The number of components is set to
-  ///                     the number of elements divided by this number.
-  /// \param[in] values   Shared pointer to device data.
-  /// \param[in] platform Target platform. Use \p values platform if Platform_Default.
-  /// \param[in] device   Target device. Use \p values device or active device
-  ///                     of \p platform when argument is negative.
-  explicit DataArray(Id tuples, SharedPtr<DataMemory> values,
-                     PlatformId platform = Platform_Default,
-                     DeviceId   device  = -1);
+  /// \param[in] n        Number of tuples.
+  /// \param[in] m        Number of components per tuple.
+  /// \param[in] type     Type of tuple values.
+  /// \param[in] platform Platform for which to create array.
+  /// \param[in] device   Platform device on which to allocate memory.
+  DataArray(Id n, int m, DataType   type     = T_Real,
+                         PlatformId platform = Platform_Default,
+                         DeviceId   device   = -1);
 
   /// Construct from shared values memory
   ///
-  /// When the platform which manages the memory of the given device \p data
-  /// differs from the target \p platform, a copy of the array. When the
-  /// device of the target \p platform differs from the device on which the
-  /// source \p data array is stored, the copy includes a transfer between
+  /// When the platform which manages the memory of the given \p values memory
+  /// differs from the target \p platform, a copy of the memory is made.
+  /// When the device of the target \p platform differs from the device on
+  /// which the source \p values are stored, the copy includes a transfer between
   /// the two devices. When the source and target platforms are identical or
-  /// when the target \p platform is Platform_Default, no copy is made and
-  /// both data arrays share the \p data array. A copy of the mask array
-  /// is still made such that both arrays can have different data masks.
+  /// when the target \p platform is Platform_Default, no copy is made.
   ///
-  /// The number of components is set to 1 by this constructor. Each element
-  /// of the values memory is considered one tuple of the data.
+  /// The number of array components is set to one by this constructor.
+  /// The elements of the values memory are the (scalar) tuples of the data array.
+  /// Note that the values data type may still be a vector type.
   ///
+  /// \param[in] values   Shared tuple values memory.
+  /// \param[in] platform Target platform. Use \p values platform if Platform_Default.
+  /// \param[in] device   Target device. Use \p values device or active device
+  ///                     of \p platform when argument is negative.
+  DataArray(SharedPtr<DataMemory> values,
+            PlatformId platform = Platform_Default,
+            DeviceId   device   = -1);
+
+  /// Construct from shared values memory
+  ///
+  /// When the platform which manages the memory of the given \p values memory
+  /// differs from the target \p platform, a copy of the memory is made.
+  /// When the device of the target \p platform differs from the device on
+  /// which the source \p values are stored, the copy includes a transfer between
+  /// the two devices. When the source and target platforms are identical or
+  /// when the target \p platform is Platform_Default, no copy is made.
+  ///
+  /// \param[in] n        Number of tuples. The number of components is set to
+  ///                     the number of elements divided by this number. The
+  ///                     argument \p n therefore should be a multiple of the
+  ///                     \p values memory size.
   /// \param[in] values   Shared pointer to device data.
   /// \param[in] platform Target platform. Use \p values platform if Platform_Default.
   /// \param[in] device   Target device. Use \p values device or active device
   ///                     of \p platform when argument is negative.
-  explicit DataArray(SharedPtr<DataMemory> values,
-                     PlatformId platform = Platform_Default,
-                     DeviceId   device  = -1);
+  DataArray(Id n, SharedPtr<DataMemory> values,
+                  PlatformId platform = Platform_Default,
+                  DeviceId   device   = -1);
 
   /// Construct from shared memory
   ///
-  /// When the platform which manages the memory of the given device \p data
-  /// differs from the target \p platform, a copy of the array. When the
-  /// device of the target \p platform differs from the device on which the
-  /// source \p data array is stored, the copy includes a transfer between
-  /// the two devices. When the source and target platforms are identical or
-  /// when the target \p platform is Platform_Default, no copy is made and
-  /// both data arrays share the \p data array. The same applies to the
-  /// \p mask array.
+  /// When the platform which manages the memory of the given \p values or
+  /// \p status memory differs from the target \p platform, a copy of the
+  /// respective memory is made. When the device of the target \p platform
+  /// differs from the device on which the provided memory is stored, the copy
+  /// includes a transfer between the two devices. When the source and target
+  /// platforms are identical or when the target \p platform is Platform_Default,
+  /// no copy of the memory is made.
   ///
-  /// \param[in] values   Shared data array.
-  /// \param[in] status   Shared tuple status array.
+  /// \param[in] values   Shared tuple values memory.
+  /// \param[in] status   Shared tuple status memory.
   /// \param[in] platform Target platform. Use \p values platform if Platform_Default.
   /// \param[in] device   Target device. Use \p values device or active device
   ///                     of \p platform when argument is negative.
-  explicit DataArray(SharedPtr<DataMemory> values,
-                     SharedPtr<StatusMemory> status,
-                     PlatformId platform = Platform_Default,
-                     DeviceId   device  = -1);
+  DataArray(SharedPtr<DataMemory>   values,
+            SharedPtr<StatusMemory> status,
+            PlatformId              platform = Platform_Default,
+            DeviceId                device   = -1);
 
-  /// Copy construct from non-const reference to other instance
+  /// Copy constructor
   ///
-  /// \param[in] other     Non-const reference to other instance.
-  /// \param[in] platform  Target platform. Use \p other platform if Platform_Default.
-  /// \param[in] device    Target device. Use device where \p values memory is
-  ///                      located or active device of \p platform when negative.
-  /// \param[in] copy_data When \c false, a copy of the data memory is only
-  ///                      performed when the target \p platform and/or \p device
-  ///                      differs from where the data memory of the \p other
-  ///                      instance is located. When \c true, the data memory
-  ///                      of the \p other instance is always copied.
-  DataArray(DataArray &other, PlatformId platform  = Platform_Default,
-                              DeviceId   device    = -1,
-                              bool       copy_data = false);
-
-  /// Copy construct from non-const reference to other instance
+  /// This constructor makes a shallow copy of the \p other array when the
+  /// target \p platform and \p device match the platform and device of the
+  /// \p other array. Otherwise, a deep copy of the \p other array is made.
   ///
-  /// \param[in] other       Non-const reference to other instance.
-  /// \param[in] platform    Target platform. Use \p other platform if Platform_Default.
-  /// \param[in] device      Target device. Use device where \p values memory is
-  ///                        located or active device of \p platform when negative.
-  /// \param[in] copy_values When \c false, a copy of the values memory is only
-  ///                        performed when the target \p platform and/or \p device
-  ///                        differs from where the values memory of the \p other
-  ///                        instance is located. When \c true, the values memory
-  ///                        of the \p other instance is always copied.
-  /// \param[in] copy_status When \c false, a copy of the status memory is only
-  ///                        performed when the target \p platform and/or \p device
-  ///                        differs from where the status memory of the \p other
-  ///                        instance is located. When \c true, the status memory
-  ///                        of the \p other instance is always copied.
-  DataArray(DataArray &other, PlatformId platform,
-                              DeviceId   device,
-                              bool       copy_values,
-                              bool       copy_status);
-
-  /// Copy construct from const reference to other instance
-  ///
-  /// \param[in] other    Const reference to other instance.
-  /// \param[in] platform Target platform. Use \p other platform if Platform_Default.
-  /// \param[in] device   Target device. Use device where \p values memory is
-  ///                     located or active device of \p platform when negative.
+  /// \param[in] other    Other data array.
+  /// \param[in] platform Target platform. Use platform of this object if Platform_Default.
+  /// \param[in] device   Target device. Use device of this object or
+  ///                     active device of \p platform when negative.
   DataArray(const DataArray &other, PlatformId platform = Platform_Default,
-                                    DeviceId   device  = -1);
+                                    DeviceId   device   = -1);
 
   /// Move constructor
   DataArray(DataArray &&);
@@ -296,7 +238,7 @@ public:
   // ---------------------------------------------------------------------------
   // Assignment operator
 
-  /// Copy assignment operator
+  /// Shallow copy assignment operator
   DataArray &operator =(const DataArray &);
 
   /// Move assignment operator
@@ -306,31 +248,32 @@ public:
   DataArray &operator =(double);
 
   // ---------------------------------------------------------------------------
-  // Make copy
+  // Deep copy
 
   /// Make a copy of this data object
   ///
   /// \param[in] platform    Target platform. Use platform of this object if Platform_Default.
   /// \param[in] device      Target device. Use device of this object or
   ///                        active device of \p platform when negative.
-  /// \param[in] copy_values Request copy of the values memory.
-  /// \param[in] copy_status Request copy of the status memory.
-  virtual SharedPtr<DataArray> Copy(PlatformId platform, DeviceId  device,
-                                    bool copy_values, bool copy_status);
-
-  /// Make a copy of this data object
-  ///
-  /// \param[in] platform Target platform. Use platform of this object if Platform_Default.
-  /// \param[in] device   Target device. Use device of this object or
-  ///                     active device of \p platform when negative.
-  SharedPtr<DataArray> Copy(PlatformId platform = Platform_Default,
-                            DeviceId   device  = -1) const;
+  /// \param[in] copy_values Force copy of the values memory.
+  /// \param[in] copy_status Force copy of the status memory.
+  virtual SharedPtr<DataArray> Copy(PlatformId platform, DeviceId device,
+                                    bool copy_values = true,
+                                    bool copy_status = true);
 
   /// Make a copy of the values memory, but not the status memory
   SharedPtr<DataArray> CopyValues();
 
   /// Make a copy of the status memory, but not the values memory
   SharedPtr<DataArray> CopyStatus();
+
+  /// Make a deep copy of this data object
+  ///
+  /// \param[in] platform Target platform. Use platform of this object if Platform_Default.
+  /// \param[in] device   Target device. Use device of this object or
+  ///                     active device of \p platform when negative.
+  SharedPtr<DataArray> DeepCopy(PlatformId platform = Platform_Default,
+                                DeviceId   device   = -1) const;
 
   // ---------------------------------------------------------------------------
   // Data object interface
@@ -481,12 +424,6 @@ public:
 // =============================================================================
 
 // -----------------------------------------------------------------------------
-inline SharedPtr<DataArray> DataArray::Copy(PlatformId platform, DeviceId device) const
-{
-  return const_cast<DataArray *>(this)->Copy(platform, device, true, true);
-}
-
-// -----------------------------------------------------------------------------
 inline SharedPtr<DataArray> DataArray::CopyValues()
 {
   return this->Copy(Platform_Default, -1, true, false);
@@ -496,6 +433,12 @@ inline SharedPtr<DataArray> DataArray::CopyValues()
 inline SharedPtr<DataArray> DataArray::CopyStatus()
 {
   return this->Copy(Platform_Default, -1, false, true);
+}
+
+// -----------------------------------------------------------------------------
+inline SharedPtr<DataArray> DataArray::DeepCopy(PlatformId platform, DeviceId device) const
+{
+  return const_cast<DataArray *>(this)->Copy(platform, device, true, true);
 }
 
 // -----------------------------------------------------------------------------

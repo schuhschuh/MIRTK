@@ -53,6 +53,30 @@ PlatformId ActivePlatform();
 ///                     devices. Use active platform if Platform_Default.
 DeviceId ActiveDevice(PlatformId = Platform_Default);
 
+/// Get valid platform and device IDs
+///
+/// This helper function is used by functions to get actual platform and device
+/// IDs given \p this_platform and \p this_device function arguments.
+///
+/// \param[in,out] this_platform  Platform argument. When Platform_Default, the
+///                               this argument is set to the \p other_platform.
+/// \param[in,out] this_device    Device argument. When negative, set to either
+///                               the \p other_device or the active device of
+///                               \p this_platform.
+/// \param[in]     other_platform Reference platform.
+/// \param[in]     other_device   Reference device.
+inline void SelectPlatformAndDevice(PlatformId &this_platform, DeviceId &this_device,
+                                    PlatformId other_platform, DeviceId other_device)
+{
+  if (this_platform == Platform_Default) {
+    this_platform = other_platform;
+    this_device   = other_device;
+  } else if (this_device < 0) {
+    if (this_platform == other_platform) this_device = other_device;
+    else                                 this_device = ActiveDevice(this_platform);
+  }
+}
+
 
 } // namespace future
 
