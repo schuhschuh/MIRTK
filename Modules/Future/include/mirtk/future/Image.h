@@ -35,7 +35,7 @@ namespace mirtk { namespace future {
 
 
 /**
- * Multi-dimension array positioned in world space
+ * Multi-dimensional array positioned in world space
  */
 class Image : public DataArray
 {
