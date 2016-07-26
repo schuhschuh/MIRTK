@@ -24,6 +24,16 @@ endmacro ()
 
 add_common_test(DataArray)
 
+
+# ------------------------------------------------------------------------------
+# median image filter test implementation using various parallel computing frameworks
+if (CUDA_FOUND)
+  cuda_add_executable(calculate-median-image calculate-median-image.cc calculate-median-image.cu calculate-median-image.cuh)
+else ()
+  add_executable(calculate-median-image calculate-median-image.cc)
+endif ()
+set_target_properties(calculate-median-image PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${TESTING_RUNTIME_DIR}")
+target_link_libraries(calculate-median-image LibCommon LibNumerics LibImage LibIO LibFuture)
 if (ArrayFire_Unified_FOUND)
-  add_common_test(ArrayFire ${ArrayFire_Unified_LIBRARIES})
+  target_link_libraries(calculate-median-image ${ArrayFire_Unified_LIBRARIES})
 endif ()

@@ -65,6 +65,7 @@ basis_project (
     GTest
     #<test-dependency>
   OPTIONAL_TEST_DEPENDS
+    CUDA
     #<optional-test-dependency>
 
 )
