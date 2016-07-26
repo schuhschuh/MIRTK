@@ -37,7 +37,7 @@ namespace mirtk { namespace future {
 
 // -----------------------------------------------------------------------------
 /// Sequential data array element iterator
-class ConstElementWiseIterator : Object
+class ConstElementWiseIterator : public Object
 {
   mirtkObjectMacro(ConstElementWiseIterator);
 
@@ -343,7 +343,7 @@ inline double ConstElementWiseIterator::GetComponent() const
     case T_Long:   return Cast<Long,   double>();
     case T_ULong:  return Cast<ULong,  double>();
     default:
-      //ThrowError(ERR_LogicError, __FUNCTION__, "Use GenericElementWiseIterator");
+      ThrowError(ERR_LogicError, __FUNCTION__, "Use GenericElementWiseIterator");
       return 0.;
   }
 }
@@ -408,8 +408,7 @@ inline void ElementWiseIterator::SetComponent(double v)
     case T_Long:   Value<Long>  (v); break;
     case T_ULong:  Value<ULong> (v); break;
     default:
-      //ThrowError(ERR_LogicError, __FUNCTION__, "Use GenericElementWiseIterator");
-      exit(1); // TODO: Use ThrowError above instead
+      ThrowError(ERR_LogicError, __FUNCTION__, "Use GenericElementWiseIterator");
   }
 }
 

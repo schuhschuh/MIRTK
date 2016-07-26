@@ -241,11 +241,10 @@ inline int Filter::RangeIndex(int i, int n)
 {
   if (i < 0) i = n + i;
   #ifndef NDEBUG
-  if (i < 0 || i >= n) {
-    //ThrowError(ERR_RuntimeError, __FUNCTION__, "Index ", i, " out of range [0, ", n, ")");
-    cerr << __FUNCTION__ << ": Index " << i << " out of range [0, " << n << "]" << endl;
-    exit(1);
-  }
+    if (i < 0 || i >= n) {
+      ThrowError(ERR_RuntimeError, NameOfType(), __FUNCTION__,
+                 "Index ", i, " out of range [0, ", n, ")");
+    }
   #endif
   return i;
 }
