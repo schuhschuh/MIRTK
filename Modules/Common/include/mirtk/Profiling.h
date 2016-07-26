@@ -149,6 +149,7 @@ void PrintElapsedTime(const char *, double, TimeUnit = TIME_IN_SECONDS);
 #  ifdef HAVE_TBB
 #    define MIRTK_END_TIMING(section)                                          \
        do {                                                                    \
+         using namespace mirtk;                                                \
          ostringstream oss;                                                    \
          oss << section;                                                       \
          PrintElapsedTime(oss.str().c_str(),                                   \
@@ -157,6 +158,7 @@ void PrintElapsedTime(const char *, double, TimeUnit = TIME_IN_SECONDS);
 #  else
 #    define MIRTK_END_TIMING(section)                                          \
        do {                                                                    \
+         using namespace mirtk;                                                \
          ostringstream oss;                                                    \
          oss << section;                                                       \
          PrintElapsedTime(oss.str().c_str(),                                   \
@@ -201,6 +203,7 @@ void PrintElapsedTime(const char *, double, TimeUnit = TIME_IN_SECONDS);
 #  ifdef HAVE_TBB
 #    define MIRTK_DEBUG_TIMING(level, section)                                 \
        do {                                                                    \
+         using namespace mirtk;                                                \
          if (debug_time >= level) {                                            \
            ostringstream oss;                                                  \
            oss << section;                                                     \
@@ -211,6 +214,7 @@ void PrintElapsedTime(const char *, double, TimeUnit = TIME_IN_SECONDS);
 #  else
 #    define MIRTK_DEBUG_TIMING(level, section)                                 \
        do {                                                                    \
+         using namespace mirtk;                                                \
          if (debug_time >= level) {                                            \
            ostringstream oss;                                                  \
            oss << section;                                                     \
@@ -292,6 +296,7 @@ void PrintElapsedTime(const char *, double, TimeUnit = TIME_IN_SECONDS);
 #ifdef MIRTK_WITH_PROFILING
 #  define MIRTKCU_INTERIM_TIMING(section)                                      \
      do {                                                                      \
+       using namespace mirtk;                                                  \
        float t_elapsed;                                                        \
        CudaSafeCall( cudaEventRecord(e_stop, 0) );                             \
        CudaSafeCall( cudaEventSynchronize(e_stop) );                           \
@@ -323,6 +328,7 @@ void PrintElapsedTime(const char *, double, TimeUnit = TIME_IN_SECONDS);
 #ifdef MIRTK_WITH_PROFILING
 #  define MIRTKCU_END_TIMING(section)                                          \
      do {                                                                      \
+       using namespace mirtk;                                                  \
        float t_elapsed;                                                        \
        CudaSafeCall( cudaEventRecord(e_stop, 0) );                             \
        CudaSafeCall( cudaEventSynchronize(e_stop) );                           \
