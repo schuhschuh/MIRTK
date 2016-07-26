@@ -136,12 +136,12 @@ void Filter::SelectDevice()
     else if (this->Supports(Platform_OpenCL)) _Platform = Platform_OpenCL;
     else if (this->Supports(Platform_CPU))    _Platform = Platform_CPU;
     else {
-      ThrowError(ERR_LogicError, __FUNCTION__, "Filter has no implementation for neither CUDA, OpenCL, nor CPU");
+      Throw(ERR_LogicError, __func__, "Filter has no implementation for neither CUDA, OpenCL, nor CPU");
     }
     _Device = ActiveDevice(_Platform);
   } else {
     if (!this->Supports(_Platform)) {
-      ThrowError(ERR_LogicError, __FUNCTION__, "Filter has no implementation for ", _Platform);
+      Throw(ERR_LogicError, __func__, "Filter has no implementation for ", _Platform);
     }
     if (_Device < 0) _Device = ActiveDevice(_Platform);
   }

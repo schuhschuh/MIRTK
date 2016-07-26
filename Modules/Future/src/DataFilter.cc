@@ -50,7 +50,7 @@ DataArray DataFilter::Process(const DataArray &input)
   this->Run();
   RemoveInput(0);
   if (NumberOfOutputs() == 0) {
-    ThrowError(ERR_LogicError, __FUNCTION__, "Filter has not produced any outputs!");
+    Throw(ERR_LogicError, __func__, "Filter has not produced any outputs!");
   }
   return Output(0);
 }

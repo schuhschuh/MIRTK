@@ -343,7 +343,7 @@ inline double ConstElementWiseIterator::GetComponent() const
     case T_Long:   return Cast<Long,   double>();
     case T_ULong:  return Cast<ULong,  double>();
     default:
-      ThrowError(ERR_LogicError, __FUNCTION__, "Use GenericElementWiseIterator");
+      Throw(ERR_LogicError, __func__, "Use GenericElementWiseIterator");
       return 0.;
   }
 }
@@ -408,7 +408,7 @@ inline void ElementWiseIterator::SetComponent(double v)
     case T_Long:   Value<Long>  (v); break;
     case T_ULong:  Value<ULong> (v); break;
     default:
-      ThrowError(ERR_LogicError, __FUNCTION__, "Use GenericElementWiseIterator");
+      Throw(ERR_LogicError, __func__, "Use GenericElementWiseIterator");
   }
 }
 
