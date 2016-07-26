@@ -39,10 +39,10 @@ typedef unsigned short ushort;
 
 #if defined(__VECTOR_TYPES_H__)
 
-#define __vector1_type__(tag, type) using tag
-#define __vector2_type__(tag, type) using tag
-#define __vector3_type__(tag, type) using tag
-#define __vector4_type__(tag, type) using tag
+#define __vector1_type__(tag, type) using ::tag
+#define __vector2_type__(tag, type) using ::tag
+#define __vector3_type__(tag, type) using ::tag
+#define __vector4_type__(tag, type) using ::tag
 
 #else // __VECTOR_TYPES_H__
 
@@ -85,7 +85,7 @@ __vector_type__(double);
 
 
 #if defined(__VECTOR_TYPES_H__)
-using dim3;
+using ::dim3;
 #else
 struct dim3
 {
