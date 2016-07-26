@@ -25,12 +25,12 @@
  * @file  mirtk/Voxel.h
  * @brief Deprecated definition of voxel data types.
  *
- * \deprecated This file may be removed from future releases. Include the
- *             header file mirtk/DataTypes.h instead which defines the new
- *             T_ enumeration values such as T_Grey, T_Real, and others.
+ * \deprecated This file may be removed from future releases.
  */
 
-#include "mirtk/DataTypes.h"
+#include "mirtk/DataType.h"
+#include "mirtk/Types.h"
+#include "mirtk/TypeTraits.h"
 #include "mirtk/Vector3D.h"
 #include "mirtk/Vector4D.h"
 

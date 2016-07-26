@@ -22,13 +22,14 @@
 
 #include "mirtk/Config.h"
 
-#include "mirtk/DataTypes.h"
+#include "mirtk/Types.h"
 #include "mirtk/Constants.h"
 #include "mirtk/CutilMath.h"
 
 #include <cmath>
 #include <cfloat>
 #include <algorithm>
+#include <limits>
 
 
 namespace mirtk {
@@ -163,7 +164,7 @@ MIRTKCU_API inline double finc(double f)
 {
   int e;
   double m = frexp(f, &e);
-  return ::ldexp(m + numeric_limits<double>::epsilon(), e);
+  return ::ldexp(m + std::numeric_limits<double>::epsilon(), e);
 }
 
 // -----------------------------------------------------------------------------
@@ -173,7 +174,7 @@ MIRTKCU_API inline double fdec(double f)
 {
   int e;
   double m = frexp(f, &e);
-  return ::ldexp(m - numeric_limits<double>::epsilon(), e);
+  return ::ldexp(m - std::numeric_limits<double>::epsilon(), e);
 }
 
 // -----------------------------------------------------------------------------

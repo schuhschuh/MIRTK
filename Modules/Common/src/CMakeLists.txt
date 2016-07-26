@@ -42,7 +42,6 @@ set(HEADERS
   CudaTypes.h
   CutilMath.h
   DataType.h
-  DataTypes.h
   Deallocate.h
   EnergyMeasure.h
   Event.h
@@ -76,7 +75,9 @@ set(HEADERS
   System.h
   Terminal.h
   TestProd.h
+  Types.h
   TypeCast.h
+  TypeTraits.h
   UnorderedMap.h
   UnorderedSet.h
   Utils.h

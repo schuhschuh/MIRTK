@@ -20,7 +20,8 @@
 #ifndef MIRTK_TypeCast_H
 #define MIRTK_TypeCast_H
 
-#include "mirtk/DataTypes.h"
+#include "mirtk/Types.h"
+#include "mirtk/TypeTraits.h"
 #include "mirtk/Stream.h" // TODO: Throw logic_error exception instead of cerr+exit
 
 

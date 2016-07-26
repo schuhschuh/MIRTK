@@ -17,7 +17,8 @@
  * limitations under the License.
  */
 
-#include "mirtk/DataTypes.h"
+#include "mirtk/DataType.h"
+#include "mirtk/Types.h"
 
 
 namespace mirtk {

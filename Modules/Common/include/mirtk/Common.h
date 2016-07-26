@@ -40,8 +40,10 @@
 
 // Standard functions/types
 #include "mirtk/Assert.h"
-#include "mirtk/DataTypes.h"
+#include "mirtk/DataType.h"
+#include "mirtk/Types.h"
 #include "mirtk/TypeCast.h"
+#include "mirtk/TypeTraits.h"
 #include "mirtk/Math.h"
 #include "mirtk/Memory.h"
 #include "mirtk/String.h"
