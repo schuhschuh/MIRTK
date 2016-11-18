@@ -1715,19 +1715,25 @@ bool FindCuttingPlane(vtkSmartPointer<vtkPolyData> surface,
   if (ds <= 0.) ds = AverageEdgeLength(surface);
 
   // Abort search after the specified number of suitable planes were found
-  const int  max_suitable_planes  = 10;
-  const bool prefer_default_plane = false;
+  int    max_suitable_planes  = 10;
+  bool   prefer_default_plane = true;
+  double max_angle            = 1.;
+  double delta_angle          = 0.2;
+
+  if (call == 1) {
+    max_suitable_planes  = 20;
+    prefer_default_plane = false;
+    max_angle            = 20.;
+    delta_angle          =  2.;
+  }
 
   // Compute cutting plane from segmentation boundary points
   const PlaneAttributes attr = CuttingPlaneAttributes(boundary);
 
-  const double max_angle   = 20.;
-  const double delta_angle = 5.;
-
-  const double delta_offset = max_offset / 4.;
+  const double delta_offset = min(max_offset / 4., .25 * ds);
 
   const double margin   =  5. * ds;
-  const double bbmargin = 20. * ds;
+  const double bbmargin = 25. * ds;
 
   double    r, l;
   double    best_tn, best_rx, best_ry, best_l = inf;
@@ -1778,6 +1784,7 @@ bool FindCuttingPlane(vtkSmartPointer<vtkPolyData> surface,
   for (double angle = 0., rx, ry; angle <= max_angle && !abort; angle += delta_angle) {
     for (int dim = (angle > 0. ? 0 : 1); dim < 2 && !abort; ++dim) {
       if (dim == 0) {
+        continue; // skip
         rx = angle;
         ry = 0.;
       } else {
@@ -2534,9 +2541,10 @@ int main(int argc, char *argv[])
   bool   fill_source_label    = true;
   int    max_smooth_source    = 0;
   bool   output_largest_comp  = false;
-  bool   add_dividers         = false;
   bool   output_point_normals = true;
   bool   output_cell_normals  = true;
+  bool   add_dividers         = false;
+  double max_divider_offset   = NaN;
 
   const char *point_source_name = nullptr;
   const char *cell_source_name  = nullptr;
@@ -2666,6 +2674,9 @@ int main(int argc, char *argv[])
     else HANDLE_BOOLEAN_OPTION("join", join_boundaries);
     else HANDLE_BOOLEAN_OPTION("largest", output_largest_comp);
     else HANDLE_BOOLEAN_OPTION("dividers", add_dividers);
+    else if (OPTION("-max-divider-offset")) {
+      PARSE_ARGUMENT(max_divider_offset);
+    }
     else HANDLE_COMMON_OR_UNKNOWN_OPTION();
   }
 
@@ -2936,6 +2947,9 @@ int main(int argc, char *argv[])
         if (verbose > 1) cout << "\n";
         cout.flush();
       }
+      if (IsNaN(max_divider_offset) || max_divider_offset < 0.) {
+        max_divider_offset = 2. * tolerance;
+      }
       const EdgeTable edgeTable(output);
       const double ds = AverageEdgeLength(output->GetPoints(), edgeTable);
       vtkSmartPointer<vtkPolyData> plane, polygon, cut;
@@ -2951,7 +2965,7 @@ int main(int argc, char *argv[])
           msg += " boundary";
           cout << msg << "..." << endl;
         }
-        if (FindCuttingPlane(output, boundaries[i], plane, cut, 2. * tolerance, ds, snap_tolerance)) {
+        if (FindCuttingPlane(output, boundaries[i], plane, cut, max_divider_offset, ds, snap_tolerance)) {
           if (debug > 0) {
             char fname[64];
             snprintf(fname, 64, "debug_cutting_plane_%d.vtp", static_cast<int>(boundaries.size()) - i);
