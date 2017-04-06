@@ -34,6 +34,7 @@
 #include "mirtk/AffineTransformation.h"
 #include "mirtk/BSplineFreeFormTransformation3D.h"
 #include "mirtk/BSplineFreeFormTransformationSV.h"
+#include "mirtk/BSplineFreeFormTransformationTD.h"
 #include "mirtk/MultiLevelFreeFormTransformation.h"
 
 #if defined(HAVE_VTK) && MIRTK_IO_WITH_VTK
@@ -182,6 +183,52 @@ Array<int> ReadCorrespondences(const char *fname, int n1, int n2)
 }
 
 // -----------------------------------------------------------------------------
+/// Read input transformation names and corresponding time points from text file
+int ReadTransformationNames(const char *fname,
+                            Array<string> &names,
+                            Array<double> &times,
+                            const char *delim = nullptr)
+{
+  names.clear();
+  times.clear();
+
+  if (!delim) {
+    const string ext = Extension(fname, EXT_Last);
+    if      (ext == ".csv") delim = ",";
+    else if (ext == ".tsv") delim = "\t";
+    else                    delim = " ";
+  }
+  bool discard_empty = (strcmp(delim, " ") == 0 || strcmp(delim, "\t") == 0);
+  bool handle_quotes = true;
+
+  int l = 0;
+  string line;
+  ifstream iff(fname);
+  while (getline(iff, line)) {
+    l++;
+    line = Trim(line);
+    // Ignore empty lines and comment lines starting with # character
+    if (line.empty() || line[0] == '#') continue;
+    // Split line at delimiter
+    auto columns = Split(line, delim, 0, discard_empty, handle_quotes);
+    if (!columns.empty()) {
+      if (columns.size() > 2) {
+        FatalError("Expected input transformations table names file to have at most two columns!");
+      }
+      names.push_back(columns[0]);
+      times.resize(names.size(), NaN);
+      if (columns.size() > 1) {
+        if (!FromString(columns[1], times.back())) {
+          FatalError("Could not parse temporal origin of transformation on line " << l << ": " << columns[1]);
+        }
+      }
+    }
+  }
+
+  return static_cast<int>(names.size());
+}
+
+// -----------------------------------------------------------------------------
 FreeFormTransformation3D *
 BSplineFFD(const AffineTransformation &dof, const ImageAttributes &attr, double sx, double sy, double sz)
 {
@@ -277,11 +324,13 @@ int main(int argc, char **argv)
   double      sx             = .0;    // Control point spacing in x = voxel size by default
   double      sy             = .0;    // Control point spacing in y = voxel size by default
   double      sz             = .0;    // Control point spacing in z = voxel size by default
+  double      st             = .0;    // Control point spacing in t
   bool        similarity     = false; // Isotropic scaling
   bool        multilevel     = false; // Create multi-level FFD
   bool        nonrigid       = false; // Create non-rigid transformation
   bool        diffeomorphic  = false; // B-spline FFD or affine transformation by default
   int         nsubdiv        = 4;     // No. of subdivisions to approximate non-linear deformation
+  const char *doflst = nullptr, *dofpre = "", *dofsuf = "", *delim = nullptr;
   Array<PointSetPair> psets;
 
   for (ALL_OPTIONS) {
@@ -417,17 +466,35 @@ int main(int argc, char **argv)
       }
       psets.push_back(p);
     }
+    else if (OPTION("-dofnames")) {
+      doflst = ARGUMENT;
+    }
+    else if (OPTION("-prefix")) {
+      dofpre = ARGUMENT;
+    }
+    else if (OPTION("-suffix")) {
+      dofsuf = ARGUMENT;
+    }
+    else if (OPTION("-delim") || OPTION("-delimiter")) {
+      delim = ARGUMENT;
+    }
     // FFD lattice attributes
-    else if (OPTION("-dx"))  sx = atof(ARGUMENT);
-    else if (OPTION("-dy"))  sy = atof(ARGUMENT);
-    else if (OPTION("-dz"))  sz = atof(ARGUMENT);
-    else if (OPTION("-ds"))  sx = sy = sz = atof(ARGUMENT);
-    else if (OPTION("-subdiv")) nsubdiv = atoi(ARGUMENT);
+    else if (OPTION("-dx")) PARSE_ARGUMENT(sx);
+    else if (OPTION("-dy")) PARSE_ARGUMENT(sy);
+    else if (OPTION("-dz")) PARSE_ARGUMENT(sz);
+    else if (OPTION("-dt")) PARSE_ARGUMENT(st);
+    else if (OPTION("-ds")) {
+      PARSE_ARGUMENT(sx);
+      sy = sz = sx;
+    }
+    else if (OPTION("-subdiv")) {
+      PARSE_ARGUMENT(nsubdiv);
+    }
     // Target/source image
     else if (OPTION("-target")) target_name = ARGUMENT;
     else if (OPTION("-source")) source_name = ARGUMENT;
-    else if (OPTION("-Tp")) target_padding = atof(ARGUMENT);
-    else if (OPTION("-Sp")) source_padding = atof(ARGUMENT);
+    else if (OPTION("-Tp")) PARSE_ARGUMENT(target_padding);
+    else if (OPTION("-Sp")) PARSE_ARGUMENT(source_padding);
     // Common or unknown option
     else HANDLE_COMMON_OR_UNKNOWN_OPTION();
   }
@@ -482,7 +549,7 @@ int main(int argc, char **argv)
   // ---------------------------------------------------------------------------
   // Usage 2) Create affine (FFD) transformation from parameter values read
   //          from command-line or input transformation file
-  else if (psets.empty()) {
+  else if (psets.empty() && !doflst) {
 
     // Initialize affine transformation from target and source image attributes
     if (source_name && dof.IsIdentity()) {
@@ -535,7 +602,85 @@ int main(int argc, char **argv)
     }
 
   // ---------------------------------------------------------------------------
-  // Usage 3) Create transformation which approximates given point displacements
+  // Usage 3) Create 3D+t transformation which approximates n 3D transformations
+  } else if (st > 0.) {
+
+    if (!psets.empty() || !doflst) {
+      FatalError("Can currently only create 3D+t TD FFD from SV FFDs");
+    }
+
+    Array<string> names;
+    Array<double> times;
+    int m = ReadTransformationNames(doflst, names, times, delim);
+    if (m == 0) {
+      FatalError("No transformations found in -dofnames file: " << doflst);
+    }
+
+    int n = 0;
+    for (int i = 0; i < m; ++i) {
+      if (dofpre) names[i] = string(dofpre) + names[i];
+      if (dofsuf) names[i] += dofsuf;
+      Transformation *dof = Transformation::New(names[i].c_str());
+      auto svffd = dynamic_cast<BSplineFreeFormTransformationSV *>(dof);
+      if (svffd) {
+        n += svffd->NumberOfActiveCPs();
+      } else {
+        FatalError("Can currently ony create 3D+t TD FFD from SV FFDs");
+      }
+    }
+
+    double *x  = Allocate<double>(n);
+    double *y  = Allocate<double>(n);
+    double *z  = Allocate<double>(n);
+    double *t  = Allocate<double>(n);
+    double *vx = Allocate<double>(n);
+    double *vy = Allocate<double>(n);
+    double *vz = Allocate<double>(n);
+
+    double tmin = +inf;
+    double tmax = -inf;
+
+    int idx = 0;
+    for (int l = 0; l < m; ++l) {
+      BSplineFreeFormTransformationSV svffd;
+      svffd.Read(names[l].c_str());
+      if (IsNaN(times[l])) {
+        times[l] = svffd.Attributes()._torigin;
+      }
+      if (times[l] < tmin) tmin = times[l];
+      if (times[l] > tmax) tmax = times[l];
+      for (int k = 0; k < svffd.Z(); ++k)
+      for (int j = 0; j < svffd.Y(); ++j)
+      for (int i = 0; i < svffd.X(); ++i) {
+        if (svffd.IsActive(i, j, k)) {
+          x[idx] = i, y[idx] = j, z[idx] = k;
+          svffd.LatticeToWorld(x[idx], y[idx], z[idx]);
+          t[idx] = times[l];
+          vx[idx] = i, vy[idx] = j, vz[idx] = k;
+          svffd.Evaluate(vx[idx], vy[idx], vz[idx]);
+          ++idx;
+        }
+      }
+    }
+
+    ImageAttributes domain = attr;
+    domain._t       = 2;
+    domain._torigin = tmin;
+    domain._dt      = tmax - tmin;
+    BSplineFreeFormTransformationTD tdffd(domain, sx, sy, sz, st);
+    tdffd.BSplineFreeFormTransformation4D::ApproximateDOFs(x, y, z, t, vx, vy, vz, n);
+    tdffd.Write(dofout_name);
+
+    // Free velocities
+    Deallocate(x);
+    Deallocate(y);
+    Deallocate(z);
+    Deallocate(vx);
+    Deallocate(vy);
+    Deallocate(vz);
+
+  // ---------------------------------------------------------------------------
+  // Usage 4) Create transformation which approximates given point displacements
   } else {
 
     // -------------------------------------------------------------------------
@@ -716,7 +861,7 @@ int main(int argc, char **argv)
     }
 
     // -------------------------------------------------------------------------
-    // 2a) Find non-rigid (M)FFD which approximates the input displacements
+    // 4a) Find non-rigid (M)FFD which approximates the input displacements
     if (nonrigid) {
 
       sx *= pow(2.0, nsubdiv-1);
@@ -783,7 +928,7 @@ int main(int argc, char **argv)
       Deallocate(rz);
 
     // -------------------------------------------------------------------------
-    // 2b) Find affine transformation which approximates the input displacements
+    // 4b) Find affine transformation which approximates the input displacements
     } else {
 
       // Minimize mean squared error of approximation
