@@ -2,7 +2,7 @@
 # Medical Image Registration ToolKit (MIRTK)
 #
 # Copyright 2017 Imperial College London
-# Copyright 2017 Andreas Schuh
+# Copyright 2017-2019 Andreas Schuh
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -365,7 +365,7 @@ class SpatioTemporalAtlas(object):
                 l = int(label)
                 label = l
             except ValueError:
-                label = label.split(",")
+                label = [int(l) for l in label.split(",")]
         else:
             label = 0
         return (channel, label)
@@ -720,7 +720,7 @@ class SpatioTemporalAtlas(object):
             return "identity"
         dof = os.path.join(self.subdir(step), "dof", "growth", "{0}.dof.gz".format(self.timename(t1, t2)))
         if step < 1:
-            return path if os.path.exists(dof) else "identity"
+            return dof if os.path.exists(dof) else "identity"
         if create and (force or not os.path.exists(dof)):
             dofs = [
                 self.avgdof(t1, step=step, force=force, create=not batch),
@@ -831,6 +831,7 @@ class SpatioTemporalAtlas(object):
         """Transform sample image to atlas space at given time point."""
         if not channel:
             channel = self.channel
+        channel, _ = self.splitchannel(channel)
         if not path:
             path = os.path.join(self.subdir(step), channel, self.timename(t), imgid + ".nii.gz")
         if create and (force or not os.path.exists(path)):
@@ -907,7 +908,6 @@ class SpatioTemporalAtlas(object):
         t = self.normtime(t)
         if not channel:
             channel = self.channel
-        image = self.config["images"][channel]
         table = os.path.join(self.subdir(step), "config", "{t}-{channel}.tsv".format(t=self.timename(t), channel=channel))
         if create and (force or not os.path.exists(table)):
             weights = self.weights(t)
@@ -1012,7 +1012,13 @@ class SpatioTemporalAtlas(object):
             channels = self.regcfg(step).get("channels", self.channel)
         if not isinstance(channels, list):
             channels = [channels]
-        if not isinstance(labels, dict):
+        if not labels:
+            labels = {}
+            for channel in channels:
+                channel, label = self.splitchannel(channel)
+                labels[channel] = label
+            channels = list(labels.keys())
+        elif not isinstance(labels, dict):
             dlabels = {}
             for channel in channels:
                 dlabels[channel] = labels
@@ -1034,6 +1040,8 @@ class SpatioTemporalAtlas(object):
                             segments = parselabels(self.config["images"][channel]["labels"])
                         else:
                             segments = parselabels(lbls)
+                    elif isinstance(lbls, int):
+                        segments = [lbls]
                     else:
                         segments = lbls
             for segment in segments:
