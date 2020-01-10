@@ -35,13 +35,16 @@ PYTHON="/usr/bin/env python"  # target system Python interpreter
 if [ $TRAVIS = ON ]; then
   sudo apt-get install -y tree
   cd "$TRAVIS_BUILD_DIR/Build"
+  SRCDIR="$TRAVIS_BUILD_DIR"
   OUTDIR="$TRAVIS_BUILD_DIR/Deploy"
 else
-  OUTDIR="$(cd "$(dirname "$BASH_SOURCE")/.." && pwd)/Deploy"
+  [ ! -f CMakeCache.txt ] || SRCDIR="$(grep MIRTK_SOURCE_DIR CMakeCache.txt | cut -d= -f2)"
+  [ -n "$SRCDIR" ] || SRCDIR="$(cd "$(dirname "$BASH_SOURCE")/.." && pwd)"
+  OUTDIR="$SRCDIR/Deploy"
 fi
 
 APP='MIRTK'
-LOWERAPP=${APP,,}
+LOWERAPP="$(echo "$APP" | tr '[:upper:]' '[:lower:]')"
 RELEASE=''
 if [ $TRAVIS = ON ]; then
   if [ -n "$TRAVIS_TAG" ]; then
@@ -51,8 +54,8 @@ if [ $TRAVIS = ON ]; then
     VERSION="$TRAVIS_COMMIT"
   fi
 else
-  VERSION=$(git describe --tags --exact-match --abbrev=0 HEAD 2> /dev/null || true)
-  [ -n "$VERSION" ] || VERSION="$(git rev-parse --short HEAD)"
+  VERSION=$(cd "$SRCDIR" && git describe --tags --exact-match --abbrev=0 HEAD 2> /dev/null || true)
+  [ -n "$VERSION" ] || VERSION="$(cd "$SRCDIR" && git rev-parse --short HEAD)"
 fi
 if [ -z "$RELEASE" ]; then
   if [ $AppImage_LATEST = ON ]; then
@@ -143,7 +146,7 @@ done
 # Write custom AppRun script
 ########################################################################
 
-cp "$TRAVIS_BUILD_DIR/Documentation/static/logo.svg" "$APP.svg"
+cp "$SRCDIR/Documentation/static/logo.svg" "$APP.svg"
 
 cat -- > "$APP.desktop" <<EOF
 [Desktop Entry]
