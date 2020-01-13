@@ -365,7 +365,7 @@ class SpatioTemporalAtlas(object):
                 l = int(label)
                 label = l
             except ValueError:
-                label = [int(l) for l in label.split(",")]
+                label = label.split(",")
         else:
             label = 0
         return (channel, label)
@@ -449,10 +449,10 @@ class SpatioTemporalAtlas(object):
                 for c in range(len(channels)):
                     target = 2 * c + 1
                     source = 2 * c + 2
+                    channel = self.splitchannel(channels[c])[0]
                     if isinstance(measures, list):
                         measure = measures[c] if c < len(measures) else measures[-1]
                     elif isinstance(measures, dict):
-                        channel = self.splitchannel(channels[c])[0]
                         measure = measures.get(channel, "NMI")
                     else:
                         measure = measures
@@ -464,7 +464,8 @@ class SpatioTemporalAtlas(object):
                         term = "{sim}[{channel} sim](I({tgt}), I({src}) o T)"
                     if c > 0:
                         formula += " + "
-                    formula += term.format(sim=measure, channel=channels[c].capitalize().replace("=", " "), tgt=target, src=source)
+                    channel = channels[c].replace("=", " ").replace("..", "-").replace(",", "+")
+                    formula += term.format(sim=measure, channel=channel.capitalize(), tgt=target, src=source)
             if "bending" in cfg:
                 formula += " + 0 BE[Bending energy](T)"
             if "elasticity" in cfg:
@@ -936,7 +937,7 @@ class SpatioTemporalAtlas(object):
         if not path:
             if label:
                 if isinstance(label, (tuple, list)):
-                    lblstr = ','.join([str(l).strip() for l in label])
+                    lblstr = ",".join([str(l).strip() for l in label])
                 elif isinstance(label, int):
                     max_label = max(parselabels(cfg["labels"])) if "labels" in cfg else 9
                     lblstr = "{0:0{1}d}".format(label, len(str(max_label)))
@@ -1012,13 +1013,7 @@ class SpatioTemporalAtlas(object):
             channels = self.regcfg(step).get("channels", self.channel)
         if not isinstance(channels, list):
             channels = [channels]
-        if not labels:
-            labels = {}
-            for channel in channels:
-                channel, label = self.splitchannel(channel)
-                labels[channel] = label
-            channels = list(labels.keys())
-        elif not isinstance(labels, dict):
+        if not isinstance(labels, dict):
             dlabels = {}
             for channel in channels:
                 dlabels[channel] = labels
@@ -1031,19 +1026,23 @@ class SpatioTemporalAtlas(object):
             for t in ages:
                 imgs[channel][t] = []
         for channel in channels:
-            segments = [0]
-            if "labels" in self.config["images"][channel]:
-                lbls = labels.get(channel, [])
-                if lbls:
+            images = imgs[channel]
+            channel, label = self.splitchannel(channel)
+            if label:
+                segments = [label]
+            else:
+                if "labels" in self.config["images"][channel]:
+                    lbls = labels.get(channel, [0])
                     if isinstance(lbls, basestring):
                         if lbls.lower() == "all":
-                            segments = parselabels(self.config["images"][channel]["labels"])
-                        else:
-                            segments = parselabels(lbls)
+                            lbls = self.config["images"][channel]["labels"]
+                        segments = parselabels(lbls)
                     elif isinstance(lbls, int):
                         segments = [lbls]
                     else:
                         segments = lbls
+                else:
+                    segments = [0]
             for segment in segments:
                 for t in ages:
                     img = self.avgimg(t, channel=channel, label=segment, sharpen=sharpen, outdir=outdir, step=step,
@@ -1055,9 +1054,9 @@ class SpatioTemporalAtlas(object):
                         )
                         tasks += 1
                     if len(segments) == 1:
-                        imgs[channel][t] = img
+                        images[t] = img
                     else:
-                        imgs[channel][t].append(img)
+                        images[t].append(img)
         if create and queue:
             job = self._submit(batchname, script=script, tasks=tasks, step=step, queue=queue)
         else:
