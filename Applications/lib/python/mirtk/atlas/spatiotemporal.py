@@ -986,7 +986,7 @@ class SpatioTemporalAtlas(object):
                     elif "rescaling" in cfg:
                         opts["rescaling"] = cfg["rescaling"]
                 else:
-                    opts["threshold"] = .5
+                    opts["threshold"] = cfg.get("threshold", .5)
                     opts["normalization"] = cfg.get("normalization", "zscore")
                     opts["rescaling"] = cfg.get("rescaling", [0, 100])
                     if sharpen:
