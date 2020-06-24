@@ -1160,7 +1160,7 @@ class SpatioTemporalAtlas(object):
         channels = [channel for channel in self.config["images"].keys() if channel not in ("default", "ref")]
         job = self.defimgs(channels=channels, ages=ages, decomposed=decomposed_imgdofs, force=force, queue=queue["short"])[0]
         self.wait(job, interval=30, verbose=1)
-        job = self.avgimgs(channels=channels, ages=ages, force=force, queue=queue["short"], outdir=outdir)[0]
+        job = self.avgimgs(channels=channels, labels="all", ages=ages, force=force, queue=queue["short"], outdir=outdir)[0]
         self.wait(job, interval=60, verbose=2)
         self.info("Finished atlas construction!")
 
